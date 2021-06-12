@@ -13,13 +13,80 @@ class _IntroPageState extends State<IntroPage> {
   final introKey = GlobalKey<IntroductionScreenState>();
   String? _petType;
   String? _petBreeds;
-  //var myPetType, myPetBreeds;
+  TextEditingController petTypeController = TextEditingController();
+  TextEditingController petBreedsController = TextEditingController();
+  String myPetType = '請選擇';
+  String myPetBreeds = '請選擇';
 
   List<String> _default = [];
-  List<String> _dogBreeds = ['柯基', '臘腸', '吉娃娃', '馬爾濟斯', '拉不拉多'];
-  List<String> _catBreeds = ['虎斑', '金吉拉', '波斯貓', '橘貓', '玳瑁'];
-  List<String> _rabbitBreeds = ['道奇兔', '獅子兔', '家兔', '銀狐'];
-  List<String> _turtleBreeds = ['巴西龜', '象龜', '蛇龜'];
+  List<String> _dogBreeds = [
+    '博美',
+    '法鬥',
+    '臘腸',
+    '貴賓',
+    '柯基',
+    '柴犬',
+    '比熊犬',
+    '巴哥犬',
+    '米格魯',
+    '牧羊犬',
+    '哈士奇',
+    '吉娃娃',
+    '薩摩耶',
+    '雪納瑞',
+    '約克夏',
+    '蝴蝶犬',
+    '馬爾濟斯',
+    '拉不拉多',
+    '黃金獵犬',
+    '自行輸入'
+  ];
+  List<String> _catBreeds = [
+    '虎斑貓',
+    '波斯貓',
+    '玳瑁貓',
+    '暹羅貓',
+    '布偶貓',
+    '三色貓',
+    '迷克斯',
+    '曼赤肯貓',
+    '美國短毛貓',
+    '英國短毛貓',
+    '自行輸入'
+  ];
+  List<String> _rabbitBreeds = [
+    '道奇兔',
+    '海棠兔',
+    '獅子兔',
+    '銀貂兔',
+    '香檳兔',
+    '奶油兔',
+    '銀狐兔',
+    '斑點兔',
+    '金吉拉兔',
+    '安哥拉兔',
+    '比利時兔',
+    '黃暹羅兔',
+    '黑暹羅兔',
+    '白暹羅兔',
+    '波蘭白兔',
+    '雷克斯兔',
+    '長毛垂耳兔',
+    '短毛垂耳兔',
+    '紐西蘭大白兔',
+    '自行輸入'
+  ];
+  List<String> _turtleBreeds = [
+    '蛋龜',
+    '擬鱷龜',
+    '平胸龜',
+    '中華花龜',
+    '中華草龜',
+    '黃喉擬水龜',
+    '巴西紅耳龜',
+    '三線閉殼龜',
+    '自行輸入'
+  ];
 
   void _onIntroEnd(context) {
     Navigator.of(context).pushReplacement(new MaterialPageRoute(
@@ -46,7 +113,6 @@ class _IntroPageState extends State<IntroPage> {
                 style: TextStyle(
                   color: HexColor('#D7CCC8'),
                   fontSize: 20,
-                  fontFamily: 'Roboto',
                   letterSpacing: 1.5,
                 ),
               ),
@@ -67,7 +133,6 @@ class _IntroPageState extends State<IntroPage> {
                 style: TextStyle(
                   color: HexColor('#D7CCC8'),
                   fontSize: 20,
-                  fontFamily: 'Roboto',
                   letterSpacing: 1.5,
                 ),
               ),
@@ -79,31 +144,69 @@ class _IntroPageState extends State<IntroPage> {
                 alignment: Alignment.center,
                 child: DropdownButton<String>(
                   isExpanded: true,
+                  dropdownColor: HexColor('#C4C4C4'),
                   value: _petType,
                   onChanged: (value) {
                     setState(() {
                       _petType = value;
                     });
+                    myPetBreeds = "請選擇";
                     _default.clear();
                     switch (_petType) {
                       case "狗狗":
+                        myPetType = "狗狗";
                         _default.addAll(_dogBreeds);
                         break;
                       case "貓咪":
+                        myPetType = "貓咪";
                         _default.addAll(_catBreeds);
                         break;
                       case "兔子":
+                        myPetType = "兔子";
                         _default.addAll(_rabbitBreeds);
                         break;
                       case "烏龜":
+                        myPetType = "烏龜";
                         _default.addAll(_turtleBreeds);
                         break;
                       case "其他":
-                        print("自行輸入");
+                        _default.add("自行輸入");
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text('自行輸入寵物類型'),
+                                actions: <Widget>[
+                                  TextFormField(
+                                    controller: petTypeController,
+                                    decoration: const InputDecoration(
+                                      icon: Icon(Icons.pets),
+                                      hintText: '請輸入寵物的類型',
+                                    ),
+                                  ),
+                                  Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: <Widget>[
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.pop(context, 'Cancel'),
+                                          child: const Text('取消'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context, 'OK');
+                                          },
+                                          child: const Text('確定'),
+                                        ),
+                                      ]),
+                                ],
+                              );
+                            });
                         break;
                       default:
                         _default.clear();
                     }
+                    _petBreeds = null;
                   },
                   items: <String>['狗狗', '貓咪', '兔子', '烏龜', '其他']
                       .map<DropdownMenuItem<String>>((String type) {
@@ -127,7 +230,6 @@ class _IntroPageState extends State<IntroPage> {
                 style: TextStyle(
                   color: HexColor('#D7CCC8'),
                   fontSize: 20,
-                  fontFamily: 'Roboto',
                   letterSpacing: 1.5,
                 ),
               ),
@@ -139,7 +241,7 @@ class _IntroPageState extends State<IntroPage> {
                 alignment: Alignment.center,
                 child: DropdownButton(
                   hint: Text(
-                    "選擇寵物品種",
+                    "選擇寵物品種(花色)",
                     style: TextStyle(
                       color: HexColor('#000000'),
                     ),
@@ -150,7 +252,45 @@ class _IntroPageState extends State<IntroPage> {
                   onChanged: (String? value) {
                     setState(() {
                       _petBreeds = value;
+                      myPetBreeds = value.toString();
                     });
+                    switch (value) {
+                      case "自行輸入":
+                        showDialog(
+                            context: context,
+                            builder: (BuildContext context) {
+                              return AlertDialog(
+                                title: Text('自行輸入寵物品種(花色)'),
+                                actions: <Widget>[
+                                  TextFormField(
+                                    controller: petBreedsController,
+                                    decoration: const InputDecoration(
+                                      icon: Icon(Icons.pets),
+                                      hintText: '請輸入寵物的品種(花色)',
+                                    ),
+                                  ),
+                                  Row(
+                                      mainAxisAlignment: MainAxisAlignment.end,
+                                      children: <Widget>[
+                                        TextButton(
+                                          onPressed: () =>
+                                              Navigator.pop(context, 'Cancel'),
+                                          child: const Text('取消'),
+                                        ),
+                                        TextButton(
+                                          onPressed: () {
+                                            Navigator.pop(context, 'OK');
+                                          },
+                                          child: const Text('確定'),
+                                        ),
+                                      ]),
+                                ],
+                              );
+                            });
+                        break;
+                      default:
+                        print("default_breeds");
+                    }
                   },
                   items: _default.map<DropdownMenuItem<String>>((breeds) {
                     return DropdownMenuItem<String>(
@@ -160,6 +300,26 @@ class _IntroPageState extends State<IntroPage> {
                   }).toList(),
                 ),
               ),
+              SizedBox(height: 40),
+              Column(children: <Widget>[
+                Text(
+                  '我的寵物類型：$myPetType',
+                  style: TextStyle(
+                    color: HexColor('#D7CCC8'),
+                    fontSize: 15,
+                    letterSpacing: 1.5,
+                  ),
+                ),
+                SizedBox(height: 5),
+                Text(
+                  '我的寵物品種：$myPetBreeds',
+                  style: TextStyle(
+                    color: HexColor('#D7CCC8'),
+                    fontSize: 15,
+                    letterSpacing: 1.5,
+                  ),
+                ),
+              ])
             ],
           ),
           margin: EdgeInsets.all(35.0),
@@ -178,7 +338,6 @@ class _IntroPageState extends State<IntroPage> {
                 style: TextStyle(
                   color: HexColor('#D7CCC8'),
                   fontSize: 20,
-                  fontFamily: 'Roboto',
                   letterSpacing: 1.5,
                 ),
               ),
@@ -260,12 +419,12 @@ class _IntroPageState extends State<IntroPage> {
       /* Skip Button */
       skip: const Text('跳過'),
       showSkipButton: true,
-      skipFlex: 0,
+      skipFlex: 1,
 
       /* Next Button */
       next: const Text('下一頁'),
       showNextButton: true,
-      nextFlex: 0,
+      nextFlex: 1,
 
       /* Done Button */
       done: const Text('完成'),
@@ -278,6 +437,7 @@ class _IntroPageState extends State<IntroPage> {
         color: HexColor("#A69B97"),
         activeColor: HexColor("#725b53"),
       ),
+      dotsFlex: 1,
     );
   }
 }
