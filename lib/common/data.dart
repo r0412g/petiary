@@ -1,7 +1,8 @@
-class AllDataModel {
+class AllPetModel {
   static String? petType;
   static String? petBreeds;
-  static bool checkFirstSeen = false;
+
+  static String defaultImage = 'assets/paw.jpg';
 
   static List<String> defaultBreeds = [];
   static List<String> dogBreeds = [
@@ -24,7 +25,7 @@ class AllDataModel {
     '馬爾濟斯',
     '拉不拉多',
     '黃金獵犬',
-    '其他'
+    '自行輸入'
   ];
   static List<String> catBreeds = [
     '虎斑貓',
@@ -33,11 +34,11 @@ class AllDataModel {
     '暹羅貓',
     '布偶貓',
     '三色貓',
-    '米克斯',
+    '迷克斯',
     '曼赤肯貓',
     '美國短毛貓',
     '英國短毛貓',
-    '其他'
+    '自行輸入'
   ];
   static List<String> rabbitBreeds = [
     '道奇兔',
@@ -59,7 +60,7 @@ class AllDataModel {
     '長毛垂耳兔',
     '短毛垂耳兔',
     '紐西蘭大白兔',
-    '其他'
+    '自行輸入'
   ];
   static List<String> turtleBreeds = [
     '蛋龜',
@@ -70,6 +71,6 @@ class AllDataModel {
     '黃喉擬水龜',
     '巴西紅耳龜',
     '三線閉殼龜',
-    '其他'
+    '自行輸入'
   ];
 }

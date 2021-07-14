@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
-import 'package:pet_diary/splash_page.dart';
-import 'package:pet_diary/bottom_navigation_bar_page/home_page.dart';
-import 'package:pet_diary/bottom_navigation_bar_page/hospital_page.dart';
-import 'package:pet_diary/bottom_navigation_bar_page/calendar_page.dart';
-import 'setting_page/setting_page.dart';
+import 'page/splash_page.dart';
+import 'page/home_page.dart';
+import 'page/hospital_page.dart';
+import 'page/calendar_page.dart';
+import 'page/setting_page.dart';
 import 'package:pet_diary/common/theme.dart';
+import 'package:provider/provider.dart';
+import 'package:pet_diary/models/pet_model.dart';
 
 void main() => runApp(MainClass());
 
@@ -12,11 +14,16 @@ void main() => runApp(MainClass());
 class MainClass extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Pet Diary', // 開啟所有app管理時會看到
-      theme: appTheme,
-      debugShowCheckedModeBanner: false, // 去除Debug標誌
-      home: SplashPage(),
+    return MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => MyPetModel()),
+      ],
+      child: MaterialApp(
+        title: 'Pet Diary', // 開啟所有app管理時會看到
+        theme: appTheme,
+        debugShowCheckedModeBanner: false, // 去除Debug標誌
+        home: SplashPage(),
+      ),
     );
   }
 }
@@ -51,7 +58,7 @@ class _MyHomePageState extends State<MyHomePage> {
                 Navigator.push(context,
                     MaterialPageRoute(builder: (context) => SettingPage()));
               },
-              icon: Icon(Icons.settings))
+              icon: const Icon(Icons.settings))
         ],
       ),
       body: Center(
@@ -61,19 +68,19 @@ class _MyHomePageState extends State<MyHomePage> {
         showUnselectedLabels: true,
         type: BottomNavigationBarType.shifting,
         items: <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             backgroundColor: ColorSet.primaryColors,
-            icon: Icon(Icons.home_outlined),
+            icon: const Icon(Icons.home_outlined),
             label: '主頁',
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             backgroundColor: ColorSet.primaryColors,
-            icon: Icon(Icons.local_hospital_outlined),
+            icon: const Icon(Icons.local_hospital_outlined),
             label: '就醫紀錄',
           ),
-          BottomNavigationBarItem(
+          const BottomNavigationBarItem(
             backgroundColor: ColorSet.primaryColors,
-            icon: Icon(Icons.calendar_today_outlined),
+            icon: const Icon(Icons.calendar_today_outlined),
             label: '行事曆',
           ),
         ],
