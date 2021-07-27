@@ -8,10 +8,10 @@ import 'package:intl/intl.dart';
 import 'package:introduction_screen/introduction_screen.dart';
 import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:pet_diary/common/data.dart';
+import 'package:pet_diary/common/theme.dart';
 import 'package:pet_diary/main.dart';
 import 'package:pet_diary/models/pet_model.dart';
-import 'package:pet_diary/common/theme.dart';
-import 'package:pet_diary/common/data.dart';
 import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toggle_switch/toggle_switch.dart';
@@ -144,6 +144,8 @@ class _IntroPageState extends State<IntroPage> {
     MyPetModel myPet = Provider.of<MyPetModel>(context, listen: false);
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
+    await prefs.setBool('keyChecked', true);
+
     // Save pet name if user have input
     if (introNameController.text != '') {
       myPet.setName(introNameController.text);
@@ -209,45 +211,45 @@ class _IntroPageState extends State<IntroPage> {
                     child: DropdownButton<String>(
                       isExpanded: true,
                       dropdownColor: ColorSet.thirdColors,
-                      value: AllPetModel.petType,
+                      value: AllDataModel.petType,
                       onChanged: (value) async {
                         SharedPreferences prefs =
                             await SharedPreferences.getInstance();
                         setState(() {
-                          AllPetModel.petType = value;
+                          AllDataModel.petType = value;
                           myPet.setBreeds("請選擇");
                         });
-                        AllPetModel.defaultBreeds.clear();
+                        AllDataModel.defaultBreeds.clear();
                         myPet.setBreeds('');
                         await prefs.setString('keyPetBreeds', '');
                         /* Change Breeds List By Select Different Type */
-                        switch (AllPetModel.petType) {
+                        switch (AllDataModel.petType) {
                           case "狗狗":
                             myPet.setType("狗狗");
                             prefs.setString('keyPetType', '狗狗');
-                            AllPetModel.defaultBreeds
-                                .addAll(AllPetModel.dogBreeds);
+                            AllDataModel.defaultBreeds
+                                .addAll(AllDataModel.dogBreeds);
                             break;
                           case "貓咪":
                             myPet.setType("貓咪");
                             prefs.setString('keyPetType', '貓咪');
-                            AllPetModel.defaultBreeds
-                                .addAll(AllPetModel.catBreeds);
+                            AllDataModel.defaultBreeds
+                                .addAll(AllDataModel.catBreeds);
                             break;
                           case "兔子":
                             myPet.setType("兔子");
                             prefs.setString('keyPetType', '兔子');
-                            AllPetModel.defaultBreeds
-                                .addAll(AllPetModel.rabbitBreeds);
+                            AllDataModel.defaultBreeds
+                                .addAll(AllDataModel.rabbitBreeds);
                             break;
                           case "烏龜":
                             myPet.setType("烏龜");
                             prefs.setString('keyPetType', '烏龜');
-                            AllPetModel.defaultBreeds
-                                .addAll(AllPetModel.turtleBreeds);
+                            AllDataModel.defaultBreeds
+                                .addAll(AllDataModel.turtleBreeds);
                             break;
                           case "其他":
-                            AllPetModel.defaultBreeds.add("自行輸入");
+                            AllDataModel.defaultBreeds.add("自行輸入");
                             showDialog(
                                 context: context,
                                 builder: (BuildContext context) {
@@ -257,7 +259,7 @@ class _IntroPageState extends State<IntroPage> {
                                       TextFormField(
                                         controller: introTypeController,
                                         decoration: const InputDecoration(
-                                          icon: const Icon(Icons.pets),
+                                          prefixIcon: const Icon(Icons.pets),
                                           hintText: '請輸入寵物的類型',
                                         ),
                                       ),
@@ -290,7 +292,7 @@ class _IntroPageState extends State<IntroPage> {
                           default:
                           /**/
                         }
-                        AllPetModel.petBreeds = null;
+                        AllDataModel.petBreeds = null;
                       },
                       items: <String>['狗狗', '貓咪', '兔子', '烏龜', '其他']
                           .map<DropdownMenuItem<String>>((String type) {
@@ -320,7 +322,7 @@ class _IntroPageState extends State<IntroPage> {
                       hint: const Text(
                         "選擇寵物品種(花色)",
                       ),
-                      value: AllPetModel.petBreeds,
+                      value: AllDataModel.petBreeds,
                       isExpanded: true,
                       dropdownColor: ColorSet.thirdColors,
                       onChanged: (String? value) async {
@@ -328,7 +330,7 @@ class _IntroPageState extends State<IntroPage> {
                             await SharedPreferences.getInstance();
                         await prefs.setString('keyPetBreeds', value.toString());
                         setState(() {
-                          AllPetModel.petBreeds = value;
+                          AllDataModel.petBreeds = value;
                           myPet.setBreeds(value.toString());
                         });
                         switch (value) {
@@ -342,7 +344,7 @@ class _IntroPageState extends State<IntroPage> {
                                       TextFormField(
                                         controller: introBreedsController,
                                         decoration: const InputDecoration(
-                                          icon: const Icon(Icons.pets),
+                                          prefixIcon: const Icon(Icons.pets),
                                           hintText: '請輸入寵物的品種(花色)',
                                         ),
                                       ),
@@ -381,7 +383,7 @@ class _IntroPageState extends State<IntroPage> {
                           /**/
                         }
                       },
-                      items: AllPetModel.defaultBreeds
+                      items: AllDataModel.defaultBreeds
                           .map<DropdownMenuItem<String>>((breeds) {
                         return DropdownMenuItem<String>(
                           value: breeds,
@@ -417,7 +419,6 @@ class _IntroPageState extends State<IntroPage> {
           child: Center(
             child: SingleChildScrollView(
               child: Column(
-                //mainAxisAlignment: MainAxisAlignment.center,
                 children: <Widget>[
                   Text(
                     '來輸入寵物的基本資料吧!',
@@ -431,7 +432,7 @@ class _IntroPageState extends State<IntroPage> {
                       introImage != null
                           ? Image.file(File(introImage.path),
                               fit: BoxFit.fill, width: 125.0, height: 125.0)
-                          : Image.asset(AllPetModel.defaultImage,
+                          : Image.asset(AllDataModel.defaultImage,
                               fit: BoxFit.fill, width: 125.0, height: 125.0),
                       const SizedBox(width: 20.0),
                       SingleChildScrollView(

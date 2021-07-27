@@ -62,7 +62,7 @@ class _HomePageState extends State<HomePage> {
               myPet.getImagePath != ''
                   ? Image.file(File(myPet.getImagePath),
                       fit: BoxFit.fill, width: 150.0, height: 150.0)
-                  : Image.asset(AllPetModel.defaultImage,
+                  : Image.asset(AllDataModel.defaultImage,
                       fit: BoxFit.fill, width: 150.0, height: 150.0),
               const SizedBox(height: 10.0),
               Text('我的寵物：${myPet.getName}', style: contentStyle),

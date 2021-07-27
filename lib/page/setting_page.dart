@@ -1,7 +1,11 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:pet_diary/common/data.dart';
 import 'package:pet_diary/common/theme.dart';
-import 'setting_my_pet_page.dart';
+import 'package:pet_diary/models/setting_model.dart';
+import 'package:pet_diary/page/setting_my_pet_page.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingPage extends StatefulWidget {
   SettingPage({Key? key}) : super(key: key);
@@ -11,11 +15,25 @@ class SettingPage extends StatefulWidget {
 }
 
 class _SettingPageState extends State<SettingPage> {
-  bool _isSoundSwitched = true;
-  bool _isVibrationSwitched = false;
+  @override
+  void initState() {
+    super.initState();
+    _loadData(context);
+  }
+
+  _loadData(context) async {
+    SettingModel mySet = Provider.of<SettingModel>(context, listen: false);
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    setState(() {
+      mySet.setFirstDayOfWeek(prefs.getInt('keyFirstDayOfWeek') ?? 7);
+      mySet.setShowWeekNumber(prefs.getBool('keyShowWeekNumber') ?? false);
+      mySet.setIs24hourSystem(prefs.getBool('keyIs24hourSystem') ?? true);
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
+    var mySet = Provider.of<SettingModel>(context);
     return Scaffold(
       appBar: AppBar(
         title: const Text('設定'),
@@ -49,28 +67,91 @@ class _SettingPageState extends State<SettingPage> {
                 child: Column(
                   children: <Widget>[
                     const Text(
-                      '通知設定',
+                      '日曆設定',
                       style: const TextStyle(
                         fontWeight: FontWeight.bold,
                         fontSize: 20.0,
                       ),
                     ),
+                    const Divider(
+                      height: 30.0,
+                      thickness: 3.0,
+                      indent: 15.0,
+                      endIndent: 15.0,
+                      color: ColorSet.thirdColors,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+                      children: <Widget>[
+                        Text(
+                          '一周的第一天為：',
+                          style: TextStyle(fontSize: 17),
+                        ),
+                        DropdownButton<String>(
+                          value: AllDataModel.firstDayOfWeek,
+                          onChanged: (value) async {
+                            SharedPreferences prefs =
+                                await SharedPreferences.getInstance();
+                            setState(() {
+                              AllDataModel.firstDayOfWeek = value;
+                              switch (value) {
+                                case '星期日':
+                                  prefs.setInt('keyFirstDayOfWeek', 7);
+                                  mySet.setFirstDayOfWeek(7);
+                                  break;
+                                case '星期一':
+                                  prefs.setInt('keyFirstDayOfWeek', 1);
+                                  mySet.setFirstDayOfWeek(1);
+                                  break;
+                              }
+                            });
+                          },
+                          items: <String>['星期日', '星期一']
+                              .map<DropdownMenuItem<String>>((String week) {
+                            return DropdownMenuItem<String>(
+                              value: week,
+                              child: Text(week),
+                            );
+                          }).toList(),
+                          hint: Text(
+                            mySet.getFirstDayOfWeek == 1 ? '星期一' : '星期日',
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(
+                      height: 20.0,
+                    ),
                     SwitchListTile(
-                        title: const Text('聲音'),
+                        title: const Text('顯示週數?'),
+                        subtitle: mySet.getShowWeekNumber == true
+                            ? const Text('是')
+                            : const Text('否'),
                         contentPadding: const EdgeInsets.all(0.0),
-                        value: _isSoundSwitched,
-                        onChanged: (value) {
+                        value: mySet.getShowWeekNumber,
+                        activeColor: ColorSet.primaryLightColors,
+                        onChanged: (value) async {
+                          SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
+                          await prefs.setBool('keyShowWeekNumber', value);
                           setState(() {
-                            _isSoundSwitched = value;
+                            mySet.setShowWeekNumber(value);
                           });
                         }),
                     SwitchListTile(
-                        title: const Text('振動'),
+                        title: const Text('24小時制?'),
+                        subtitle: mySet.getIs24hourSystem == true
+                            ? const Text('是')
+                            : const Text('否'),
                         contentPadding: const EdgeInsets.all(0.0),
-                        value: _isVibrationSwitched,
-                        onChanged: (value) {
+                        value: mySet.getIs24hourSystem,
+                        activeColor: ColorSet.primaryLightColors,
+                        onChanged: (value) async {
+                          SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
+                          await prefs.setBool('keyIs24hourSystem', value);
                           setState(() {
-                            _isVibrationSwitched = value;
+                            mySet.setIs24hourSystem(value);
                           });
                         }),
                   ],

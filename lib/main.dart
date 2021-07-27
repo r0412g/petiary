@@ -1,12 +1,15 @@
 import 'package:flutter/material.dart';
-import 'page/splash_page.dart';
-import 'page/home_page.dart';
-import 'page/hospital_page.dart';
-import 'page/calendar_page.dart';
-import 'page/setting_page.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
+import 'package:page_transition/page_transition.dart';
 import 'package:pet_diary/common/theme.dart';
-import 'package:provider/provider.dart';
 import 'package:pet_diary/models/pet_model.dart';
+import 'package:pet_diary/models/setting_model.dart';
+import 'package:pet_diary/page/calendar_page.dart';
+import 'package:pet_diary/page/home_page.dart';
+import 'package:pet_diary/page/hospital_page.dart';
+import 'package:pet_diary/page/setting_page.dart';
+import 'package:pet_diary/page/splash_page.dart';
+import 'package:provider/provider.dart';
 
 void main() => runApp(MainClass());
 
@@ -17,8 +20,22 @@ class MainClass extends StatelessWidget {
     return MultiProvider(
       providers: [
         ChangeNotifierProvider(create: (_) => MyPetModel()),
+        ChangeNotifierProvider(create: (_) => SettingModel()),
       ],
       child: MaterialApp(
+        localizationsDelegates: const [
+          GlobalMaterialLocalizations.delegate,
+          GlobalWidgetsLocalizations.delegate,
+        ],
+        supportedLocales: const [
+          const Locale.fromSubtags(
+              languageCode: 'zh', scriptCode: 'Hant', countryCode: 'TW'),
+          const Locale('en'),
+          const Locale('ja'),
+          const Locale('zh'),
+        ],
+        locale: const Locale.fromSubtags(
+            languageCode: 'zh', scriptCode: 'Hant', countryCode: 'TW'),
         title: 'Pet Diary', // 開啟所有app管理時會看到
         theme: appTheme,
         debugShowCheckedModeBanner: false, // 去除Debug標誌
@@ -38,7 +55,7 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 0;
-  final pages = [HomePage(), HospitalPage(), CalendarPage(), SettingPage()];
+  final pages = [HomePage(), HospitalPage(), CalendarPage()];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -55,8 +72,13 @@ class _MyHomePageState extends State<MyHomePage> {
           IconButton(
               tooltip: '設定',
               onPressed: () {
-                Navigator.push(context,
-                    MaterialPageRoute(builder: (context) => SettingPage()));
+                // Navigator.push(context,
+                //     MaterialPageRoute(builder: (context) => SettingPage()));
+                Navigator.push(
+                    context,
+                    PageTransition(
+                        type: PageTransitionType.bottomToTop,
+                        child: SettingPage()));
               },
               icon: const Icon(Icons.settings))
         ],

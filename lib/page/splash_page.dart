@@ -1,7 +1,8 @@
-import 'package:flutter/material.dart';
-import 'package:pet_diary/main.dart';
-import 'intro_page.dart';
 import 'package:animated_splash_screen/animated_splash_screen.dart';
+import 'package:flutter/material.dart';
+import 'package:pet_diary/common/data.dart';
+import 'package:pet_diary/main.dart';
+import 'package:pet_diary/page/intro_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 class SplashPage extends StatefulWidget {
@@ -10,31 +11,28 @@ class SplashPage extends StatefulWidget {
 }
 
 class _SplashPageState extends State<SplashPage> {
-  /* checked if user seen the intro page */
-  checkFirstTime() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool _check = (prefs.getBool('checked') ?? false); // init check as false
+  void initState() {
+    super.initState();
+  }
 
-    if (_check) {
-      Navigator.of(context).pushReplacement(
-    new MaterialPageRoute(
-    builder: (context) => new MyHomePage(title: '寵物日記')));
-    /*new MaterialPageRoute(builder: (context) => new IntroPage()));*/
-    } else {
-      await prefs.setBool('checked', true);
-      Navigator.of(context).pushReplacement(
-          new MaterialPageRoute(builder: (context) => new IntroPage()));
-    }
+  /* checked if user seen the intro page */
+  Future<Widget> checkFirstTime() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    AllDataModel.checkFirstSeen = prefs.getBool('keyChecked') ?? false;
+    return AllDataModel.checkFirstSeen == false
+        ? IntroPage()
+        : //IntroPage();
+        MyHomePage(title: '寵物日記');
   }
 
   @override
   Widget build(BuildContext context) {
     return AnimatedSplashScreen.withScreenFunction(
       splash: 'assets/paw.jpg',
-      screenFunction: () async {
+      splashTransition: SplashTransition.scaleTransition,
+      screenFunction: () {
         return checkFirstTime();
       },
-      splashTransition: SplashTransition.scaleTransition,
     );
   }
 }

@@ -1,6 +1,8 @@
-class AllPetModel {
+class AllDataModel {
   static String? petType;
   static String? petBreeds;
+  static String? firstDayOfWeek;
+  static bool? checkFirstSeen;
 
   static String defaultImage = 'assets/paw.jpg';
 
