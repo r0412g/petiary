@@ -65,18 +65,17 @@ class EventInfoDB {
     );
   }
 
-  /* Retrieve the list of Event */
-  static Future<List<EventInfo>> queryEvent() async {
-    final Database db = await initDatabase();
-    final List<Map<String, dynamic>> maps = await db.query('Event');
-    return List.generate(maps.length, (i) {
-      return EventInfo(
-        name: maps[i]['name'],
-        startDate: maps[i]['startDate'],
-        endDate: maps[i]['endDate'],
-        color: maps[i]['color'],
-        isAllDay: maps[i]['isAllDay'],
-      );
-    });
+  /* Query event */
+  static Future<List<Map<String, Object?>>> queryEvent() async {
+    final db = await initDatabase();
+    List<Map<String, Object?>> records = await db.query('Event');
+    // print(records);
+    return records;
+  }
+
+  /* Delete event */
+  static Future<int> delete(int id) async {
+    final db = await initDatabase();
+    return await db.delete('Event', where: 'id = ?', whereArgs: [id]);
   }
 }
