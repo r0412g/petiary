@@ -17,21 +17,6 @@ class CalendarPage extends StatefulWidget {
   _CalendarPageState createState() => _CalendarPageState();
 }
 
-/* Database */
-class DB {
-  static void addEvent(String name, String startDate, String endDate,
-      String color, int isAllDay) async {
-    final newEvent = EventInfo(
-      name: name,
-      startDate: startDate,
-      endDate: endDate,
-      color: color,
-      isAllDay: isAllDay,
-    );
-    await EventInfoDB.insertEvent(newEvent);
-  }
-}
-
 /* Using for calendar event */
 class EventDataSource extends CalendarDataSource {
   EventDataSource(List<Appointment> source) {
@@ -81,7 +66,7 @@ class _CalendarPageState extends State<CalendarPage> {
     super.initState();
   }
 
-  _loadData(context) async {
+  void _loadData(context) async {
     SettingModel mySet = Provider.of<SettingModel>(context, listen: false);
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
@@ -118,7 +103,7 @@ class _CalendarPageState extends State<CalendarPage> {
   }
 
   /* Add event on calendar */
-  _addEvent() {
+  void _addEvent() {
     showDialog(
         context: context,
         builder: (BuildContext context) {
@@ -361,14 +346,19 @@ class _CalendarPageState extends State<CalendarPage> {
                           color: eventColor,
                           isAllDay: isAllDay,
                         );
+
                         /* Add event to database */
-                        DB.addEvent(
-                          eventNameController.text,
-                          formattedDateAndTime.format(startDatetime).toString(),
-                          formattedDateAndTime.format(endDateTime).toString(),
-                          eventColor.toHex(),
-                          isAllDay == false ? 0 : 1,
-                        );
+                        EventInfoDB.insertEvent(EventInfo(
+                          name: eventNameController.text,
+                          startDate: formattedDateAndTime
+                              .format(startDatetime)
+                              .toString(),
+                          endDate: formattedDateAndTime
+                              .format(endDateTime)
+                              .toString(),
+                          color: eventColor.toHex(),
+                          isAllDay: isAllDay == false ? 0 : 1,
+                        ));
 
                         /* Add event to calendar */
                         _dataSource.appointments!.add(newEvent);
@@ -388,7 +378,7 @@ class _CalendarPageState extends State<CalendarPage> {
   }
 
   /* Show event details on dialog */
-  _onTapShowEventDetails(CalendarTapDetails showEventDetails) {
+  void _onTapShowEventDetails(CalendarTapDetails showEventDetails) {
     if (showEventDetails.targetElement == CalendarElement.appointment) {
       Appointment showEvent = showEventDetails.appointments![0];
       showDialog(
@@ -455,7 +445,7 @@ class _CalendarPageState extends State<CalendarPage> {
   }
 
   /* Show edit or delete event on dialog */
-  _onLongPressEditOrDelete(CalendarLongPressDetails editOrDeleteDetails) {
+  void _onLongPressEditOrDelete(CalendarLongPressDetails editOrDeleteDetails) {
     if (editOrDeleteDetails.targetElement == CalendarElement.appointment) {
       Appointment editOrDeleteEvent = editOrDeleteDetails.appointments![0];
       showDialog(
@@ -530,7 +520,7 @@ class _CalendarPageState extends State<CalendarPage> {
   }
 
   /* Edit event on alert dialog */
-  _editEvent(CalendarLongPressDetails editEventDetails) {
+  void _editEvent(CalendarLongPressDetails editEventDetails) {
     Appointment editEvent = editEventDetails.appointments![0];
     showDialog(
         context: context,
@@ -773,7 +763,8 @@ class _CalendarPageState extends State<CalendarPage> {
                         _dataSource.notifyListeners(
                             CalendarDataSourceAction.remove, [editEvent]);
                         // Delete event in database
-                        EventInfoDB.delete(int.parse(editEvent.id.toString()));
+                        EventInfoDB.deleteEvent(
+                            int.parse(editEvent.id.toString()));
 
                         // Add event to calendar
                         SharedPreferences prefs =
@@ -789,22 +780,23 @@ class _CalendarPageState extends State<CalendarPage> {
                         _dataSource.appointments!.add(editNewEvent);
                         _dataSource.notifyListeners(
                             CalendarDataSourceAction.add, [editNewEvent]);
+
                         // Add event to database
-                        DB.addEvent(
-                          editEventNameController.text,
-                          formattedDateAndTime
+                        EventInfoDB.insertEvent(EventInfo(
+                          name: editEventNameController.text,
+                          startDate: formattedDateAndTime
                               .format(editStartDatetime)
                               .toString(),
-                          formattedDateAndTime
+                          endDate: formattedDateAndTime
                               .format(editEndDateTime)
                               .toString(),
-                          editEventColor.toHex(),
-                          editIsAllDay == false ? 0 : 1,
-                        );
+                          color: editEventColor.toHex(),
+                          isAllDay: editIsAllDay == false ? 0 : 1,
+                        ));
 
                         eventId += 1;
                         prefs.setInt('keyEventId', eventId);
-                        // back to page calendar
+                        // back to calendar page
                         Navigator.of(context)
                             .popUntil((route) => route.isFirst);
                       }
@@ -817,7 +809,7 @@ class _CalendarPageState extends State<CalendarPage> {
   }
 
   /* Delete event on calendar */
-  _deleteEvent(CalendarLongPressDetails deleteEventDetails) {
+  void _deleteEvent(CalendarLongPressDetails deleteEventDetails) {
     Appointment deleteEvent = deleteEventDetails.appointments![0];
     setState(() {
       _dataSource.appointments!
@@ -825,7 +817,7 @@ class _CalendarPageState extends State<CalendarPage> {
       _dataSource
           .notifyListeners(CalendarDataSourceAction.remove, [deleteEvent]);
     });
-    EventInfoDB.delete(int.parse(deleteEvent.id.toString()));
+    EventInfoDB.deleteEvent(int.parse(deleteEvent.id.toString()));
     Navigator.pop(context);
   }
 

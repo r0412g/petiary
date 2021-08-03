@@ -26,11 +26,6 @@ class EventInfo {
       'isAllDay': isAllDay,
     };
   }
-
-  @override
-  String toString() {
-    return "{name: $name, startDate: $startDate, endDate: $endDate, color: $color, isAllDay: $isAllDay}";
-  }
 }
 
 class EventInfoDB {
@@ -69,13 +64,18 @@ class EventInfoDB {
   static Future<List<Map<String, Object?>>> queryEvent() async {
     final db = await initDatabase();
     List<Map<String, Object?>> records = await db.query('Event');
-    // print(records);
     return records;
   }
 
   /* Delete event */
-  static Future<int> delete(int id) async {
+  static Future<int> deleteEvent(int id) async {
     final db = await initDatabase();
     return await db.delete('Event', where: 'id = ?', whereArgs: [id]);
+  }
+
+  /* Close database */
+  static Future close() async {
+    final db = await initDatabase();
+    db.close();
   }
 }
