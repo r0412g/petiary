@@ -62,7 +62,7 @@ class _IntroPageState extends State<IntroPage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     MyPetModel myPet = Provider.of<MyPetModel>(context, listen: false);
     final pickedImage =
-        await ImagePicker().getImage(source: ImageSource.gallery);
+        await ImagePicker().pickImage(source: ImageSource.gallery);
     introImage = pickedImage;
 
     // Image selected then save
@@ -72,13 +72,7 @@ class _IntroPageState extends State<IntroPage> {
       setState(() {
         myPet.setImagePath(introImage.path);
       });
-      Fluttertoast.showToast(
-          msg: "可以點選剪裁相片修改唷!",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.white,
-          textColor: Colors.black,
-          fontSize: 16.0);
+      _cropImage();
     } else {
       Fluttertoast.showToast(
           msg: "您沒有選擇相片",
@@ -160,7 +154,8 @@ class _IntroPageState extends State<IntroPage> {
       await prefs.setString('keyPetAge', introAgeController.text);
     }
 
-    myPet.setLigation(introIsNeutered);
+    myPet.setIsNeutered(introIsNeutered);
+    await prefs.setBool('keyIsNeutered', introIsNeutered);
 
     Navigator.of(context).pushReplacement(new MaterialPageRoute(
         builder: (context) => new MyHomePage(title: '寵物日記')));
@@ -435,48 +430,20 @@ class _IntroPageState extends State<IntroPage> {
                           : Image.asset(AllDataModel.defaultImage,
                               fit: BoxFit.fill, width: 125.0, height: 125.0),
                       const SizedBox(width: 20.0),
-                      SingleChildScrollView(
-                        child: Column(
-                          children: <Widget>[
-                            Tooltip(
-                              message: "新增寵物相片",
-                              child: TextButton.icon(
-                                  onPressed: () {
-                                    _pickImage();
-                                  },
-                                  icon: const Icon(
-                                    Icons.add_photo_alternate,
-                                    color: Colors.black,
-                                  ),
-                                  label: Text('選擇相片',
-                                      style: TextStyle(color: Colors.black))),
+                      Tooltip(
+                        message: "新增寵物相片",
+                        child: TextButton.icon(
+                            onPressed: () {
+                              _pickImage();
+                            },
+                            icon: const Icon(
+                              Icons.add_photo_alternate,
+                              color: ColorSet.secondaryColors,
                             ),
-                            Tooltip(
-                              message: "剪裁寵物相片",
-                              child: TextButton.icon(
-                                  onPressed: () {
-                                    if (introImageSelected == true) {
-                                      _cropImage();
-                                    } else {
-                                      Fluttertoast.showToast(
-                                          msg: "請先選擇相片",
-                                          toastLength: Toast.LENGTH_SHORT,
-                                          gravity: ToastGravity.BOTTOM,
-                                          backgroundColor: Colors.white,
-                                          textColor: Colors.black,
-                                          fontSize: 16.0);
-                                    }
-                                  },
-                                  icon: const Icon(
-                                    Icons.crop,
-                                    color: Colors.black,
-                                  ),
-                                  label: const Text('剪裁相片',
-                                      style: const TextStyle(
-                                          color: Colors.black))),
-                            ),
-                          ],
-                        ),
+                            label: Text('選擇相片',
+                                style: TextStyle(
+                                  color: ColorSet.secondaryColors,
+                                ))),
                       ),
                     ],
                   ),
@@ -511,10 +478,8 @@ class _IntroPageState extends State<IntroPage> {
                             : const Text('是'),
                         value: introIsNeutered,
                         activeColor: ColorSet.primaryLightColors,
-                        onChanged: (value) async {
-                          SharedPreferences prefs =
-                              await SharedPreferences.getInstance();
-                          await prefs.setBool('keyPetLigation', value);
+                        onChanged: (value)  {
+
                           setState(() {
                             introIsNeutered = value;
                           });
@@ -541,7 +506,6 @@ class _IntroPageState extends State<IntroPage> {
                               if (introIsExactDate == false) {
                                 myPet.setBirthday('點擊選擇寵物生日');
                               } else {
-                                myPet.setAge('');
                                 introAgeController.text = '';
                               }
                             }),

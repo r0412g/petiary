@@ -327,47 +327,58 @@ class _CalendarPageState extends State<CalendarPage> {
                   ),
                   TextButton(
                     onPressed: () async {
-                      if (eventNameController.text == '') {
+                      // end date must late than start date
+                      if (startDatetime.isAfter(endDateTime)) {
                         Fluttertoast.showToast(
-                            msg: "請輸入事件名稱",
+                            msg: "開始時間不能比結束時間晚",
                             toastLength: Toast.LENGTH_SHORT,
                             gravity: ToastGravity.BOTTOM,
                             backgroundColor: Colors.white,
                             textColor: Colors.black,
                             fontSize: 16.0);
                       } else {
-                        SharedPreferences prefs =
-                            await SharedPreferences.getInstance();
-                        Appointment newEvent = Appointment(
-                          id: prefs.getInt('keyEventId'),
-                          subject: eventNameController.text,
-                          startTime: startDatetime,
-                          endTime: endDateTime,
-                          color: eventColor,
-                          isAllDay: isAllDay,
-                        );
+                        if (eventNameController.text == '') {
+                          Fluttertoast.showToast(
+                              msg: "請輸入事件名稱",
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.BOTTOM,
+                              backgroundColor: Colors.white,
+                              textColor: Colors.black,
+                              fontSize: 16.0);
+                        } else {
+                          SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
+                          Appointment newEvent = Appointment(
+                            id: prefs.getInt('keyEventId'),
+                            subject: eventNameController.text,
+                            startTime: startDatetime,
+                            endTime: endDateTime,
+                            color: eventColor,
+                            isAllDay: isAllDay,
+                          );
 
-                        /* Add event to database */
-                        EventInfoDB.insertEvent(EventInfo(
-                          name: eventNameController.text,
-                          startDate: formattedDateAndTime
-                              .format(startDatetime)
-                              .toString(),
-                          endDate: formattedDateAndTime
-                              .format(endDateTime)
-                              .toString(),
-                          color: eventColor.toHex(),
-                          isAllDay: isAllDay == false ? 0 : 1,
-                        ));
+                          /* Add event to database */
+                          EventInfoDB.insertEvent(EventInfo(
+                            name: eventNameController.text,
+                            startDate: formattedDateAndTime
+                                .format(startDatetime)
+                                .toString(),
+                            endDate: formattedDateAndTime
+                                .format(endDateTime)
+                                .toString(),
+                            color: eventColor.toHex(),
+                            isAllDay: isAllDay == false ? 0 : 1,
+                          ));
 
-                        /* Add event to calendar */
-                        _dataSource.appointments!.add(newEvent);
-                        _dataSource.notifyListeners(
-                            CalendarDataSourceAction.add, [newEvent]);
+                          /* Add event to calendar */
+                          _dataSource.appointments!.add(newEvent);
+                          _dataSource.notifyListeners(
+                              CalendarDataSourceAction.add, [newEvent]);
 
-                        eventId += 1;
-                        prefs.setInt('keyEventId', eventId);
-                        Navigator.pop(context, 'OK');
+                          eventId += 1;
+                          prefs.setInt('keyEventId', eventId);
+                          Navigator.pop(context, 'OK');
+                        }
                       }
                     },
                     child: const Text('確定'),
@@ -747,58 +758,69 @@ class _CalendarPageState extends State<CalendarPage> {
                   ),
                   TextButton(
                     onPressed: () async {
-                      if (editEventNameController.text == '') {
+                      // end date must late than start date
+                      if (editStartDatetime.isAfter(editEndDateTime)) {
                         Fluttertoast.showToast(
-                            msg: "請輸入事件名稱",
+                            msg: "開始時間不能比結束時間晚",
                             toastLength: Toast.LENGTH_SHORT,
                             gravity: ToastGravity.BOTTOM,
                             backgroundColor: Colors.white,
                             textColor: Colors.black,
                             fontSize: 16.0);
                       } else {
-                        /* Delete event than add new one */
-                        // Delete event in calendar
-                        _dataSource.appointments!.removeAt(
-                            _dataSource.appointments!.indexOf(editEvent));
-                        _dataSource.notifyListeners(
-                            CalendarDataSourceAction.remove, [editEvent]);
-                        // Delete event in database
-                        EventInfoDB.deleteEvent(
-                            int.parse(editEvent.id.toString()));
+                        if (editEventNameController.text == '') {
+                          Fluttertoast.showToast(
+                              msg: "請輸入事件名稱",
+                              toastLength: Toast.LENGTH_SHORT,
+                              gravity: ToastGravity.BOTTOM,
+                              backgroundColor: Colors.white,
+                              textColor: Colors.black,
+                              fontSize: 16.0);
+                        } else {
+                          /* Delete event than add new one */
+                          // Delete event in calendar
+                          _dataSource.appointments!.removeAt(
+                              _dataSource.appointments!.indexOf(editEvent));
+                          _dataSource.notifyListeners(
+                              CalendarDataSourceAction.remove, [editEvent]);
+                          // Delete event in database
+                          EventInfoDB.deleteEvent(
+                              int.parse(editEvent.id.toString()));
 
-                        // Add event to calendar
-                        SharedPreferences prefs =
-                            await SharedPreferences.getInstance();
-                        Appointment editNewEvent = Appointment(
-                          id: prefs.getInt('keyEventId'),
-                          subject: editEventNameController.text,
-                          startTime: editStartDatetime,
-                          endTime: editEndDateTime,
-                          color: editEventColor,
-                          isAllDay: editIsAllDay,
-                        );
-                        _dataSource.appointments!.add(editNewEvent);
-                        _dataSource.notifyListeners(
-                            CalendarDataSourceAction.add, [editNewEvent]);
+                          // Add event to calendar
+                          SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
+                          Appointment editNewEvent = Appointment(
+                            id: prefs.getInt('keyEventId'),
+                            subject: editEventNameController.text,
+                            startTime: editStartDatetime,
+                            endTime: editEndDateTime,
+                            color: editEventColor,
+                            isAllDay: editIsAllDay,
+                          );
+                          _dataSource.appointments!.add(editNewEvent);
+                          _dataSource.notifyListeners(
+                              CalendarDataSourceAction.add, [editNewEvent]);
 
-                        // Add event to database
-                        EventInfoDB.insertEvent(EventInfo(
-                          name: editEventNameController.text,
-                          startDate: formattedDateAndTime
-                              .format(editStartDatetime)
-                              .toString(),
-                          endDate: formattedDateAndTime
-                              .format(editEndDateTime)
-                              .toString(),
-                          color: editEventColor.toHex(),
-                          isAllDay: editIsAllDay == false ? 0 : 1,
-                        ));
+                          // Add event to database
+                          EventInfoDB.insertEvent(EventInfo(
+                            name: editEventNameController.text,
+                            startDate: formattedDateAndTime
+                                .format(editStartDatetime)
+                                .toString(),
+                            endDate: formattedDateAndTime
+                                .format(editEndDateTime)
+                                .toString(),
+                            color: editEventColor.toHex(),
+                            isAllDay: editIsAllDay == false ? 0 : 1,
+                          ));
 
-                        eventId += 1;
-                        prefs.setInt('keyEventId', eventId);
-                        // back to calendar page
-                        Navigator.of(context)
-                            .popUntil((route) => route.isFirst);
+                          eventId += 1;
+                          prefs.setInt('keyEventId', eventId);
+                          // back to calendar page
+                          Navigator.of(context)
+                              .popUntil((route) => route.isFirst);
+                        }
                       }
                     },
                     child: const Text('確定'),

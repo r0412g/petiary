@@ -36,6 +36,7 @@ class _SettingPageState extends State<SettingPage> {
     var mySet = Provider.of<SettingModel>(context);
     return Scaffold(
       appBar: AppBar(
+        backgroundColor: ColorSet.primaryColors,
         title: const Text('設定'),
       ),
       body: SingleChildScrollView(

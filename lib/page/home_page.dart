@@ -30,17 +30,19 @@ class _HomePageState extends State<HomePage> {
 
     setState(() {
       myPet.setIsExactDate(prefs.getBool('keyIsExactDate') ?? false);
-      myPet.setName(prefs.getString('keyPetName') ?? '尚未設定');
-      myPet.setType(prefs.getString('keyPetType') ?? '尚未設定');
-      myPet.setBreeds(prefs.getString('keyPetBreeds') ?? '尚未設定');
+      myPet.setName(prefs.getString('keyPetName') ?? '');
+      myPet.setType(prefs.getString('keyPetType') ?? '');
+      myPet.setBreeds(prefs.getString('keyPetBreeds') ?? '');
       myPet.setGender(prefs.getString('keyPetGender') ?? '男');
-      myPet.setLigation(prefs.getBool('keyPetLigation') ?? false);
+      myPet.setIsNeutered(prefs.getBool('keyIsNeutered') ?? false);
       myPet.setImagePath(prefs.getString('keyPetImagePath') ?? '');
 
-      if (myPet.getIsExactDate == true)
+      if (myPet.getIsExactDate == true) {
         myPet.setBirthday(prefs.getString('keyPetBirthday') ?? '尚未設定');
-      else
         myPet.setAge(prefs.getString('keyPetAge') ?? '0');
+      } else {
+        myPet.setAge(prefs.getString('keyPetAge') ?? '0');
+      }
     });
   }
 
@@ -65,15 +67,21 @@ class _HomePageState extends State<HomePage> {
                   : Image.asset(AllDataModel.defaultImage,
                       fit: BoxFit.fill, width: 150.0, height: 150.0),
               const SizedBox(height: 10.0),
-              Text('我的寵物：${myPet.getName}', style: contentStyle),
+              myPet.getName == ''
+                  ? Text('我的寵物：尚未設定', style: contentStyle)
+                  : Text('我的寵物：${myPet.getName}', style: contentStyle),
               myPet.getIsExactDate == true
                   ? Text('生日：${myPet.getBirthday} (${myPet.getAge}歲)',
                       style: contentStyle)
                   : Text('年齡：${myPet.getAge} 歲', style: contentStyle),
-              Text('類型：${myPet.getType}', style: contentStyle),
-              Text('品種：${myPet.getBreeds}', style: contentStyle),
+              myPet.getType == ''
+                  ? Text('類型：尚未設定', style: contentStyle)
+                  : Text('類型：${myPet.getType}', style: contentStyle),
+              myPet.getBreeds == ''
+                  ? Text('品種：尚未設定', style: contentStyle)
+                  : Text('品種：${myPet.getBreeds}', style: contentStyle),
               Text('性別：${myPet.getGender}', style: contentStyle),
-              Text('結紮：${myPet.getLigation == false ? '未結紮' : '已結紮'}',
+              Text('結紮：${myPet.getIsNeutered == false ? '未結紮' : '已結紮'}',
                   style: contentStyle),
             ],
           ),

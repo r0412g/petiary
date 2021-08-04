@@ -210,7 +210,7 @@ class _HospitalPageState extends State<HospitalPage> {
                     onPressed: () {
                       // user choose have medicine but didn't enter text
                       if (isMedicine == true && medicineController.text == '') {
-                        isMedicine = false;
+                        medicineController.text = '無紀錄藥物';
                       }
                       MedicalRecords newMedicalRecords = MedicalRecords(
                         date: formattedDate.format(medicalDate),
@@ -271,7 +271,7 @@ class _HospitalPageState extends State<HospitalPage> {
                                   ['weight'] ==
                               0.0
                           ? const Text(
-                              '體重：無資料',
+                              '體重：無紀錄體重',
                               style: const TextStyle(fontSize: 17.0),
                             )
                           : Text(
@@ -282,8 +282,8 @@ class _HospitalPageState extends State<HospitalPage> {
                         height: 10.0,
                       ),
                       showMedicalDetailsSnapshot.data[showMedicalDetailsIndex]
-                                  ['medicine'] ==
-                              ''
+                                  ['isMedicine'] ==
+                              0
                           ? const Text(
                               '藥物：沒拿藥',
                               style: const TextStyle(fontSize: 17.0),
@@ -632,13 +632,13 @@ class _HospitalPageState extends State<HospitalPage> {
                   margin: const EdgeInsets.all(7.0),
                   child: ListTile(
                     leading: Text('${snapshot.data[index]['date']}'),
-                    title: snapshot.data[index]['medicine'] == ''
+                    title: snapshot.data[index]['isMedicine'] == 0
                         ? const Text(
                             '沒拿藥',
                             style: TextStyle(fontSize: 15.0),
                           )
-                        : Text(
-                            '${snapshot.data[index]['medicine']}',
+                        : const Text(
+                            '有拿藥',
                             style: TextStyle(fontSize: 15.0),
                           ),
                     trailing: snapshot.data[index]['weight'] == 0.0

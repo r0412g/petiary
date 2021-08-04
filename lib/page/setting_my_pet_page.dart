@@ -19,6 +19,7 @@ class SettingMyPetPage extends StatefulWidget {
 }
 
 class _SettingMyPetPageState extends State<SettingMyPetPage> {
+  bool setIsNeutered = false;
   bool setIsExactDate = false;
   bool setImageSelected = false;
   final formattedDate = DateFormat('yyyy-MM-dd');
@@ -41,7 +42,8 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     MyPetModel myPet = Provider.of<MyPetModel>(context, listen: false);
     setState(() {
-      myPet.setIsExactDate(prefs.getBool('keyIsExactDate') ?? false);
+      setIsNeutered = prefs.getBool('keyIsNeutered') ?? false;
+      setIsExactDate = prefs.getBool('keyIsExactDate') ?? false;
       setNameController.text = myPet.getName;
       myPet.setName(prefs.getString('keyPetName') ?? '');
       setAgeController.text = myPet.getAge;
@@ -62,17 +64,35 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
     MyPetModel myPet = Provider.of<MyPetModel>(context, listen: false);
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    if (setNameController.text != '') {
-      myPet.setName(setNameController.text);
-      await prefs.setString('keyPetName', setNameController.text);
-    }
+    myPet.setName(setNameController.text);
+    await prefs.setString('keyPetName', setNameController.text);
 
+    await prefs.setBool('keyIsNeutered', setIsNeutered);
+    myPet.setIsNeutered(setIsNeutered);
     await prefs.setBool('keyIsExactDate', setIsExactDate);
     myPet.setIsExactDate(setIsExactDate);
-    // Save pet age if user have input
-    if (setAgeController.text != '') {
-      myPet.setAge(setAgeController.text);
-      await prefs.setString('keyPetAge', setAgeController.text);
+
+    // User doesn't know exact date
+    if (myPet.getIsExactDate == false) {
+      // User doesn't enter age
+      if (setAgeController.text == '') {
+        myPet.setAge('0');
+        await prefs.setString('keyPetAge', '0');
+      } else {
+        myPet.setAge(setAgeController.text);
+        await prefs.setString('keyPetAge', setAgeController.text);
+      }
+    }
+
+    // User doesn't know exact date
+    if (myPet.getIsExactDate == true) {
+      // User doesn't choose date
+      if (myPet.getBirthday == '尚未設定') {
+        myPet.setAge('0');
+        await prefs.setString('keyPetAge', '0');
+        myPet.setBirthday('尚未設定');
+        await prefs.setString('keyPetBirthday', '尚未設定');
+      }
     }
 
     Navigator.of(context).pop();
@@ -91,7 +111,7 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     MyPetModel myPet = Provider.of<MyPetModel>(context, listen: false);
     final pickedImage =
-        await ImagePicker().getImage(source: ImageSource.gallery);
+        await ImagePicker().pickImage(source: ImageSource.gallery);
     setImage = pickedImage;
 
     // Image selected then save
@@ -101,13 +121,7 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
       setState(() {
         myPet.setImagePath(setImage.path);
       });
-      Fluttertoast.showToast(
-          msg: "可以點選剪裁相片修改唷!",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.white,
-          textColor: Colors.black,
-          fontSize: 16.0);
+      _cropImage();
     } else {
       Fluttertoast.showToast(
           msg: "您沒有選擇相片",
@@ -175,6 +189,7 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
 
     return Scaffold(
         appBar: AppBar(
+          backgroundColor: ColorSet.primaryColors,
           title: Text('編輯我的寵物'),
           actions: <Widget>[
             IconButton(
@@ -212,34 +227,12 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
                                   },
                                   icon: const Icon(
                                     Icons.add_photo_alternate,
-                                    color: Colors.black,
+                                    color: ColorSet.secondaryColors,
                                   ),
                                   label: Text('選擇相片',
-                                      style: TextStyle(color: Colors.black))),
-                            ),
-                            Tooltip(
-                              message: "剪裁寵物相片",
-                              child: TextButton.icon(
-                                  onPressed: () {
-                                    if (setImageSelected == true) {
-                                      _cropImage();
-                                    } else {
-                                      Fluttertoast.showToast(
-                                          msg: "請先選擇相片",
-                                          toastLength: Toast.LENGTH_SHORT,
-                                          gravity: ToastGravity.BOTTOM,
-                                          backgroundColor: Colors.white,
-                                          textColor: Colors.black,
-                                          fontSize: 16.0);
-                                    }
-                                  },
-                                  icon: const Icon(
-                                    Icons.crop,
-                                    color: Colors.black,
-                                  ),
-                                  label: const Text('剪裁相片',
-                                      style: const TextStyle(
-                                          color: Colors.black))),
+                                      style: TextStyle(
+                                        color: ColorSet.secondaryColors,
+                                      ))),
                             ),
                           ],
                         ),
@@ -488,17 +481,14 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
                     width: 250.0,
                     child: SwitchListTile(
                         title: Text('寵物是否結紮?'),
-                        subtitle: myPet.getLigation == false
+                        subtitle: setIsNeutered == false
                             ? const Text('否')
                             : const Text('是'),
-                        value: myPet.getLigation,
+                        value: setIsNeutered,
                         activeColor: ColorSet.primaryLightColors,
                         onChanged: (value) {
-                          setState(() async {
-                            SharedPreferences prefs =
-                                await SharedPreferences.getInstance();
-                            await prefs.setBool('keyPetLigation', value);
-                            myPet.setLigation(value);
+                          setState(() {
+                            setIsNeutered = value;
                           });
                         }),
                   ),
@@ -521,10 +511,9 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
                               });
                               /* Reset value while switch on changed */
                               if (setIsExactDate == false) {
-                                myPet.setBirthday('點擊選擇寵物生日');
-                              } else {
-                                myPet.setAge('');
                                 setAgeController.text = '';
+                              } else {
+                                myPet.setBirthday('尚未設定');
                               }
                             }),
                         setIsExactDate == true
@@ -553,6 +542,8 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
                                                 .getInstance();
                                         await prefs.setString('keyPetBirthday',
                                             formattedDate.format(date));
+                                        await prefs.setString('keyPetAge',
+                                            birthdayAge.toString());
                                         setState(() {
                                           myPet.setBirthday(
                                               formattedDate.format(date));
@@ -565,7 +556,7 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
                                       ),
                                     );
                                   },
-                                  child: Text(myPet.getBirthday == ''
+                                  child: Text(myPet.getBirthday == '尚未設定'
                                       ? '點擊選擇寵物生日'
                                       : myPet.getBirthday),
                                 ),

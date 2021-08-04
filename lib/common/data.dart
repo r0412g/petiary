@@ -4,7 +4,7 @@ class AllDataModel {
   static String? firstDayOfWeek;
   static bool? checkFirstSeen;
 
-  static String defaultImage = 'assets/paw.jpg';
+  static String defaultImage = 'assets/images/paw.jpg';
 
   static List<String> defaultBreeds = [];
   static List<String> dogBreeds = [
@@ -36,7 +36,7 @@ class AllDataModel {
     '暹羅貓',
     '布偶貓',
     '三色貓',
-    '迷克斯',
+    '米克斯',
     '曼赤肯貓',
     '美國短毛貓',
     '英國短毛貓',

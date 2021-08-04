@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 
 /* Using for Provider */
 class MyPetModel with ChangeNotifier {
-  bool _ligation = false;
+  bool _isNeutered = false;
   bool _isExactDate = false;
   String _imagePath = '';
   String _type = '';
@@ -13,7 +13,7 @@ class MyPetModel with ChangeNotifier {
   String _name = '';
   String _age = '';
 
-  bool get getLigation => _ligation;
+  bool get getIsNeutered => _isNeutered;
   bool get getIsExactDate => _isExactDate;
   String get getType => _type;
   String get getImagePath => _imagePath;
@@ -58,8 +58,8 @@ class MyPetModel with ChangeNotifier {
     notifyListeners();
   }
 
-  void setLigation(bool value) {
-    _ligation = value;
+  void setIsNeutered(bool value) {
+    _isNeutered = value;
     notifyListeners();
   }
 
