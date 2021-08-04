@@ -65,32 +65,34 @@ class _HospitalPageState extends State<HospitalPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: <Widget>[
                           const Text('日期：'),
-                          Tooltip(
-                            message: '選擇就醫日期',
-                            child: TextButton(
-                              onPressed: () {
-                                DatePicker.showDatePicker(
-                                  context,
-                                  currentTime: DateTime.now(),
-                                  locale: LocaleType.tw,
-                                  showTitleActions: true,
-                                  onConfirm: (date) {
-                                    _setState(() {
-                                      medicalDate = date;
-                                    });
-                                  },
-                                  theme: const DatePickerTheme(
-                                    cancelStyle: const TextStyle(
-                                        color: Colors.redAccent),
-                                  ),
-                                );
-                              },
-                              child: Text(
-                                '${formattedDate.format(medicalDate)}',
-                                style: const TextStyle(color: Colors.black54),
+                          Flexible(
+                            child: Tooltip(
+                              message: '選擇就醫日期',
+                              child: TextButton(
+                                onPressed: () {
+                                  DatePicker.showDatePicker(
+                                    context,
+                                    currentTime: DateTime.now(),
+                                    locale: LocaleType.tw,
+                                    showTitleActions: true,
+                                    onConfirm: (date) {
+                                      _setState(() {
+                                        medicalDate = date;
+                                      });
+                                    },
+                                    theme: const DatePickerTheme(
+                                      cancelStyle: const TextStyle(
+                                          color: Colors.redAccent),
+                                    ),
+                                  );
+                                },
+                                child: Text(
+                                  '${formattedDate.format(medicalDate)}',
+                                  style: const TextStyle(color: Colors.black54),
+                                ),
                               ),
                             ),
-                          ),
+                          )
                         ],
                       ),
                       const SizedBox(
@@ -430,29 +432,31 @@ class _HospitalPageState extends State<HospitalPage> {
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                         children: <Widget>[
                           const Text('日期：'),
-                          Tooltip(
-                            message: '更改就醫日期',
-                            child: TextButton(
-                              onPressed: () {
-                                DatePicker.showDatePicker(
-                                  context,
-                                  currentTime: DateTime.now(),
-                                  locale: LocaleType.tw,
-                                  showTitleActions: true,
-                                  onConfirm: (date) {
-                                    _setState(() {
-                                      editMedicalDate = date;
-                                    });
-                                  },
-                                  theme: const DatePickerTheme(
-                                    cancelStyle: const TextStyle(
-                                        color: Colors.redAccent),
-                                  ),
-                                );
-                              },
-                              child: Text(
-                                '${formattedDate.format(editMedicalDate)}',
-                                style: const TextStyle(color: Colors.black54),
+                          Flexible(
+                            child: Tooltip(
+                              message: '更改就醫日期',
+                              child: TextButton(
+                                onPressed: () {
+                                  DatePicker.showDatePicker(
+                                    context,
+                                    currentTime: DateTime.now(),
+                                    locale: LocaleType.tw,
+                                    showTitleActions: true,
+                                    onConfirm: (date) {
+                                      _setState(() {
+                                        editMedicalDate = date;
+                                      });
+                                    },
+                                    theme: const DatePickerTheme(
+                                      cancelStyle: const TextStyle(
+                                          color: Colors.redAccent),
+                                    ),
+                                  );
+                                },
+                                child: Text(
+                                  '${formattedDate.format(editMedicalDate)}',
+                                  style: const TextStyle(color: Colors.black54),
+                                ),
                               ),
                             ),
                           ),

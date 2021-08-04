@@ -424,11 +424,14 @@ class _IntroPageState extends State<IntroPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      introImage != null
-                          ? Image.file(File(introImage.path),
-                              fit: BoxFit.fill, width: 125.0, height: 125.0)
-                          : Image.asset(AllDataModel.defaultImage,
-                              fit: BoxFit.fill, width: 125.0, height: 125.0),
+                      Flexible(
+                        fit: FlexFit.loose,
+                        child: introImage != null
+                            ? Image.file(File(introImage.path),
+                                fit: BoxFit.fill, width: 125.0, height: 125.0)
+                            : Image.asset(AllDataModel.defaultImage,
+                                fit: BoxFit.fill, width: 125.0, height: 125.0),
+                      ),
                       const SizedBox(width: 20.0),
                       Tooltip(
                         message: "新增寵物相片",
@@ -478,8 +481,7 @@ class _IntroPageState extends State<IntroPage> {
                             : const Text('是'),
                         value: introIsNeutered,
                         activeColor: ColorSet.primaryLightColors,
-                        onChanged: (value)  {
-
+                        onChanged: (value) {
                           setState(() {
                             introIsNeutered = value;
                           });

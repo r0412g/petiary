@@ -210,11 +210,14 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: <Widget>[
-                      myPet.getImagePath != ''
-                          ? Image.file(File(myPet.getImagePath),
-                              fit: BoxFit.fill, width: 125.0, height: 125.0)
-                          : Image.asset(AllDataModel.defaultImage,
-                              fit: BoxFit.fill, width: 125.0, height: 125.0),
+                      Flexible(
+                        fit: FlexFit.loose,
+                        child: myPet.getImagePath != ''
+                            ? Image.file(File(myPet.getImagePath),
+                                fit: BoxFit.fill, width: 125.0, height: 125.0)
+                            : Image.asset(AllDataModel.defaultImage,
+                                fit: BoxFit.fill, width: 125.0, height: 125.0),
+                      ),
                       const SizedBox(width: 20.0),
                       SingleChildScrollView(
                         child: Column(

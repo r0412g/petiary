@@ -84,9 +84,11 @@ class _SettingPageState extends State<SettingPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceAround,
                       children: <Widget>[
-                        Text(
-                          '一周的第一天為：',
-                          style: TextStyle(fontSize: 17),
+                        Expanded(
+                          child: Text(
+                            '一周的第一天為：',
+                            style: TextStyle(fontSize: 17),
+                          ),
                         ),
                         DropdownButton<String>(
                           value: AllDataModel.firstDayOfWeek,
