@@ -2,8 +2,10 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:intl/intl.dart';
+import 'package:pet_diary/common/data.dart';
 import 'package:pet_diary/common/theme.dart';
 import 'package:pet_diary/database/medical_db.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class HospitalPage extends StatefulWidget {
   HospitalPage({Key? key}) : super(key: key);
@@ -32,6 +34,34 @@ class _HospitalPageState extends State<HospitalPage> {
   bool editIsMedicine = false;
   List<MedicalRecords> medicalRecordsList = [];
 
+  @override
+  void initState() {
+    _addDefaultMedicalRecords();
+    super.initState();
+  }
+
+  /* Add default medical records when user using app at first time */
+  void _addDefaultMedicalRecords() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    bool checkHospitalPage = prefs.getBool('keyCheckHospitalPage') ?? false;
+    if (checkHospitalPage == false) {
+      if (AllDataModel.checkFirstSeen == false) {
+        setState(() {
+          MedicalInfoDB.insertMedicalRecords(
+            MedicalRecords(
+              date: formattedDate.format(DateTime.now()).toString(),
+              isMedicine: 1,
+              medicine: '驅蟲藥',
+              weight: 10.0,
+              remark: '體重過重要注意飲食',
+            ),
+          );
+        });
+      }
+      prefs.setBool('keyCheckHospitalPage', true);
+    }
+  }
+
   /* Clean up the controller when the widget is disposed */
   @override
   void dispose() {
@@ -51,164 +81,191 @@ class _HospitalPageState extends State<HospitalPage> {
         builder: (BuildContext context) {
           return StatefulBuilder(builder: (context, _setState) {
             return AlertDialog(
-                title: Container(
-                  color: ColorSet.secondaryColors,
-                  alignment: Alignment.center,
-                  child: const Text('新增就醫紀錄'),
-                ),
-                content: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: <Widget>[
-                          const Text('日期：'),
-                          Flexible(
-                            child: Tooltip(
-                              message: '選擇就醫日期',
-                              child: TextButton(
-                                onPressed: () {
-                                  DatePicker.showDatePicker(
-                                    context,
-                                    currentTime: DateTime.now(),
-                                    locale: LocaleType.tw,
-                                    showTitleActions: true,
-                                    onConfirm: (date) {
-                                      _setState(() {
-                                        medicalDate = date;
-                                      });
-                                    },
-                                    theme: const DatePickerTheme(
-                                      cancelStyle: const TextStyle(
-                                          color: Colors.redAccent),
-                                    ),
-                                  );
-                                },
-                                child: Text(
-                                  '${formattedDate.format(medicalDate)}',
-                                  style: const TextStyle(color: Colors.black54),
-                                ),
-                              ),
-                            ),
-                          )
-                        ],
+              backgroundColor: ColorSet.colorsWhite,
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    const SizedBox(
+                      height: 40.0,
+                    ),
+                    Text(
+                      '新增就醫紀錄',
+                      style: TextStyle(
+                        color: Color.fromRGBO(0, 0, 0, 80.0),
+                        fontSize: 17.0,
+                        fontWeight: FontWeight.bold,
                       ),
-                      const SizedBox(
-                        height: 10.0,
-                      ),
-                      TextFormField(
-                        controller: weightController,
-                        keyboardType: TextInputType.number,
-                        focusNode: weightFocusNode,
-                        cursorColor: ColorSet.primaryLightColors,
-                        onEditingComplete: () {
-                          weightFocusNode.unfocus();
-                        },
-                        decoration: InputDecoration(
-                          labelText: '體重',
-                          suffixText: 'kg',
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(25.0),
-                            borderSide: const BorderSide(
-                              color: ColorSet.primaryColors,
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(25.0),
-                            borderSide: const BorderSide(
-                              color: ColorSet.secondaryDarkColors,
-                            ),
-                          ),
-                          hintText: '請輸入體重',
+                    ),
+                    const SizedBox(
+                      height: 40.0,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Text(
+                          '就診日期',
+                          style: MyDialogTheme.dialogTitleStyle,
                         ),
-                      ),
-                      const SizedBox(
-                        height: 10.0,
-                      ),
-                      SwitchListTile(
-                          title: const Text('拿藥?'),
-                          subtitle: isMedicine == true
-                              ? const Text('是')
-                              : const Text('否'),
-                          value: isMedicine,
-                          activeColor: ColorSet.primaryLightColors,
-                          onChanged: (value) {
-                            _setState(() {
-                              isMedicine = value;
-                              if (isMedicine == false)
-                                medicineController.text = '';
-                            });
-                          }),
-                      isMedicine == true
-                          ? TextFormField(
-                              controller: medicineController,
-                              focusNode: medicineFocusNode,
-                              cursorColor: ColorSet.primaryLightColors,
-                              onEditingComplete: () {
-                                medicineFocusNode.unfocus();
+                        Flexible(
+                          child: Tooltip(
+                            message: '選擇就診日期',
+                            child: TextButton(
+                              onPressed: () {
+                                DatePicker.showDatePicker(
+                                  context,
+                                  currentTime: DateTime.now(),
+                                  locale: LocaleType.tw,
+                                  showTitleActions: true,
+                                  onConfirm: (date) {
+                                    _setState(() {
+                                      medicalDate = date;
+                                    });
+                                  },
+                                  theme: const DatePickerTheme(
+                                    cancelStyle: const TextStyle(
+                                        color: Colors.redAccent),
+                                  ),
+                                );
                               },
-                              decoration: InputDecoration(
-                                labelText: '藥物',
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(25.0),
-                                  borderSide: const BorderSide(
-                                    color: ColorSet.primaryColors,
-                                  ),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(25.0),
-                                  borderSide: const BorderSide(
-                                    color: ColorSet.secondaryDarkColors,
-                                  ),
-                                ),
-                                hintText: '請輸入藥物相關資訊',
+                              child: Text(
+                                '${formattedDate.format(medicalDate)}',
+                                style: MyDialogTheme.dialogContentStyle,
                               ),
-                            )
-                          : Container(),
-                      const SizedBox(
-                        height: 15.0,
-                      ),
-                      TextFormField(
-                        controller: remarkController,
-                        keyboardType: TextInputType.multiline,
-                        focusNode: remarkFocusNode,
-                        cursorColor: ColorSet.primaryLightColors,
-                        onEditingComplete: () {
-                          remarkFocusNode.unfocus();
-                        },
-                        decoration: InputDecoration(
-                          contentPadding: const EdgeInsets.symmetric(
-                              vertical: 50.0, horizontal: 10.0),
-                          labelText: '備註',
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(25.0),
-                            borderSide: const BorderSide(
-                              color: ColorSet.primaryColors,
                             ),
                           ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(25.0),
-                            borderSide: const BorderSide(
-                              color: ColorSet.secondaryDarkColors,
-                            ),
-                          ),
-                          hintText: '請輸入備註',
+                        )
+                      ],
+                    ),
+                    Divider(),
+                    TextField(
+                      style: MyDialogTheme.dialogContentStyle,
+                      textAlign: TextAlign.end,
+                      textAlignVertical: TextAlignVertical.center,
+                      controller: weightController,
+                      keyboardType: TextInputType.number,
+                      focusNode: weightFocusNode,
+                      cursorColor: ColorSet.colorsDarkBlueGreenOfOpacity80,
+                      onEditingComplete: () {
+                        weightFocusNode.unfocus();
+                      },
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        prefixIcon: Text(
+                          '體重',
+                          style: MyDialogTheme.dialogTitleStyle,
                         ),
+                        prefixIconConstraints:
+                            BoxConstraints(minWidth: 0, minHeight: 0),
+                        suffixText: 'kg',
                       ),
-                      const SizedBox(
-                        height: 10.0,
+                    ),
+                    Divider(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Text(
+                          '是否拿藥',
+                          style: MyDialogTheme.dialogTitleStyle,
+                        ),
+                        Switch(
+                            value: isMedicine,
+                            inactiveThumbColor:
+                                ColorSet.colorsWhiteGrayOfOpacity80,
+                            inactiveTrackColor:
+                                ColorSet.colorsWhiteGrayOfOpacity80,
+                            activeColor:
+                                ColorSet.colorsDarkBlueGreenOfOpacity80,
+                            activeTrackColor:
+                                ColorSet.colorsWhiteGrayOfOpacity80,
+                            onChanged: (value) {
+                              _setState(() {
+                                isMedicine = value;
+                                if (isMedicine == false)
+                                  medicineController.text = '';
+                              });
+                            }),
+                      ],
+                    ),
+                    Divider(),
+                    isMedicine == true
+                        ? Column(
+                            children: <Widget>[
+                              TextField(
+                                style: MyDialogTheme.dialogContentStyle,
+                                textAlign: TextAlign.end,
+                                textAlignVertical: TextAlignVertical.center,
+                                controller: medicineController,
+                                focusNode: medicineFocusNode,
+                                cursorColor:
+                                    ColorSet.colorsDarkBlueGreenOfOpacity80,
+                                onEditingComplete: () {
+                                  medicineFocusNode.unfocus();
+                                },
+                                decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                  prefixIcon: Text(
+                                    '藥物',
+                                    style: MyDialogTheme.dialogTitleStyle,
+                                  ),
+                                  prefixIconConstraints:
+                                      BoxConstraints(minWidth: 0, minHeight: 0),
+                                ),
+                              ),
+                              Divider(),
+                            ],
+                          )
+                        : Container(),
+                    TextField(
+                      style: MyDialogTheme.dialogContentStyle,
+                      textAlign: TextAlign.end,
+                      textAlignVertical: TextAlignVertical.center,
+                      controller: remarkController,
+                      keyboardType: TextInputType.multiline,
+                      focusNode: remarkFocusNode,
+                      cursorColor: ColorSet.colorsDarkBlueGreenOfOpacity80,
+                      onEditingComplete: () {
+                        remarkFocusNode.unfocus();
+                      },
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        prefixIcon: Text(
+                          '新增備註',
+                          style: MyDialogTheme.dialogTitleStyle,
+                        ),
+                        prefixIconConstraints:
+                            BoxConstraints(minWidth: 0, minHeight: 0),
                       ),
-                    ],
+                    ),
+                    Divider(),
+                    const SizedBox(
+                      height: 30.0,
+                    ),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.pop(context, 'Cancel'),
+                  child: const Text(
+                    '取消',
+                    style: TextStyle(
+                        color: ColorSet.colorsBlackOfOpacity80,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13.0,
+                        letterSpacing: 2.0),
                   ),
                 ),
-                actions: <Widget>[
-                  TextButton(
-                    onPressed: () => Navigator.pop(context, 'Cancel'),
-                    child: const Text('取消'),
+                Container(
+                  height: 34.0,
+                  width: 50.0,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    borderRadius: ForAllTheme.allRadius,
+                    color: ColorSet.colorsDarkBlueGreenOfOpacity80,
                   ),
-                  TextButton(
+                  child: TextButton(
                     onPressed: () {
                       // user choose have medicine but didn't enter text
                       if (isMedicine == true && medicineController.text == '') {
@@ -228,9 +285,19 @@ class _HospitalPageState extends State<HospitalPage> {
                         Navigator.pop(context, 'OK');
                       });
                     },
-                    child: const Text('確定'),
+                    child: const Text(
+                      '完成',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: Color.fromRGBO(255, 255, 255, 80.0),
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13.0,
+                          letterSpacing: 2.0),
+                    ),
                   ),
-                ]);
+                ),
+              ],
+            );
           });
         });
   }
@@ -242,77 +309,115 @@ class _HospitalPageState extends State<HospitalPage> {
         context: context,
         builder: (BuildContext context) {
           return StatefulBuilder(builder: (context, _setState) {
-            return Dialog(
-              backgroundColor: ColorSet.secondaryColors,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30.0)),
-              child: SingleChildScrollView(
-                child: Card(
-                  margin: const EdgeInsets.all(15.0),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30.0)),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      const SizedBox(
-                        height: 20.0,
+            return AlertDialog(
+              backgroundColor: ColorSet.colorsWhite,
+              content: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    const SizedBox(
+                      height: 30.0,
+                    ),
+                    Text(
+                      showMedicalDetailsSnapshot.data[showMedicalDetailsIndex]
+                          ['date'],
+                      style: const TextStyle(
+                        color: Color.fromRGBO(0, 0, 0, 80.0),
+                        fontSize: 17.0,
+                        fontWeight: FontWeight.bold,
                       ),
-                      Text(
+                    ),
+                    const SizedBox(
+                      height: 40.0,
+                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          '體重',
+                          style: MyDialogTheme.dialogTitleStyle,
+                        ),
+                        const SizedBox(
+                          width: 10.0,
+                        ),
                         showMedicalDetailsSnapshot.data[showMedicalDetailsIndex]
-                            ['date'],
-                        style: const TextStyle(fontSize: 25.0),
-                      ),
-                      const Divider(
-                        color: ColorSet.secondaryDarkColors,
-                        height: 35.0,
-                        thickness: 3.0,
-                        indent: 30.0,
-                        endIndent: 30.0,
-                      ),
-                      showMedicalDetailsSnapshot.data[showMedicalDetailsIndex]
-                                  ['weight'] ==
-                              0.0
-                          ? const Text(
-                              '體重：無紀錄體重',
-                              style: const TextStyle(fontSize: 17.0),
-                            )
-                          : Text(
-                              '體重：${showMedicalDetailsSnapshot.data[showMedicalDetailsIndex]['weight']}',
-                              style: const TextStyle(fontSize: 17.0),
-                            ),
-                      const SizedBox(
-                        height: 10.0,
-                      ),
-                      showMedicalDetailsSnapshot.data[showMedicalDetailsIndex]
-                                  ['isMedicine'] ==
-                              0
-                          ? const Text(
-                              '藥物：沒拿藥',
-                              style: const TextStyle(fontSize: 17.0),
-                            )
-                          : Text(
-                              '藥物：${showMedicalDetailsSnapshot.data[showMedicalDetailsIndex]['medicine']}',
-                              style: const TextStyle(fontSize: 17.0),
-                            ),
-                      const SizedBox(
-                        height: 10.0,
-                      ),
-                      showMedicalDetailsSnapshot.data[showMedicalDetailsIndex]
-                                  ['remark'] ==
-                              ''
-                          ? const Text(
-                              '備註：無',
-                              style: const TextStyle(fontSize: 17.0),
-                            )
-                          : Text(
-                              '備註：${showMedicalDetailsSnapshot.data[showMedicalDetailsIndex]['remark']}',
-                              style: const TextStyle(fontSize: 17.0),
-                            ),
-                      const SizedBox(
-                        height: 20.0,
-                      ),
-                    ],
-                  ),
+                                    ['weight'] ==
+                                0.0
+                            ? Text(
+                                '無紀錄體重',
+                                style: MyDialogTheme.dialogContentStyle,
+                              )
+                            : Text(
+                                '${showMedicalDetailsSnapshot.data[showMedicalDetailsIndex]['weight']} kg',
+                                style: MyDialogTheme.dialogContentStyle,
+                              ),
+                      ],
+                    ),
+                    Divider(),
+                    const SizedBox(
+                      height: 20.0,
+                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          '藥物',
+                          style: MyDialogTheme.dialogTitleStyle,
+                        ),
+                        const SizedBox(
+                          width: 10.0,
+                        ),
+                        showMedicalDetailsSnapshot.data[showMedicalDetailsIndex]
+                                    ['isMedicine'] ==
+                                0
+                            ? Text(
+                                '沒拿藥',
+                                style: MyDialogTheme.dialogContentStyle,
+                              )
+                            : Text(
+                                '${showMedicalDetailsSnapshot.data[showMedicalDetailsIndex]['medicine']}',
+                                style: MyDialogTheme.dialogContentStyle,
+                              ),
+                      ],
+                    ),
+                    Divider(),
+                    const SizedBox(
+                      height: 20.0,
+                    ),
+                    Row(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      children: <Widget>[
+                        Text(
+                          '備註',
+                          style: MyDialogTheme.dialogTitleStyle,
+                        ),
+                        const SizedBox(
+                          width: 10.0,
+                        ),
+                        showMedicalDetailsSnapshot.data[showMedicalDetailsIndex]
+                                    ['remark'] ==
+                                ''
+                            ? Text(
+                                '無',
+                                style: MyDialogTheme.dialogContentStyle,
+                              )
+                            : Container(
+                                // 50% of screen width
+                                width: MediaQuery.of(context).size.width * 0.5,
+                                child: Text(
+                                  '${showMedicalDetailsSnapshot.data[showMedicalDetailsIndex]['remark']}',
+                                  style: MyDialogTheme.dialogContentStyle,
+                                  softWrap: true,
+                                ),
+                              ),
+                      ],
+                    ),
+                    Divider(),
+                    const SizedBox(
+                      height: 40.0,
+                    ),
+                  ],
                 ),
               ),
             );
@@ -328,82 +433,70 @@ class _HospitalPageState extends State<HospitalPage> {
         builder: (BuildContext context) {
           return StatefulBuilder(builder: (context, _setState) {
             return Dialog(
-              backgroundColor: ColorSet.secondaryColors,
-              shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(30.0)),
-              child: SingleChildScrollView(
-                child: Card(
-                  margin: const EdgeInsets.all(15.0),
-                  shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(30.0)),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    crossAxisAlignment: CrossAxisAlignment.stretch,
-                    children: <Widget>[
-                      const SizedBox(
-                        height: 20.0,
-                      ),
-                      Tooltip(
-                        message: '編輯事件',
-                        child: TextButton.icon(
-                            onPressed: () {
-                              // Get medical records details on edit page
-                              editMedicalDate = formattedDate.parse(
-                                  editOrDeleteSnapshot.data[editOrDeleteIndex]
-                                      ['date']);
+              backgroundColor: ColorSet.colorsWhite,
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: <Widget>[
+                  Tooltip(
+                    message: '編輯就醫紀錄',
+                    child: TextButton.icon(
+                        onPressed: () {
+                          // Get medical records details on edit page
+                          editMedicalDate = formattedDate.parse(
                               editOrDeleteSnapshot.data[editOrDeleteIndex]
-                                          ['isMedicine'] ==
-                                      0
-                                  ? editIsMedicine = false
-                                  : editIsMedicine = true;
-                              editMedicineController.text = editOrDeleteSnapshot
-                                  .data[editOrDeleteIndex]['medicine'];
-                              editWeightController.text = editOrDeleteSnapshot
-                                  .data[editOrDeleteIndex]['weight']
-                                  .toString();
-                              editRemarkController.text = editOrDeleteSnapshot
-                                  .data[editOrDeleteIndex]['remark'];
+                                  ['date']);
+                          editOrDeleteSnapshot.data[editOrDeleteIndex]
+                                      ['isMedicine'] ==
+                                  0
+                              ? editIsMedicine = false
+                              : editIsMedicine = true;
+                          editMedicineController.text = editOrDeleteSnapshot
+                              .data[editOrDeleteIndex]['medicine'];
+                          editWeightController.text = editOrDeleteSnapshot
+                              .data[editOrDeleteIndex]['weight']
+                              .toString();
+                          editRemarkController.text = editOrDeleteSnapshot
+                              .data[editOrDeleteIndex]['remark'];
 
-                              // edit medical records
-                              _editMedicalRecords(
-                                  editOrDeleteSnapshot, editOrDeleteIndex);
-                            },
-                            icon: const Icon(
-                              Icons.edit_outlined,
-                              color: Colors.black,
-                            ),
-                            label: const Text(
-                              '編輯',
-                              style: const TextStyle(color: Colors.black),
-                            )),
-                      ),
-                      Tooltip(
-                        message: '刪除事件',
-                        child: TextButton.icon(
-                            onPressed: () {
-                              setState(() {
-                                // delete medical records in database
-                                MedicalInfoDB.deleteMedicalRecords(
-                                    editOrDeleteSnapshot.data[editOrDeleteIndex]
-                                        ['id']);
-                              });
-                              Navigator.pop(context);
-                            },
-                            icon: const Icon(
-                              Icons.delete_forever_outlined,
-                              color: Colors.black,
-                            ),
-                            label: const Text(
-                              '刪除',
-                              style: const TextStyle(color: Colors.black),
-                            )),
-                      ),
-                      const SizedBox(
-                        height: 20.0,
-                      ),
-                    ],
+                          // edit medical records
+                          _editMedicalRecords(
+                              editOrDeleteSnapshot, editOrDeleteIndex);
+                        },
+                        icon: const Icon(
+                          Icons.edit_rounded,
+                          color: ColorSet.colorsGrayOfOpacity80,
+                        ),
+                        label: const Text(
+                          '編輯',
+                          style: const TextStyle(
+                              color: ColorSet.colorsGrayOfOpacity80),
+                        )),
                   ),
-                ),
+                  Tooltip(
+                    message: '刪除就醫紀錄',
+                    child: TextButton.icon(
+                        onPressed: () {
+                          setState(() {
+                            // delete medical records in database
+                            MedicalInfoDB.deleteMedicalRecords(
+                                editOrDeleteSnapshot.data[editOrDeleteIndex]
+                                    ['id']);
+                          });
+                          Navigator.pop(context);
+                        },
+                        icon: const Icon(
+                          Icons.delete_rounded,
+                          color: ColorSet.colorsGrayOfOpacity80,
+                        ),
+                        label: const Text(
+                          '刪除',
+                          style: const TextStyle(
+                              color: ColorSet.colorsGrayOfOpacity80),
+                        )),
+                  ),
+                ],
               ),
             );
           });
@@ -418,164 +511,191 @@ class _HospitalPageState extends State<HospitalPage> {
         builder: (BuildContext context) {
           return StatefulBuilder(builder: (context, _setState) {
             return AlertDialog(
-                title: Container(
-                  color: ColorSet.secondaryColors,
-                  alignment: Alignment.center,
-                  child: const Text('編輯就醫紀錄'),
-                ),
-                content: SingleChildScrollView(
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      Row(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: <Widget>[
-                          const Text('日期：'),
-                          Flexible(
-                            child: Tooltip(
-                              message: '更改就醫日期',
-                              child: TextButton(
-                                onPressed: () {
-                                  DatePicker.showDatePicker(
-                                    context,
-                                    currentTime: DateTime.now(),
-                                    locale: LocaleType.tw,
-                                    showTitleActions: true,
-                                    onConfirm: (date) {
-                                      _setState(() {
-                                        editMedicalDate = date;
-                                      });
-                                    },
-                                    theme: const DatePickerTheme(
-                                      cancelStyle: const TextStyle(
-                                          color: Colors.redAccent),
-                                    ),
-                                  );
-                                },
-                                child: Text(
-                                  '${formattedDate.format(editMedicalDate)}',
-                                  style: const TextStyle(color: Colors.black54),
-                                ),
-                              ),
-                            ),
-                          ),
-                        ],
+              backgroundColor: ColorSet.colorsWhite,
+              content: SingleChildScrollView(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    const SizedBox(
+                      height: 40.0,
+                    ),
+                    Text(
+                      '編輯就醫紀錄',
+                      style: TextStyle(
+                        color: ColorSet.colorsBlackOfOpacity80,
+                        fontSize: 17.0,
+                        fontWeight: FontWeight.bold,
                       ),
-                      const SizedBox(
-                        height: 10.0,
-                      ),
-                      TextFormField(
-                        controller: editWeightController,
-                        keyboardType: TextInputType.number,
-                        focusNode: editWeightFocusNode,
-                        cursorColor: ColorSet.primaryLightColors,
-                        onEditingComplete: () {
-                          editWeightFocusNode.unfocus();
-                        },
-                        decoration: InputDecoration(
-                          labelText: '體重',
-                          suffixText: 'kg',
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(25.0),
-                            borderSide: const BorderSide(
-                              color: ColorSet.primaryColors,
-                            ),
-                          ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(25.0),
-                            borderSide: const BorderSide(
-                              color: ColorSet.secondaryDarkColors,
-                            ),
-                          ),
-                          hintText: '更改體重',
+                    ),
+                    const SizedBox(
+                      height: 40.0,
+                    ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Text(
+                          '就診日期',
+                          style: MyDialogTheme.dialogTitleStyle,
                         ),
-                      ),
-                      const SizedBox(
-                        height: 10.0,
-                      ),
-                      SwitchListTile(
-                          title: const Text('拿藥?'),
-                          subtitle: editIsMedicine == true
-                              ? const Text('是')
-                              : const Text('否'),
-                          value: editIsMedicine,
-                          activeColor: ColorSet.primaryLightColors,
-                          onChanged: (value) {
-                            _setState(() {
-                              editIsMedicine = value;
-                              if (editIsMedicine == false)
-                                editMedicineController.text = '';
-                            });
-                          }),
-                      editIsMedicine == true
-                          ? TextFormField(
-                              controller: editMedicineController,
-                              focusNode: editMedicineFocusNode,
-                              cursorColor: ColorSet.primaryLightColors,
-                              onEditingComplete: () {
-                                editMedicineFocusNode.unfocus();
+                        Flexible(
+                          child: Tooltip(
+                            message: '更改就醫日期',
+                            child: TextButton(
+                              onPressed: () {
+                                DatePicker.showDatePicker(
+                                  context,
+                                  currentTime: DateTime.now(),
+                                  locale: LocaleType.tw,
+                                  showTitleActions: true,
+                                  onConfirm: (date) {
+                                    _setState(() {
+                                      editMedicalDate = date;
+                                    });
+                                  },
+                                  theme: const DatePickerTheme(
+                                    cancelStyle: const TextStyle(
+                                        color: Colors.redAccent),
+                                  ),
+                                );
                               },
-                              decoration: InputDecoration(
-                                labelText: '藥物',
-                                focusedBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(25.0),
-                                  borderSide: const BorderSide(
-                                    color: ColorSet.primaryColors,
-                                  ),
-                                ),
-                                enabledBorder: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(25.0),
-                                  borderSide: const BorderSide(
-                                    color: ColorSet.secondaryDarkColors,
-                                  ),
-                                ),
-                                hintText: '更改藥物相關資訊',
+                              child: Text(
+                                '${formattedDate.format(editMedicalDate)}',
+                                style: MyDialogTheme.dialogContentStyle,
                               ),
-                            )
-                          : Container(),
-                      const SizedBox(
-                        height: 15.0,
-                      ),
-                      TextFormField(
-                        controller: editRemarkController,
-                        keyboardType: TextInputType.multiline,
-                        focusNode: editRemarkFocusNode,
-                        cursorColor: ColorSet.primaryLightColors,
-                        onEditingComplete: () {
-                          editRemarkFocusNode.unfocus();
-                        },
-                        decoration: InputDecoration(
-                          contentPadding: const EdgeInsets.symmetric(
-                              vertical: 50.0, horizontal: 10.0),
-                          labelText: '備註',
-                          focusedBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(25.0),
-                            borderSide: const BorderSide(
-                              color: ColorSet.primaryColors,
                             ),
                           ),
-                          enabledBorder: OutlineInputBorder(
-                            borderRadius: BorderRadius.circular(25.0),
-                            borderSide: const BorderSide(
-                              color: ColorSet.secondaryDarkColors,
-                            ),
-                          ),
-                          hintText: '更改備註',
                         ),
+                      ],
+                    ),
+                    Divider(),
+                    TextField(
+                      style: MyDialogTheme.dialogContentStyle,
+                      textAlign: TextAlign.end,
+                      textAlignVertical: TextAlignVertical.center,
+                      controller: editWeightController,
+                      keyboardType: TextInputType.number,
+                      focusNode: editWeightFocusNode,
+                      cursorColor: ColorSet.colorsDarkBlueGreenOfOpacity80,
+                      onEditingComplete: () {
+                        editWeightFocusNode.unfocus();
+                      },
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        prefixIcon: Text(
+                          '體重',
+                          style: MyDialogTheme.dialogTitleStyle,
+                        ),
+                        prefixIconConstraints:
+                            BoxConstraints(minWidth: 0, minHeight: 0),
+                        suffixText: 'kg',
                       ),
-                      const SizedBox(
-                        height: 10.0,
+                    ),
+                    Divider(),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                      children: <Widget>[
+                        Text(
+                          '是否拿藥',
+                          style: MyDialogTheme.dialogTitleStyle,
+                        ),
+                        Switch(
+                            value: editIsMedicine,
+                            inactiveThumbColor:
+                                ColorSet.colorsWhiteGrayOfOpacity80,
+                            inactiveTrackColor:
+                                ColorSet.colorsWhiteGrayOfOpacity80,
+                            activeColor:
+                                ColorSet.colorsDarkBlueGreenOfOpacity80,
+                            activeTrackColor:
+                                ColorSet.colorsWhiteGrayOfOpacity80,
+                            onChanged: (value) {
+                              _setState(() {
+                                editIsMedicine = value;
+                                if (editIsMedicine == false)
+                                  editMedicineController.text = '';
+                              });
+                            }),
+                      ],
+                    ),
+                    Divider(),
+                    editIsMedicine == true
+                        ? Column(
+                            children: <Widget>[
+                              TextField(
+                                style: MyDialogTheme.dialogContentStyle,
+                                textAlign: TextAlign.end,
+                                textAlignVertical: TextAlignVertical.center,
+                                controller: editMedicineController,
+                                focusNode: editMedicineFocusNode,
+                                cursorColor:
+                                    ColorSet.colorsDarkBlueGreenOfOpacity80,
+                                onEditingComplete: () {
+                                  editMedicineFocusNode.unfocus();
+                                },
+                                decoration: InputDecoration(
+                                  border: InputBorder.none,
+                                  prefixIcon: Text(
+                                    '藥物',
+                                    style: MyDialogTheme.dialogTitleStyle,
+                                  ),
+                                  prefixIconConstraints:
+                                      BoxConstraints(minWidth: 0, minHeight: 0),
+                                ),
+                              ),
+                              Divider(),
+                            ],
+                          )
+                        : Container(),
+                    TextField(
+                      style: MyDialogTheme.dialogContentStyle,
+                      textAlign: TextAlign.end,
+                      textAlignVertical: TextAlignVertical.center,
+                      controller: editRemarkController,
+                      keyboardType: TextInputType.multiline,
+                      focusNode: editRemarkFocusNode,
+                      cursorColor: ColorSet.colorsDarkBlueGreenOfOpacity80,
+                      onEditingComplete: () {
+                        editRemarkFocusNode.unfocus();
+                      },
+                      decoration: InputDecoration(
+                        border: InputBorder.none,
+                        prefixIcon: Text(
+                          '編輯備註',
+                          style: MyDialogTheme.dialogTitleStyle,
+                        ),
+                        prefixIconConstraints:
+                            BoxConstraints(minWidth: 0, minHeight: 0),
                       ),
-                    ],
+                    ),
+                    Divider(),
+                    const SizedBox(
+                      height: 30.0,
+                    ),
+                  ],
+                ),
+              ),
+              actions: <Widget>[
+                TextButton(
+                  onPressed: () => Navigator.pop(context, 'Cancel'),
+                  child: const Text(
+                    '取消',
+                    style: TextStyle(
+                        color: ColorSet.colorsBlackOfOpacity80,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 13.0,
+                        letterSpacing: 2.0),
                   ),
                 ),
-                actions: <Widget>[
-                  TextButton(
-                    onPressed: () => Navigator.pop(context, 'Cancel'),
-                    child: const Text('取消'),
+                Container(
+                  height: 34.0,
+                  width: 50.0,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    borderRadius: ForAllTheme.allRadius,
+                    color: ColorSet.colorsDarkBlueGreenOfOpacity80,
                   ),
-                  TextButton(
+                  child: TextButton(
                     onPressed: () {
                       // user choose have medicine but didn't enter text
                       if (editIsMedicine == true &&
@@ -602,80 +722,191 @@ class _HospitalPageState extends State<HospitalPage> {
                             .popUntil((route) => route.isFirst);
                       });
                     },
-                    child: const Text('確定'),
+                    child: const Text(
+                      '完成',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                          color: ColorSet.colorsWhite,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13.0,
+                          letterSpacing: 2.0),
+                    ),
                   ),
-                ]);
+                ),
+              ],
+            );
           });
         });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Scrollbar(
-          child: FutureBuilder(
-        future: MedicalInfoDB.queryMedicalRecords(),
-        builder: (context, AsyncSnapshot snapshot) {
-          if (snapshot.connectionState == ConnectionState.done &&
-              snapshot.data?.length == 0) {
-            return const Center(child: const Text('沒有醫療紀錄'));
-          }
-          if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: const CircularProgressIndicator(
-                color: ColorSet.secondaryColors,
-                backgroundColor: ColorSet.primaryLightColors,
+    return SafeArea(
+        child: Stack(
+      children: <Widget>[
+        Column(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: <Widget>[
+            const Text(
+              '就醫紀錄',
+              style: TextStyle(
+                letterSpacing: 1.0,
+                fontSize: 25.0,
+                fontWeight: FontWeight.bold,
+                color: Color.fromRGBO(0, 0, 0, 80.0),
               ),
-            );
-          }
-          return ListView.builder(
-              itemCount: snapshot.data.length,
-              itemBuilder: (context, index) {
-                return Card(
-                  shadowColor: ColorSet.primaryColors,
-                  margin: const EdgeInsets.all(7.0),
-                  child: ListTile(
-                    leading: Text('${snapshot.data[index]['date']}'),
-                    title: snapshot.data[index]['isMedicine'] == 0
-                        ? const Text(
-                            '沒拿藥',
-                            style: TextStyle(fontSize: 15.0),
-                          )
-                        : const Text(
-                            '有拿藥',
-                            style: TextStyle(fontSize: 15.0),
-                          ),
-                    trailing: snapshot.data[index]['weight'] == 0.0
-                        ? const Text('沒量體重')
-                        : Text('${snapshot.data[index]['weight']}kg'),
-                    onTap: () {
-                      _onTapShowMedicalDetails(snapshot, index);
-                    },
-                    onLongPress: () {
-                      _onLongPressEditOrDelete(snapshot, index);
-                    },
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                Expanded(
+                  child: SizedBox(
+                    height: 540.0,
+                    child: Card(
+                      color: ColorSet.primaryColorsGreenOfOpacity80,
+                      margin:
+                          EdgeInsets.only(right: 22.0, top: 20.0, bottom: 17.0),
+                      shape: MyCardTheme.cardsForLeftShapeBorder,
+                    ),
                   ),
-                );
-              });
-        },
-      )),
-      floatingActionButton: FloatingActionButton(
-        tooltip: '新增醫療紀錄',
-        backgroundColor: ColorSet.secondaryColors,
-        onPressed: () {
-          /* Initial value in add medical records page */
-          medicalDate = DateTime.now();
-          medicineController.text = '';
-          weightController.text = '';
-          remarkController.text = '';
-          isMedicine = false;
-          _addMedicalRecords();
-        },
-        child: const Icon(
-          Icons.add_outlined,
-          color: ColorSet.primaryColors,
+                ),
+                SizedBox(
+                  width: 300.0,
+                  height: 540.0,
+                  child: Card(
+                    color: ColorSet.primaryColorsGreenOfOpacity80,
+                    margin: EdgeInsets.only(top: 20.0, bottom: 17.0),
+                    child: Column(
+                      children: <Widget>[
+                        Spacer(flex: 1),
+                        Expanded(
+                          flex: 10,
+                          child: FutureBuilder(
+                              future: MedicalInfoDB.queryMedicalRecords(),
+                              builder: (context, AsyncSnapshot snapshot) {
+                                if (snapshot.connectionState ==
+                                        ConnectionState.done &&
+                                    snapshot.data?.length == 0) {
+                                  return const Center(
+                                      child: const Text('沒有醫療紀錄'));
+                                }
+                                if (snapshot.connectionState ==
+                                    ConnectionState.waiting) {
+                                  return const Center(
+                                    child: const CircularProgressIndicator(
+                                      color:
+                                          ColorSet.colorsWhiteGrayOfOpacity80,
+                                      backgroundColor: ColorSet
+                                          .colorsDarkBlueGreenOfOpacity80,
+                                    ),
+                                  );
+                                }
+                                return ListView.builder(
+                                    padding: const EdgeInsets.only(
+                                        right: 15.0, left: 15.0),
+                                    itemCount: snapshot.data.length,
+                                    itemBuilder: (context, index) {
+                                      return GestureDetector(
+                                        child: Container(
+                                          height: 50.0,
+                                          margin: const EdgeInsets.fromLTRB(
+                                              3.0, 7.0, 3.0, 7.0),
+                                          child: ListTile(
+                                            shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    BorderRadius.circular(
+                                                        10.0)),
+                                            tileColor: ColorSet
+                                                .colorsWhiteGrayOfOpacity80,
+                                            leading: Column(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
+                                              children: <Widget>[
+                                                Text(
+                                                  '${snapshot.data[index]['date']}',
+                                                  style: TextStyle(
+                                                    color: ColorSet
+                                                        .colorsBlackOfOpacity80,
+                                                  ),
+                                                ),
+                                              ],
+                                            ),
+                                            title: snapshot.data[index]
+                                                        ['weight'] ==
+                                                    0.0
+                                                ? const Text(
+                                                    '沒量體重',
+                                                    style: TextStyle(
+                                                      fontSize: 15.0,
+                                                      color: ColorSet
+                                                          .colorsBlackOfOpacity80,
+                                                    ),
+                                                  )
+                                                : Text(
+                                                    '${snapshot.data[index]['weight']} kg',
+                                                    style: TextStyle(
+                                                      fontSize: 15.0,
+                                                      color: ColorSet
+                                                          .colorsBlackOfOpacity80,
+                                                    ),
+                                                  ),
+                                            onTap: () {
+                                              _onTapShowMedicalDetails(
+                                                  snapshot, index);
+                                            },
+                                            onLongPress: () {
+                                              _onLongPressEditOrDelete(
+                                                  snapshot, index);
+                                            },
+                                          ),
+                                        ),
+                                      );
+                                    });
+                              }),
+                        ),
+                        Spacer(flex: 1),
+                      ],
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: SizedBox(
+                    height: 540.0,
+                    child: Card(
+                      color: ColorSet.primaryColorsGreenOfOpacity80,
+                      margin:
+                          EdgeInsets.only(left: 22.0, top: 20.0, bottom: 17.0),
+                      shape: MyCardTheme.cardsForRightShapeBorder,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
-      ),
-    );
+        Positioned(
+          right: 26.0,
+          bottom: 34.0,
+          child: FloatingActionButton(
+            tooltip: '新增醫療紀錄',
+            backgroundColor: ColorSet.colorsWhite,
+            child: const Icon(
+              Icons.add_outlined,
+              color: ColorSet.colorsDarkBlueGreenOfOpacity80,
+              size: 30.0,
+            ),
+            onPressed: () {
+              /* Initial value in add medical records page */
+              medicalDate = DateTime.now();
+              medicineController.text = '';
+              weightController.text = '';
+              remarkController.text = '';
+              isMedicine = false;
+              _addMedicalRecords();
+            },
+          ),
+        ),
+      ],
+    ));
   }
 }

@@ -24,9 +24,9 @@ class _IntroPageState extends State<IntroPage> {
   int introGenderIndex = 0;
   bool introIsNeutered = false;
   bool introIsExactDate = false;
-  bool introImageSelected = false;
   final formattedDate = DateFormat('yyyy-MM-dd');
-  var introImage;
+  var introImageByFile;
+  String introImagePathByAssets = 'assets/images/default_image.png';
 
   FocusNode introNameFocusNode = new FocusNode();
   FocusNode introDateFocusNode = new FocusNode();
@@ -35,17 +35,33 @@ class _IntroPageState extends State<IntroPage> {
   TextEditingController introNameController = TextEditingController();
   TextEditingController introAgeController = TextEditingController();
 
-  TextStyle titleStyle = const TextStyle(
-    color: ColorSet.secondaryColors,
+  TextStyle _titleStyle = const TextStyle(
+    color: ColorSet.colorsBlackOfOpacity80,
     fontSize: 20,
+    fontWeight: FontWeight.bold,
     letterSpacing: 1.5,
   );
 
-  TextStyle introPageTwoTextStyle = const TextStyle(
-    color: ColorSet.secondaryColors,
-    fontSize: 15,
-    letterSpacing: 1.5,
+  Decoration _containerOfDropdownButtonDeco = ShapeDecoration(
+    shape: RoundedRectangleBorder(
+      side:
+          BorderSide(color: ColorSet.primaryColorsGreenOfOpacity80, width: 3.0),
+      borderRadius: ForAllTheme.allRadius,
+    ),
   );
+
+  List<BoxShadow> _boxShadow = [
+    const BoxShadow(
+      color: ColorSet.colorsGrayOfOpacity80,
+      blurRadius: 5.0,
+      offset: const Offset(2.0, 2.0),
+    ),
+  ];
+
+  @override
+  void initState() {
+    super.initState();
+  }
 
   /* Clean up the controller when the widget is disposed */
   @override
@@ -60,18 +76,16 @@ class _IntroPageState extends State<IntroPage> {
   /* Select Pet Image On User Device */
   Future<Null> _pickImage() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    MyPetModel myPet = Provider.of<MyPetModel>(context, listen: false);
     final pickedImage =
         await ImagePicker().pickImage(source: ImageSource.gallery);
-    introImage = pickedImage;
+    setState(() {
+      introImageByFile = pickedImage;
+    });
 
     // Image selected then save
-    if (introImage != null) {
-      introImageSelected = true;
-      await prefs.setString('keyPetImagePath', introImage.path);
-      setState(() {
-        myPet.setImagePath(introImage.path);
-      });
+    if (introImageByFile != null) {
+      introImagePathByAssets = '';
+      prefs.setString('keyPetImagePathByAssets', '');
       _cropImage();
     } else {
       Fluttertoast.showToast(
@@ -79,7 +93,7 @@ class _IntroPageState extends State<IntroPage> {
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
           backgroundColor: Colors.white,
-          textColor: Colors.black,
+          textColor: ColorSet.colorsBlackOfOpacity80,
           fontSize: 16.0);
     }
   }
@@ -87,49 +101,41 @@ class _IntroPageState extends State<IntroPage> {
   /* Crop Pet Image By User Selected */
   Future<Null> _cropImage() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    MyPetModel myPet = Provider.of<MyPetModel>(context, listen: false);
     File? croppedFile = await ImageCropper.cropImage(
-      sourcePath: introImage.path,
-      aspectRatioPresets: Platform.isAndroid
-          ? [
-              CropAspectRatioPreset.original,
-              CropAspectRatioPreset.square,
-            ]
-          : [
-              CropAspectRatioPreset.original,
-              CropAspectRatioPreset.square,
-              CropAspectRatioPreset.ratio3x2,
-              CropAspectRatioPreset.ratio4x3,
-              CropAspectRatioPreset.ratio16x9
-            ],
+      sourcePath: introImageByFile.path,
+      aspectRatioPresets: [
+        CropAspectRatioPreset.square,
+      ],
       androidUiSettings: const AndroidUiSettings(
-        activeControlsWidgetColor: ColorSet.primaryColors,
-        backgroundColor: Colors.black,
+        activeControlsWidgetColor: ColorSet.primaryColorsGreenOfOpacity80,
+        backgroundColor: ColorSet.colorsBlackOfOpacity80,
         cropFrameStrokeWidth: 5,
         cropGridStrokeWidth: 5,
-        dimmedLayerColor: ColorSet.primaryLightColors,
-        initAspectRatio: CropAspectRatioPreset.original,
+        cropFrameColor: ColorSet.colorsBlackOfOpacity80,
+        dimmedLayerColor: ColorSet.colorsWhiteGrayOfOpacity80,
+        initAspectRatio: CropAspectRatioPreset.square,
         lockAspectRatio: false,
         toolbarTitle: '剪裁相片',
-        toolbarColor: ColorSet.primaryColors,
-        toolbarWidgetColor: Colors.white,
+        toolbarColor: ColorSet.colorsBlackOfOpacity80,
+        toolbarWidgetColor: ColorSet.colorsWhite,
+        showCropGrid: false,
       ),
     );
 
     // Image cropped then save
     if (croppedFile != null) {
-      introImage = croppedFile;
-      await prefs.setString('keyPetImagePath', introImage.path);
       setState(() {
-        myPet.setImagePath(introImage.path);
+        introImageByFile = croppedFile;
       });
+      introImagePathByAssets = '';
+      prefs.setString('keyPetImagePathByAssets', '');
     } else {
       Fluttertoast.showToast(
           msg: "您沒有剪裁相片",
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
           backgroundColor: Colors.white,
-          textColor: Colors.black,
+          textColor: ColorSet.colorsBlackOfOpacity80,
           fontSize: 16.0);
     }
   }
@@ -140,6 +146,14 @@ class _IntroPageState extends State<IntroPage> {
 
     await prefs.setBool('keyChecked', true);
 
+    if (introImageByFile != null) {
+      //myPet.setImagePathByFile(introImageByFile.path);
+      await prefs.setString('keyPetImagePathByFile', introImageByFile.path);
+    }
+    if (introImagePathByAssets != '') {
+      //myPet.setImagePathByAssets(introImagePathByAssets);
+      await prefs.setString('keyPetImagePathByAssets', introImagePathByAssets);
+    }
     // Save pet name if user have input
     if (introNameController.text != '') {
       myPet.setName(introNameController.text);
@@ -157,8 +171,8 @@ class _IntroPageState extends State<IntroPage> {
     myPet.setIsNeutered(introIsNeutered);
     await prefs.setBool('keyIsNeutered', introIsNeutered);
 
-    Navigator.of(context).pushReplacement(new MaterialPageRoute(
-        builder: (context) => new MyHomePage(title: '寵物日記')));
+    Navigator.of(context).pushReplacement(
+        new MaterialPageRoute(builder: (context) => new MyHomePage()));
   }
 
   @override
@@ -166,361 +180,537 @@ class _IntroPageState extends State<IntroPage> {
     MyPetModel myPet = Provider.of<MyPetModel>(context, listen: false);
 
     return IntroductionScreen(
-      globalBackgroundColor: ColorSet.primaryLightColors,
+      globalBackgroundColor: Colors.white,
       /* All pages in IntroScreen */
       rawPages: [
         /* Page 1: Welcome Page */
-        Card(
-          color: ColorSet.primaryColors,
+        Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: <Widget>[
+              Image.asset(
+                'assets/images/logo.png',
+                width: 175.0,
+                height: 175.0,
+              ),
+              SizedBox(
+                height: 70.0,
+              ),
               Text(
-                '歡迎使用寵物日記\n\n讓我們先來做些初始設定吧!',
+                '歡迎使用寵物日記\n\n一起為您的寵物建立檔案吧！',
                 textAlign: TextAlign.center,
-                style: titleStyle,
+                style: _titleStyle,
               ),
             ],
           ),
-          margin: MyCardTheme.cardMargin,
-          shape: MyCardTheme.cardShapeBorder,
         ),
         /* Page 2: Select Pet Type And Breeds */
-        Card(
-          color: ColorSet.primaryColors,
-          child: Center(
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: <Widget>[
-                  Text(
-                    '請選擇您的寵物類型',
-                    style: titleStyle,
-                  ),
-                  const SizedBox(height: 40.0),
-                  Container(
-                    color: ColorSet.thirdColors,
+        Center(
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: <Widget>[
+                Text(
+                  '您的寵物類型：${myPet.getType}',
+                  style: _titleStyle,
+                ),
+                const SizedBox(height: 25.0),
+                Container(
                     width: 250.0,
                     height: 40.0,
                     alignment: Alignment.center,
-                    child: DropdownButton<String>(
-                      isExpanded: true,
-                      dropdownColor: ColorSet.thirdColors,
-                      value: AllDataModel.petType,
-                      onChanged: (value) async {
-                        SharedPreferences prefs =
-                            await SharedPreferences.getInstance();
-                        setState(() {
-                          AllDataModel.petType = value;
-                          myPet.setBreeds("請選擇");
-                        });
-                        AllDataModel.defaultBreeds.clear();
-                        myPet.setBreeds('');
-                        await prefs.setString('keyPetBreeds', '');
-                        /* Change Breeds List By Select Different Type */
-                        switch (AllDataModel.petType) {
-                          case "狗狗":
-                            myPet.setType("狗狗");
-                            prefs.setString('keyPetType', '狗狗');
-                            AllDataModel.defaultBreeds
-                                .addAll(AllDataModel.dogBreeds);
-                            break;
-                          case "貓咪":
-                            myPet.setType("貓咪");
-                            prefs.setString('keyPetType', '貓咪');
-                            AllDataModel.defaultBreeds
-                                .addAll(AllDataModel.catBreeds);
-                            break;
-                          case "兔子":
-                            myPet.setType("兔子");
-                            prefs.setString('keyPetType', '兔子');
-                            AllDataModel.defaultBreeds
-                                .addAll(AllDataModel.rabbitBreeds);
-                            break;
-                          case "烏龜":
-                            myPet.setType("烏龜");
-                            prefs.setString('keyPetType', '烏龜');
-                            AllDataModel.defaultBreeds
-                                .addAll(AllDataModel.turtleBreeds);
-                            break;
-                          case "其他":
-                            AllDataModel.defaultBreeds.add("自行輸入");
-                            showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: const Text('自行輸入寵物類型'),
-                                    actions: <Widget>[
-                                      TextFormField(
-                                        controller: introTypeController,
-                                        decoration: const InputDecoration(
-                                          prefixIcon: const Icon(Icons.pets),
-                                          hintText: '請輸入寵物的類型',
-                                        ),
-                                      ),
-                                      Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          children: <Widget>[
-                                            TextButton(
-                                              onPressed: () => Navigator.pop(
-                                                  context, 'Cancel'),
-                                              child: const Text('取消'),
+                    decoration: _containerOfDropdownButtonDeco,
+                    child: DropdownButtonHideUnderline(
+                      child: ButtonTheme(
+                        alignedDropdown: true,
+                        child: DropdownButtonFormField<String>(
+                          decoration: InputDecoration.collapsed(hintText: ''),
+                          icon: Icon(Icons.keyboard_arrow_down_outlined),
+                          iconSize: 30.0,
+                          iconEnabledColor:
+                              ColorSet.primaryColorsGreenOfOpacity80,
+                          isExpanded: true,
+                          value: AllDataModel.petType,
+                          onChanged: (value) async {
+                            SharedPreferences prefs =
+                                await SharedPreferences.getInstance();
+                            setState(() {
+                              AllDataModel.petType = value;
+                              myPet.setBreeds("請選擇");
+                            });
+                            AllDataModel.defaultBreeds.clear();
+                            myPet.setBreeds('');
+                            await prefs.setString('keyPetImagePathByFile', '');
+                            introImageByFile = null;
+                            await prefs.setString('keyPetBreeds', '');
+                            /* Change Breeds List By Select Different Type */
+                            switch (AllDataModel.petType) {
+                              case "狗狗":
+                                myPet.setType("狗狗");
+                                prefs.setString('keyPetType', '狗狗');
+                                AllDataModel.defaultBreeds
+                                    .addAll(AllDataModel.dogBreeds);
+                                introImagePathByAssets =
+                                    'assets/images/default_dog.png';
+                                break;
+                              case "貓咪":
+                                myPet.setType("貓咪");
+                                prefs.setString('keyPetType', '貓咪');
+                                AllDataModel.defaultBreeds
+                                    .addAll(AllDataModel.catBreeds);
+                                introImagePathByAssets =
+                                    'assets/images/default_cat.png';
+                                break;
+                              case "兔子":
+                                myPet.setType("兔子");
+                                prefs.setString('keyPetType', '兔子');
+                                AllDataModel.defaultBreeds
+                                    .addAll(AllDataModel.rabbitBreeds);
+                                introImagePathByAssets =
+                                    'assets/images/default_rabbit.png';
+                                break;
+                              case "烏龜":
+                                myPet.setType("烏龜");
+                                prefs.setString('keyPetType', '烏龜');
+                                AllDataModel.defaultBreeds
+                                    .addAll(AllDataModel.turtleBreeds);
+                                introImagePathByAssets =
+                                    'assets/images/default_turtle.png';
+                                break;
+                              case "其他":
+                                AllDataModel.defaultBreeds.add("自行輸入");
+                                introImagePathByAssets =
+                                    'assets/images/default_image.png';
+                                showDialog(
+                                    context: context,
+                                    builder: (BuildContext context) {
+                                      return AlertDialog(
+                                        title: const Text('自行輸入寵物類型'),
+                                        actions: <Widget>[
+                                          TextFormField(
+                                            controller: introTypeController,
+                                            decoration: const InputDecoration(
+                                              prefixIcon:
+                                                  const Icon(Icons.pets),
+                                              hintText: '請輸入寵物的類型',
                                             ),
-                                            TextButton(
-                                              onPressed: () {
-                                                Navigator.pop(context, 'OK');
-                                                setState(() {
-                                                  prefs.setString('keyPetType',
-                                                      introTypeController.text);
-                                                  myPet.setType(
-                                                      introTypeController.text);
-                                                });
-                                              },
-                                              child: const Text('確定'),
-                                            ),
-                                          ]),
-                                    ],
-                                  );
-                                });
-                            break;
-                          default:
-                          /**/
-                        }
-                        AllDataModel.petBreeds = null;
-                      },
-                      items: <String>['狗狗', '貓咪', '兔子', '烏龜', '其他']
-                          .map<DropdownMenuItem<String>>((String type) {
-                        return DropdownMenuItem<String>(
-                          value: type,
-                          child: new Text(type),
-                        );
-                      }).toList(),
-                      hint: const Text(
-                        "選擇寵物類型",
+                                          ),
+                                          Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.end,
+                                              children: <Widget>[
+                                                TextButton(
+                                                  onPressed: () =>
+                                                      Navigator.pop(
+                                                          context, 'Cancel'),
+                                                  child: const Text(
+                                                    '取消',
+                                                    style: TextStyle(
+                                                        color: ColorSet
+                                                            .primaryColorsGreenOfOpacity80),
+                                                  ),
+                                                ),
+                                                TextButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(
+                                                        context, 'OK');
+                                                    setState(() {
+                                                      prefs.setString(
+                                                          'keyPetType',
+                                                          introTypeController
+                                                              .text);
+                                                      myPet.setType(
+                                                          introTypeController
+                                                              .text);
+                                                    });
+                                                  },
+                                                  child: const Text(
+                                                    '確定',
+                                                    style: TextStyle(
+                                                        color: ColorSet
+                                                            .primaryColorsGreenOfOpacity80),
+                                                  ),
+                                                ),
+                                              ]),
+                                        ],
+                                      );
+                                    });
+                                break;
+                              default:
+                                print('something went wrong.');
+                              /**/
+                            }
+                            AllDataModel.petBreeds = null;
+                          },
+                          items: <String>['狗狗', '貓咪', '兔子', '烏龜', '其他']
+                              .map<DropdownMenuItem<String>>((String type) {
+                            return DropdownMenuItem<String>(
+                              value: type,
+                              child: new Text(type),
+                            );
+                          }).toList(),
+                          hint: const Text(
+                            "請選擇",
+                          ),
+                        ),
                       ),
-                    ),
-                  ),
-                  const SizedBox(height: 40.0),
-                  Text(
-                    '請選擇您的寵物品種(花色)',
-                    textAlign: TextAlign.center,
-                    style: titleStyle,
-                  ),
-                  const SizedBox(height: 40.0),
-                  Container(
-                    color: ColorSet.thirdColors,
-                    width: 250.0,
-                    height: 40.0,
-                    alignment: Alignment.center,
-                    child: DropdownButton(
-                      hint: const Text(
-                        "選擇寵物品種(花色)",
-                      ),
-                      value: AllDataModel.petBreeds,
-                      isExpanded: true,
-                      dropdownColor: ColorSet.thirdColors,
-                      onChanged: (String? value) async {
-                        SharedPreferences prefs =
-                            await SharedPreferences.getInstance();
-                        await prefs.setString('keyPetBreeds', value.toString());
-                        setState(() {
-                          AllDataModel.petBreeds = value;
-                          myPet.setBreeds(value.toString());
-                        });
-                        switch (value) {
-                          case "自行輸入":
-                            showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  return AlertDialog(
-                                    title: const Text('自行輸入寵物品種(花色)'),
-                                    actions: <Widget>[
-                                      TextFormField(
-                                        controller: introBreedsController,
-                                        decoration: const InputDecoration(
-                                          prefixIcon: const Icon(Icons.pets),
-                                          hintText: '請輸入寵物的品種(花色)',
+                    )),
+                const SizedBox(height: 70.0),
+                Text(
+                  '您的寵物品種：${myPet.getBreeds}',
+                  textAlign: TextAlign.center,
+                  style: _titleStyle,
+                ),
+                const SizedBox(height: 25.0),
+                Container(
+                  width: 250.0,
+                  height: 40.0,
+                  alignment: Alignment.center,
+                  decoration: _containerOfDropdownButtonDeco,
+                  child: DropdownButtonHideUnderline(
+                    child: ButtonTheme(
+                      alignedDropdown: true,
+                      child: DropdownButtonFormField<String>(
+                        decoration: InputDecoration.collapsed(hintText: ''),
+                        icon: Icon(Icons.keyboard_arrow_down_outlined),
+                        iconSize: 30.0,
+                        iconEnabledColor:
+                            ColorSet.primaryColorsGreenOfOpacity80,
+                        iconDisabledColor: ColorSet.colorsWhiteGrayOfOpacity80,
+                        hint: const Text(
+                          "請選擇",
+                        ),
+                        value: AllDataModel.petBreeds,
+                        isExpanded: true,
+                        onChanged: (String? value) async {
+                          SharedPreferences prefs =
+                              await SharedPreferences.getInstance();
+                          await prefs.setString(
+                              'keyPetBreeds', value.toString());
+                          setState(() {
+                            AllDataModel.petBreeds = value;
+                            myPet.setBreeds(value.toString());
+                          });
+                          switch (value) {
+                            case "自行輸入":
+                              showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    return AlertDialog(
+                                      title: const Text('自行輸入寵物品種'),
+                                      actions: <Widget>[
+                                        TextFormField(
+                                          controller: introBreedsController,
+                                          decoration: const InputDecoration(
+                                            prefixIcon: const Icon(Icons.pets),
+                                            hintText: '請輸入寵物的品種',
+                                          ),
                                         ),
-                                      ),
-                                      Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          children: <Widget>[
-                                            TextButton(
-                                              onPressed: () => Navigator.pop(
-                                                  context, 'Cancel'),
-                                              child: const Text('取消'),
-                                            ),
-                                            TextButton(
-                                              onPressed: () async {
-                                                SharedPreferences prefs =
-                                                    await SharedPreferences
-                                                        .getInstance();
-                                                await prefs.setString(
-                                                    'keyPetBreeds',
-                                                    introBreedsController.text);
-                                                Navigator.pop(context, 'OK');
-                                                setState(() {
-                                                  myPet.setBreeds(
+                                        Row(
+                                            mainAxisAlignment:
+                                                MainAxisAlignment.end,
+                                            children: <Widget>[
+                                              TextButton(
+                                                onPressed: () => Navigator.pop(
+                                                    context, 'Cancel'),
+                                                child: const Text(
+                                                  '取消',
+                                                  style: TextStyle(
+                                                    color: ColorSet
+                                                        .primaryColorsGreenOfOpacity80,
+                                                  ),
+                                                ),
+                                              ),
+                                              TextButton(
+                                                onPressed: () async {
+                                                  SharedPreferences prefs =
+                                                      await SharedPreferences
+                                                          .getInstance();
+                                                  await prefs.setString(
+                                                      'keyPetBreeds',
                                                       introBreedsController
                                                           .text);
-                                                });
-                                              },
-                                              child: const Text('確定'),
-                                            ),
-                                          ]),
-                                    ],
-                                  );
-                                });
-                            break;
-                          default:
-                          /**/
-                        }
-                      },
-                      items: AllDataModel.defaultBreeds
-                          .map<DropdownMenuItem<String>>((breeds) {
-                        return DropdownMenuItem<String>(
-                          value: breeds,
-                          child: new Text(breeds),
-                        );
-                      }).toList(),
+                                                  Navigator.pop(context, 'OK');
+                                                  setState(() {
+                                                    myPet.setBreeds(
+                                                        introBreedsController
+                                                            .text);
+                                                  });
+                                                },
+                                                child: const Text(
+                                                  '確定',
+                                                  style: TextStyle(
+                                                      color: ColorSet
+                                                          .primaryColorsGreenOfOpacity80),
+                                                ),
+                                              ),
+                                            ]),
+                                      ],
+                                    );
+                                  });
+                              break;
+                            default:
+                            /**/
+                          }
+                        },
+                        items: AllDataModel.defaultBreeds
+                            .map<DropdownMenuItem<String>>((breeds) {
+                          return DropdownMenuItem<String>(
+                            value: breeds,
+                            child: new Text(breeds),
+                          );
+                        }).toList(),
+                      ),
                     ),
                   ),
-                  const SizedBox(height: 40.0),
-                  /* Show User Selected Type And Breeds */
-                  SingleChildScrollView(
-                      child: Column(children: <Widget>[
-                    Text(
-                      '我的寵物類型：${myPet.getType}',
-                      style: introPageTwoTextStyle,
-                    ),
-                    const SizedBox(height: 5.0),
-                    Text(
-                      '我的寵物品種：${myPet.getBreeds}',
-                      style: introPageTwoTextStyle,
-                    ),
-                  ])),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
-          margin: MyCardTheme.cardMargin,
-          shape: MyCardTheme.cardShapeBorder,
         ),
+
         /* Page 3: Set Pet Information */
-        Card(
-          color: ColorSet.primaryColors,
-          child: Center(
-            child: SingleChildScrollView(
-              child: Column(
-                children: <Widget>[
-                  Text(
-                    '來輸入寵物的基本資料吧!',
-                    textAlign: TextAlign.center,
-                    style: titleStyle,
+        Center(
+          child: SingleChildScrollView(
+            child: Column(
+              children: <Widget>[
+                Text(
+                  '基本資料',
+                  textAlign: TextAlign.center,
+                  style: _titleStyle,
+                ),
+                const SizedBox(height: 15.0),
+                Container(
+                  width: 125.0,
+                  height: 125.0,
+                  alignment: Alignment.center,
+                  decoration: ShapeDecoration(
+                    shape: RoundedRectangleBorder(
+                      side: BorderSide(
+                          color: ColorSet.colorsBlackOfOpacity80, width: 3.0),
+                      borderRadius: ForAllTheme.allRadius,
+                    ),
                   ),
-                  const SizedBox(height: 30.0),
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: <Widget>[
-                      Flexible(
-                        fit: FlexFit.loose,
-                        child: introImage != null
-                            ? Image.file(File(introImage.path),
-                                fit: BoxFit.fill, width: 125.0, height: 125.0)
-                            : Image.asset(AllDataModel.defaultImage,
-                                fit: BoxFit.fill, width: 125.0, height: 125.0),
-                      ),
-                      const SizedBox(width: 20.0),
-                      Tooltip(
-                        message: "新增寵物相片",
-                        child: TextButton.icon(
-                            onPressed: () {
-                              _pickImage();
-                            },
-                            icon: const Icon(
-                              Icons.add_photo_alternate,
-                              color: ColorSet.secondaryColors,
+                  child: GestureDetector(
+                    child: ClipRRect(
+                      borderRadius: BorderRadius.circular(7.0),
+                      child: introImageByFile != null
+                          ? Image.file(
+                              File(introImageByFile.path),
+                              fit: BoxFit.fill,
+                              width: 125.0,
+                              height: 125.0,
+                            )
+                          : Image.asset(
+                              introImagePathByAssets,
+                              fit: BoxFit.fill,
+                              width: 125.0,
+                              height: 125.0,
                             ),
-                            label: Text('選擇相片',
-                                style: TextStyle(
-                                  color: ColorSet.secondaryColors,
-                                ))),
+                    ),
+                    onTap: () {
+                      // pick pet image on phone
+                      _pickImage();
+                    },
+                  ),
+                ),
+                const SizedBox(height: 25.0),
+                Container(
+                  width: 300.0,
+                  height: 45.0,
+                  padding: EdgeInsets.only(
+                    left: 25.0,
+                  ),
+                  decoration: BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    borderRadius: ForAllTheme.allRadius,
+                    color: ColorSet.primaryColorsGreenOfOpacity80,
+                    boxShadow: _boxShadow,
+                  ),
+                  child: TextField(
+                    style: TextStyle(
+                      color: ColorSet.colorsWhite,
+                      fontWeight: FontWeight.bold,
+                    ),
+                    textAlign: TextAlign.end,
+                    textAlignVertical: TextAlignVertical.center,
+                    focusNode: introNameFocusNode,
+                    cursorColor: ColorSet.colorsWhite,
+                    controller: introNameController,
+                    onEditingComplete: () {
+                      introNameFocusNode.unfocus();
+                    },
+                    decoration: const InputDecoration(
+                      border: InputBorder.none,
+                      prefixIcon: const Text(
+                        '輸入寵物姓名',
+                        style: TextStyle(
+                            color: ColorSet.colorsWhite,
+                            fontSize: 17.0,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 2.0),
+                      ),
+                      prefixIconConstraints:
+                          BoxConstraints(minWidth: 0, minHeight: 0),
+                      contentPadding: EdgeInsets.only(
+                        bottom: 10.0,
+                        right: 35.0,
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(height: 20.0),
+                Container(
+                  width: 300.0,
+                  height: 45.0,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    borderRadius: ForAllTheme.allRadius,
+                    color: ColorSet.primaryColorsGreenOfOpacity80,
+                    boxShadow: _boxShadow,
+                  ),
+                  child: Stack(
+                    alignment: AlignmentDirectional.center,
+                    children: <Widget>[
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceAround,
+                        children: <Widget>[
+                          Text(
+                            '選擇性別',
+                            style: TextStyle(
+                                color: ColorSet.colorsWhite,
+                                fontSize: 17.0,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 2.0),
+                          ),
+                          const SizedBox(
+                            width: 5.0,
+                          ),
+                          ToggleSwitch(
+                            minWidth: 30.0,
+                            minHeight: 20.0,
+                            initialLabelIndex: introGenderIndex,
+                            cornerRadius: 20.0,
+                            inactiveBgColor: ColorSet.colorsWhite,
+                            borderColor: [Colors.white],
+                            borderWidth: 2.0,
+                            totalSwitches: 2,
+                            fontSize: 15.0,
+                            customTextStyles: [
+                              TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: ColorSet.colorsWhite,
+                              ),
+                              TextStyle(
+                                fontWeight: FontWeight.bold,
+                                color: ColorSet.colorsWhite,
+                              ),
+                            ],
+                            labels: ['公', '母'],
+                            activeBgColors: [
+                              [ColorSet.colorsDarkBlueGreenOfOpacity80],
+                              [ColorSet.colorsDarkBlueGreenOfOpacity80]
+                            ],
+                            onToggle: (index) async {
+                              SharedPreferences prefs =
+                                  await SharedPreferences.getInstance();
+                              switch (index) {
+                                case 0:
+                                  introGenderIndex = 0;
+                                  myPet.setGender('公');
+                                  await prefs.setString('keyPetGender', '公');
+                                  break;
+                                case 1:
+                                  introGenderIndex = 1;
+                                  myPet.setGender('母');
+                                  await prefs.setString('keyPetGender', '母');
+                                  break;
+                              }
+                            },
+                          ),
+                        ],
                       ),
                     ],
                   ),
-                  const SizedBox(height: 25.0),
-                  Container(
-                    color: ColorSet.thirdColors,
-                    width: 250.0,
-                    height: 40.0,
-                    child: TextField(
-                      focusNode: introNameFocusNode,
-                      cursorColor: ColorSet.primaryLightColors,
-                      controller: introNameController,
-                      onEditingComplete: () {
-                        introNameFocusNode.unfocus();
-                      },
-                      decoration: const InputDecoration(
-                        border: InputBorder.none,
-                        prefixIcon: const Icon(Icons.pets,
-                            color: ColorSet.primaryLightColors),
-                        hintText: '請輸入寵物的名字',
+                ),
+                const SizedBox(height: 20.0),
+                Container(
+                  width: 300.0,
+                  height: 45.0,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    borderRadius: ForAllTheme.allRadius,
+                    color: ColorSet.primaryColorsGreenOfOpacity80,
+                    boxShadow: _boxShadow,
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: <Widget>[
+                      const Text(
+                        '年齡/生日',
+                        style: TextStyle(
+                            color: ColorSet.colorsWhite,
+                            fontSize: 17.0,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 2.0),
                       ),
-                    ),
+                      const SizedBox(
+                        width: 5.0,
+                      ),
+                      Switch(
+                          value: introIsExactDate,
+                          inactiveThumbColor:
+                              ColorSet.colorsWhiteGrayOfOpacity80,
+                          inactiveTrackColor: ColorSet.colorsWhite,
+                          activeColor: ColorSet.colorsDarkBlueGreenOfOpacity80,
+                          activeTrackColor: ColorSet.colorsWhite,
+                          onChanged: (value) {
+                            setState(() {
+                              introIsExactDate = value;
+                            });
+                            /* Reset value while switch on changed */
+                            if (introIsExactDate == false) {
+                              introAgeController.text = '';
+                            } else {
+                              myPet.setBirthday(formattedDate
+                                  .format(DateTime.now())
+                                  .toString());
+                            }
+                          }),
+                    ],
                   ),
-                  const SizedBox(height: 25.0),
-                  Container(
-                    color: ColorSet.thirdColors,
-                    width: 250.0,
-                    child: SwitchListTile(
-                        title: const Text('寵物是否結紮?'),
-                        subtitle: introIsNeutered == false
-                            ? const Text('否')
-                            : const Text('是'),
-                        value: introIsNeutered,
-                        activeColor: ColorSet.primaryLightColors,
-                        onChanged: (value) {
-                          setState(() {
-                            introIsNeutered = value;
-                          });
-                        }),
+                ),
+                const SizedBox(height: 20.0),
+                Container(
+                  width: 300.0,
+                  height: 45.0,
+                  padding: EdgeInsets.only(
+                    left: 25.0,
                   ),
-                  const SizedBox(height: 25.0),
-                  Container(
-                    color: ColorSet.thirdColors,
-                    width: 250.0,
-                    child: Column(
-                      children: <Widget>[
-                        SwitchListTile(
-                            title: Text('寵物確切生日?'),
-                            subtitle: introIsExactDate == true
-                                ? const Text('是')
-                                : const Text('否'),
-                            value: introIsExactDate,
-                            activeColor: ColorSet.primaryLightColors,
-                            onChanged: (value) {
-                              setState(() {
-                                introIsExactDate = value;
-                              });
-                              /* Reset value while switch on changed */
-                              if (introIsExactDate == false) {
-                                myPet.setBirthday('點擊選擇寵物生日');
-                              } else {
-                                introAgeController.text = '';
-                              }
-                            }),
-                        introIsExactDate == true
-                            ? Tooltip(
+                  decoration: BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    borderRadius: ForAllTheme.allRadius,
+                    color: ColorSet.primaryColorsGreenOfOpacity80,
+                    boxShadow: _boxShadow,
+                  ),
+                  child: introIsExactDate == true
+                      ? Row(
+                          children: <Widget>[
+                            Expanded(
+                              child: const Text(
+                                '選擇生日',
+                                style: TextStyle(
+                                    color: ColorSet.colorsWhite,
+                                    fontSize: 17.0,
+                                    fontWeight: FontWeight.bold,
+                                    letterSpacing: 2.0),
+                              ),
+                            ),
+                            Expanded(
+                              child: Tooltip(
                                 message: '選擇日期',
-                                child: ElevatedButton(
-                                  style: ButtonStyle(
-                                    alignment: Alignment.center,
-                                    backgroundColor:
-                                        MaterialStateProperty.all<Color>(
-                                            ColorSet.primaryLightColors),
-                                  ),
+                                child: TextButton(
                                   onPressed: () {
                                     DatePicker.showDatePicker(
                                       context,
@@ -536,6 +726,8 @@ class _IntroPageState extends State<IntroPage> {
                                                 .getInstance();
                                         await prefs.setString('keyPetBirthday',
                                             formattedDate.format(date));
+                                        await prefs.setString('keyPetAge',
+                                            birthdayAge.toString());
                                         setState(() {
                                           myPet.setBirthday(
                                               formattedDate.format(date));
@@ -548,102 +740,159 @@ class _IntroPageState extends State<IntroPage> {
                                       ),
                                     );
                                   },
-                                  child: Text(myPet.getBirthday == ''
-                                      ? '點擊選擇寵物生日'
-                                      : myPet.getBirthday),
-                                ),
-                              )
-                            : Container(
-                                width: 150.0,
-                                child: TextField(
-                                  keyboardType: TextInputType.number,
-                                  focusNode: introDateFocusNode,
-                                  cursorColor: ColorSet.primaryLightColors,
-                                  controller: introAgeController,
-                                  onEditingComplete: () {
-                                    introDateFocusNode.unfocus();
-                                  },
-                                  decoration: const InputDecoration(
-                                    suffixText: '歲',
-                                    border: InputBorder.none,
-                                    prefixIcon: const Icon(
-                                        Icons.date_range_outlined,
-                                        color: ColorSet.primaryLightColors),
-                                    hintText: '請輸入年齡',
+                                  child: Text(
+                                    myPet.getBirthday == ''
+                                        ? formattedDate
+                                            .format(DateTime.now())
+                                            .toString()
+                                        : myPet.getBirthday,
+                                    style: TextStyle(
+                                      color: ColorSet.colorsWhite,
+                                      fontWeight: FontWeight.bold,
+                                    ),
                                   ),
                                 ),
                               ),
-                        const SizedBox(height: 5.0),
-                      ],
-                    ),
+                            ),
+                          ],
+                        )
+                      : TextField(
+                          style: TextStyle(
+                            color: ColorSet.colorsWhite,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.end,
+                          textAlignVertical: TextAlignVertical.center,
+                          keyboardType: TextInputType.number,
+                          focusNode: introDateFocusNode,
+                          cursorColor: ColorSet.colorsWhite,
+                          controller: introAgeController,
+                          onEditingComplete: () {
+                            introDateFocusNode.unfocus();
+                          },
+                          decoration: const InputDecoration(
+                            border: InputBorder.none,
+                            prefixIcon: const Text(
+                              '輸入年齡',
+                              style: TextStyle(
+                                  color: ColorSet.colorsWhite,
+                                  fontSize: 17.0,
+                                  fontWeight: FontWeight.bold,
+                                  letterSpacing: 2.0),
+                            ),
+                            prefixIconConstraints:
+                                BoxConstraints(minWidth: 0, minHeight: 0),
+                            suffixText: '歲',
+                            suffixStyle: TextStyle(
+                                color: ColorSet.colorsWhite,
+                                fontSize: 17.0,
+                                fontWeight: FontWeight.bold,
+                                letterSpacing: 2.0),
+                            contentPadding: EdgeInsets.only(
+                              bottom: 10.0,
+                              right: 35.0,
+                            ),
+                          ),
+                        ),
+                ),
+                const SizedBox(height: 20.0),
+                Container(
+                  width: 300.0,
+                  height: 45.0,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.rectangle,
+                    borderRadius: ForAllTheme.allRadius,
+                    color: ColorSet.primaryColorsGreenOfOpacity80,
+                    boxShadow: _boxShadow,
                   ),
-                  const SizedBox(height: 25.0),
-                  ToggleSwitch(
-                    minWidth: 90.0,
-                    initialLabelIndex: introGenderIndex,
-                    cornerRadius: 20.0,
-                    activeFgColor: Colors.black,
-                    inactiveBgColor: Colors.grey,
-                    inactiveFgColor: Colors.white,
-                    totalSwitches: 2,
-                    icons: [Icons.male, Icons.female],
-                    iconSize: 20,
-                    activeBgColors: [
-                      [Colors.blue],
-                      [Colors.pink]
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: <Widget>[
+                      const Text(
+                        '是否結紮',
+                        style: TextStyle(
+                            color: ColorSet.colorsWhite,
+                            fontSize: 17.0,
+                            fontWeight: FontWeight.bold,
+                            letterSpacing: 2.0),
+                      ),
+                      const SizedBox(
+                        width: 5.0,
+                      ),
+                      Switch(
+                        value: introIsNeutered,
+                        inactiveThumbColor: ColorSet.colorsWhiteGrayOfOpacity80,
+                        inactiveTrackColor: ColorSet.colorsWhite,
+                        activeColor: ColorSet.colorsDarkBlueGreenOfOpacity80,
+                        activeTrackColor: ColorSet.colorsWhite,
+                        onChanged: (value) {
+                          setState(() {
+                            introIsNeutered = value;
+                          });
+                        },
+                      )
                     ],
-                    onToggle: (index) async {
-                      SharedPreferences prefs =
-                          await SharedPreferences.getInstance();
-                      switch (index) {
-                        case 0:
-                          introGenderIndex = 0;
-                          myPet.setGender('男');
-                          await prefs.setString('keyPetGender', '男');
-                          break;
-                        case 1:
-                          introGenderIndex = 1;
-                          myPet.setGender('女');
-                          await prefs.setString('keyPetGender', '女');
-                          break;
-                      }
-                    },
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
-          margin: MyCardTheme.cardMargin,
-          shape: MyCardTheme.cardShapeBorder,
         ),
       ],
       isTopSafeArea: true,
       isBottomSafeArea: true,
-      color: ColorSet.secondaryColors,
 
       /* Skip Button */
       skip: const Tooltip(
         message: '跳過初始設定',
-        child: const Text('跳過'),
+        child: const Text(
+          '略過',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
       ),
       showSkipButton: true,
       skipFlex: 1,
 
       /* Next Button */
-      next: const Text('下一頁'),
+      next: Container(
+        padding: EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 5.0),
+        decoration: BoxDecoration(
+          color: ColorSet.primaryColorsGreenOfOpacity80,
+          borderRadius: ForAllTheme.allRadius,
+          boxShadow: _boxShadow,
+        ),
+        child: const Text(
+          '下一頁',
+          style: TextStyle(
+              color: ColorSet.colorsWhite, fontWeight: FontWeight.bold),
+        ),
+      ),
       showNextButton: true,
       nextFlex: 1,
 
       /* Done Button */
-      done: const Text('完成'),
+      done: Container(
+        padding: EdgeInsets.fromLTRB(17.0, 5.0, 17.0, 5.0),
+        decoration: BoxDecoration(
+          color: ColorSet.primaryColorsGreenOfOpacity80,
+          borderRadius: ForAllTheme.allRadius,
+          boxShadow: _boxShadow,
+        ),
+        child: const Text(
+          '完成',
+          style: TextStyle(
+              color: ColorSet.colorsWhite, fontWeight: FontWeight.bold),
+        ),
+      ),
       onDone: () => _onIntroEnd(context),
 
       /* controls/dots */
-      controlsMargin: const EdgeInsets.all(40.0),
+      controlsMargin: const EdgeInsets.fromLTRB(10.0, 10.0, 35.0, 10.0),
+      color: ColorSet.colorsBlackOfOpacity80,
       dotsDecorator: const DotsDecorator(
         size: const Size(10.0, 10.0),
-        color: ColorSet.secondaryDarkColors,
-        activeColor: Colors.brown,
+        color: ColorSet.colorsWhiteGrayOfOpacity80,
+        activeColor: ColorSet.primaryColorsGreenOfOpacity80,
       ),
       dotsFlex: 1,
     );

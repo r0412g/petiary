@@ -1,6 +1,6 @@
 import 'dart:io';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:pet_diary/common/data.dart';
 import 'package:pet_diary/common/theme.dart';
 import 'package:pet_diary/models/pet_model.dart';
 import 'package:provider/provider.dart';
@@ -11,11 +11,24 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  TextStyle contentStyle = const TextStyle(
-    color: Colors.black,
-    fontSize: 17,
+  var homeImagePathByFile;
+  String homeImagePathByAssets = 'assets/images/loading.png';
+
+  TextStyle nameTextStyle = const TextStyle(
+    color: ColorSet.colorsWhite,
+    fontWeight: FontWeight.bold,
+    fontSize: 28.0,
+  );
+
+  TextStyle ageTextStyle = const TextStyle(
+    color: ColorSet.colorsWhite,
+    fontSize: 17.0,
     letterSpacing: 1.5,
-    height: 2.0,
+  );
+
+  TextStyle othersTextStyle = const TextStyle(
+    color: ColorSet.colorsWhite,
+    fontSize: 18.0,
   );
 
   @override
@@ -33,12 +46,19 @@ class _HomePageState extends State<HomePage> {
       myPet.setName(prefs.getString('keyPetName') ?? '');
       myPet.setType(prefs.getString('keyPetType') ?? '');
       myPet.setBreeds(prefs.getString('keyPetBreeds') ?? '');
-      myPet.setGender(prefs.getString('keyPetGender') ?? '男');
+      myPet.setGender(prefs.getString('keyPetGender') ?? '公');
       myPet.setIsNeutered(prefs.getBool('keyIsNeutered') ?? false);
-      myPet.setImagePath(prefs.getString('keyPetImagePath') ?? '');
+
+      if (prefs.getString('keyPetImagePathByAssets') != '') {
+        homeImagePathByAssets =
+            prefs.getString('keyPetImagePathByAssets') ?? '';
+      }
+      if (prefs.getString('keyPetImagePathByFile') != '') {
+        homeImagePathByFile = prefs.getString('keyPetImagePathByFile');
+      }
 
       if (myPet.getIsExactDate == true) {
-        myPet.setBirthday(prefs.getString('keyPetBirthday') ?? '尚未設定');
+        myPet.setBirthday(prefs.getString('keyPetBirthday') ?? '未設定');
         myPet.setAge(prefs.getString('keyPetAge') ?? '0');
       } else {
         myPet.setAge(prefs.getString('keyPetAge') ?? '0');
@@ -50,45 +70,146 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     var myPet = Provider.of<MyPetModel>(context);
 
-    return Center(
-        child: SingleChildScrollView(
-      child: Card(
-        color: ColorSet.secondaryColors,
-        child: Padding(
-          padding: myPet.getIsExactDate == true
-              ? const EdgeInsets.fromLTRB(50.0, 75.0, 50.0, 75.0)
-              : const EdgeInsets.all(75.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
+    return SafeArea(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          const Text(
+            '寵物資料',
+            style: TextStyle(
+              letterSpacing: 1.0,
+              fontSize: 25.0,
+              fontWeight: FontWeight.bold,
+              color: ColorSet.colorsBlackOfOpacity80,
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
             children: <Widget>[
-              myPet.getImagePath != ''
-                  ? Image.file(File(myPet.getImagePath),
-                      fit: BoxFit.fill, width: 150.0, height: 150.0)
-                  : Image.asset(AllDataModel.defaultImage,
-                      fit: BoxFit.fill, width: 150.0, height: 150.0),
-              const SizedBox(height: 10.0),
-              myPet.getName == ''
-                  ? Text('我的寵物：尚未設定', style: contentStyle)
-                  : Text('我的寵物：${myPet.getName}', style: contentStyle),
-              myPet.getIsExactDate == true
-                  ? Text('生日：${myPet.getBirthday} (${myPet.getAge}歲)',
-                      style: contentStyle)
-                  : Text('年齡：${myPet.getAge} 歲', style: contentStyle),
-              myPet.getType == ''
-                  ? Text('類型：尚未設定', style: contentStyle)
-                  : Text('類型：${myPet.getType}', style: contentStyle),
-              myPet.getBreeds == ''
-                  ? Text('品種：尚未設定', style: contentStyle)
-                  : Text('品種：${myPet.getBreeds}', style: contentStyle),
-              Text('性別：${myPet.getGender}', style: contentStyle),
-              Text('結紮：${myPet.getIsNeutered == false ? '未結紮' : '已結紮'}',
-                  style: contentStyle),
+              Expanded(
+                child: SizedBox(
+                  height: 540.0,
+                  child: Card(
+                    color: ColorSet.primaryColorsGreenOfOpacity80,
+                    margin:
+                        EdgeInsets.only(right: 22.0, top: 20.0, bottom: 17.0),
+                    shape: MyCardTheme.cardsForLeftShapeBorder,
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 300.0,
+                height: 540.0,
+                child: Card(
+                  color: ColorSet.primaryColorsGreenOfOpacity80,
+                  margin: EdgeInsets.only(top: 20.0, bottom: 17.0),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(30.0, 40.0, 30.0, 35.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.center,
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        Container(
+                          child: homeImagePathByFile != null
+                              ? Image.file(
+                                  File(homeImagePathByFile),
+                                  fit: BoxFit.fill,
+                                  width: 225.0,
+                                  height: 225.0,
+                                )
+                              : Image.asset(
+                                  homeImagePathByAssets,
+                                  fit: BoxFit.fill,
+                                  width: 225.0,
+                                  height: 225.0,
+                                ),
+                        ),
+                        Container(
+                          child: myPet.getName == ''
+                              ? Text(
+                                  '未設定',
+                                  style: nameTextStyle,
+                                )
+                              : Text(
+                                  '${myPet.getName}',
+                                  style: nameTextStyle,
+                                ),
+                        ),
+                        Container(
+                          child: myPet.getIsExactDate == true
+                              ? Text('${myPet.getBirthday} (${myPet.getAge}歲)',
+                                  style: ageTextStyle)
+                              : Text('${myPet.getAge} 歲', style: ageTextStyle),
+                        ),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: <Widget>[
+                            Expanded(
+                              flex: 2,
+                              child: myPet.getType == ''
+                                  ? Text(
+                                      '未設定',
+                                      style: othersTextStyle,
+                                      textAlign: TextAlign.center,
+                                    )
+                                  : Text(
+                                      '${myPet.getType}',
+                                      style: othersTextStyle,
+                                      textAlign: TextAlign.center,
+                                    ),
+                            ),
+                            Expanded(
+                              flex: 2,
+                              child: myPet.getBreeds == ''
+                                  ? Text(
+                                      '未設定',
+                                      style: othersTextStyle,
+                                      textAlign: TextAlign.center,
+                                    )
+                                  : Text(
+                                      '${myPet.getBreeds}',
+                                      style: othersTextStyle,
+                                      textAlign: TextAlign.center,
+                                    ),
+                            ),
+                            Expanded(
+                              flex: 1,
+                              child: Text(
+                                '${myPet.getGender}',
+                                style: othersTextStyle,
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                            Expanded(
+                              flex: 2,
+                              child: Text(
+                                '${myPet.getIsNeutered == false ? '未結紮' : '已結紮'}',
+                                style: othersTextStyle,
+                                textAlign: TextAlign.center,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              Expanded(
+                child: SizedBox(
+                  height: 540.0,
+                  child: Card(
+                    color: ColorSet.primaryColorsGreenOfOpacity80,
+                    margin:
+                        EdgeInsets.only(left: 22.0, top: 20.0, bottom: 17.0),
+                    shape: MyCardTheme.cardsForRightShapeBorder,
+                  ),
+                ),
+              ),
             ],
           ),
-        ),
-        margin: MyCardTheme.cardMargin,
-        shape: MyCardTheme.cardShapeBorder,
+        ],
       ),
-    ));
+    );
   }
 }

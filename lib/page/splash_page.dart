@@ -1,10 +1,9 @@
 import 'package:animated_splash_screen/animated_splash_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:pet_diary/common/data.dart';
-import 'package:pet_diary/common/theme.dart';
-import 'package:pet_diary/main.dart';
 import 'package:pet_diary/page/intro_page.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:pet_diary/main.dart';
 
 class SplashPage extends StatefulWidget {
   @override
@@ -23,15 +22,16 @@ class _SplashPageState extends State<SplashPage> {
     return AllDataModel.checkFirstSeen == false
         ? IntroPage()
         : //IntroPage();
-        MyHomePage(title: '寵物日記');
+        MyHomePage();
   }
 
   @override
   Widget build(BuildContext context) {
     return AnimatedSplashScreen.withScreenFunction(
-      backgroundColor: ColorSet.primaryLightColors,
-      splash: 'assets/images/splash_paw.jpg',
-      splashTransition: SplashTransition.scaleTransition,
+      backgroundColor: Colors.white,
+      splashIconSize: 160.0,
+      splash: 'assets/images/logo.png',
+      splashTransition: SplashTransition.fadeTransition,
       screenFunction: () {
         return checkFirstTime();
       },

@@ -5,10 +5,9 @@ import 'package:flutter/material.dart';
 class MyPetModel with ChangeNotifier {
   bool _isNeutered = false;
   bool _isExactDate = false;
-  String _imagePath = '';
   String _type = '';
   String _breeds = '';
-  String _gender = '男';
+  String _gender = '公';
   String _birthday = '';
   String _name = '';
   String _age = '';
@@ -16,7 +15,6 @@ class MyPetModel with ChangeNotifier {
   bool get getIsNeutered => _isNeutered;
   bool get getIsExactDate => _isExactDate;
   String get getType => _type;
-  String get getImagePath => _imagePath;
   String get getBreeds => _breeds;
   String get getGender => _gender;
   String get getBirthday => _birthday;
@@ -25,11 +23,6 @@ class MyPetModel with ChangeNotifier {
 
   void setType(String value) {
     _type = value;
-    notifyListeners();
-  }
-
-  void setImagePath(String value) {
-    _imagePath = value;
     notifyListeners();
   }
 

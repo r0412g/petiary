@@ -15,7 +15,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.0+1
+version: 1.0.0+3
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
@@ -27,7 +27,7 @@ dependencies:
     sdk: flutter
 
   # Icons
-  flutter_launcher_icons: ^0.9.0
+  flutter_launcher_icons: ^0.9.1
 
   # Pages
   animated_splash_screen: ^1.1.0
@@ -41,7 +41,7 @@ dependencies:
   image_cropper: ^1.4.0
   image_picker: ^0.8.0+3
   syncfusion_flutter_calendar: ^19.2.47
-  toggle_switch: ^1.1.0
+  toggle_switch: ^1.2.0
 
   # Database
   sqflite: ^2.0.0+3
@@ -65,14 +65,20 @@ dev_dependencies:
 flutter_icons:
   android: true
   ios: true
-  image_path: "assets/icons/paw.jpg"
+  image_path: "assets/icons/icon.png"
+  adaptive_icon_background: "#91C892"
+  adaptive_icon_foreground: "assets/icons/icon.png"
 
 # The following section is specific to Flutter.
 flutter:
   assets:
-    - assets/icons/paw.jpg
-    - assets/images/paw.jpg
-    - assets/images/splash_paw.jpg
+    - assets/images/logo.png
+    - assets/images/default_image.png
+    - assets/images/default_cat.png
+    - assets/images/default_dog.png
+    - assets/images/default_rabbit.png
+    - assets/images/default_turtle.png
+    - assets/images/loading.png
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.

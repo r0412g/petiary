@@ -1,16 +1,10 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:pet_diary/common/data.dart';
 import 'package:pet_diary/common/theme.dart';
-import 'package:pet_diary/models/setting_model.dart';
+import 'package:pet_diary/page/setting_calendar_page.dart';
 import 'package:pet_diary/page/setting_my_pet_page.dart';
-import 'package:provider/provider.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 class SettingPage extends StatefulWidget {
-  SettingPage({Key? key}) : super(key: key);
-
-  @override
   _SettingPageState createState() => _SettingPageState();
 }
 
@@ -18,157 +12,137 @@ class _SettingPageState extends State<SettingPage> {
   @override
   void initState() {
     super.initState();
-    _loadData(context);
-  }
-
-  _loadData(context) async {
-    SettingModel mySet = Provider.of<SettingModel>(context, listen: false);
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    setState(() {
-      mySet.setFirstDayOfWeek(prefs.getInt('keyFirstDayOfWeek') ?? 7);
-      mySet.setShowWeekNumber(prefs.getBool('keyShowWeekNumber') ?? false);
-      mySet.setIs24hourSystem(prefs.getBool('keyIs24hourSystem') ?? true);
-    });
   }
 
   @override
   Widget build(BuildContext context) {
-    var mySet = Provider.of<SettingModel>(context);
-    return Scaffold(
-      appBar: AppBar(
-        backgroundColor: ColorSet.primaryColors,
-        title: const Text('設定'),
-      ),
-      body: SingleChildScrollView(
-        child: Column(
-          children: <Widget>[
-            Card(
-              color: ColorSet.secondaryColors,
-              child: Tooltip(
-                message: '編輯我的寵物',
-                child: ListTile(
-                  leading: const Icon(Icons.pets),
-                  title: const Text('編輯我的寵物'),
-                  trailing: const Icon(Icons.keyboard_arrow_right),
-                  onTap: () {
-                    Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                            builder: (context) => SettingMyPetPage()));
-                  },
-                  shape: MyCardTheme.cardShapeBorder,
+    return SafeArea(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+        children: <Widget>[
+          const Text(
+            '設定',
+            style: TextStyle(
+              letterSpacing: 1.0,
+              fontSize: 25.0,
+              fontWeight: FontWeight.bold,
+              color: ColorSet.colorsBlackOfOpacity80,
+            ),
+          ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              Expanded(
+                child: SizedBox(
+                  height: 540.0,
+                  child: Card(
+                    color: ColorSet.primaryColorsGreenOfOpacity80,
+                    margin:
+                        EdgeInsets.only(right: 22.0, top: 20.0, bottom: 17.0),
+                    shape: MyCardTheme.cardsForLeftShapeBorder,
+                  ),
                 ),
               ),
-              margin: MyCardTheme.cardMargin,
-              shape: MyCardTheme.cardShapeBorder,
-            ),
-            Card(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16.0),
-                child: Column(
-                  children: <Widget>[
-                    const Text(
-                      '日曆設定',
-                      style: const TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 20.0,
-                      ),
-                    ),
-                    const Divider(
-                      height: 30.0,
-                      thickness: 3.0,
-                      indent: 15.0,
-                      endIndent: 15.0,
-                      color: ColorSet.thirdColors,
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceAround,
+              SizedBox(
+                width: 300.0,
+                height: 540.0,
+                child: Card(
+                  color: ColorSet.primaryColorsGreenOfOpacity80,
+                  margin: EdgeInsets.only(top: 20.0, bottom: 17.0),
+                  child: Padding(
+                    padding: const EdgeInsets.fromLTRB(20.0, 45.0, 20.0, 35.0),
+                    child: Column(
                       children: <Widget>[
-                        Expanded(
-                          child: Text(
-                            '一周的第一天為：',
-                            style: TextStyle(fontSize: 17),
+                        Container(
+                          padding: EdgeInsets.only(left: 10.0),
+                          width: 300.0,
+                          height: 45.0,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.rectangle,
+                            borderRadius: ForAllTheme.allRadius,
+                            color: ColorSet.colorsWhiteGrayOfOpacity80,
+                          ),
+                          child: SizedBox.expand(
+                            child: Tooltip(
+                              message: '進入編輯寵物基本資料頁面',
+                              child: TextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              SettingMyPetPage()));
+                                },
+                                child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    '編輯基本資料',
+                                    style: TextStyle(
+                                        color: ColorSet.colorsBlackOfOpacity80,
+                                        fontSize: 16.0,
+                                        letterSpacing: 1.0),
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
                         ),
-                        DropdownButton<String>(
-                          value: AllDataModel.firstDayOfWeek,
-                          onChanged: (value) async {
-                            SharedPreferences prefs =
-                                await SharedPreferences.getInstance();
-                            setState(() {
-                              AllDataModel.firstDayOfWeek = value;
-                              switch (value) {
-                                case '星期日':
-                                  prefs.setInt('keyFirstDayOfWeek', 7);
-                                  mySet.setFirstDayOfWeek(7);
-                                  break;
-                                case '星期一':
-                                  prefs.setInt('keyFirstDayOfWeek', 1);
-                                  mySet.setFirstDayOfWeek(1);
-                                  break;
-                              }
-                            });
-                          },
-                          items: <String>['星期日', '星期一']
-                              .map<DropdownMenuItem<String>>((String week) {
-                            return DropdownMenuItem<String>(
-                              value: week,
-                              child: Text(week),
-                            );
-                          }).toList(),
-                          hint: Text(
-                            mySet.getFirstDayOfWeek == 1 ? '星期一' : '星期日',
+                        const SizedBox(
+                          height: 25.0,
+                        ),
+                        Container(
+                          padding: EdgeInsets.only(left: 10.0),
+                          width: 300.0,
+                          height: 45.0,
+                          decoration: BoxDecoration(
+                            shape: BoxShape.rectangle,
+                            borderRadius: ForAllTheme.allRadius,
+                            color: ColorSet.colorsWhiteGrayOfOpacity80,
+                          ),
+                          child: SizedBox.expand(
+                            child: Tooltip(
+                              message: '進入行事曆格式設定頁面',
+                              child: TextButton(
+                                onPressed: () {
+                                  Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                          builder: (context) =>
+                                              SettingCalendarPage()));
+                                },
+                                child: Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Text(
+                                    '行事曆格式設定',
+                                    style: TextStyle(
+                                        color: ColorSet.colorsBlackOfOpacity80,
+                                        fontSize: 16.0,
+                                        letterSpacing: 1.0),
+                                  ),
+                                ),
+                              ),
+                            ),
                           ),
                         ),
                       ],
                     ),
-                    const SizedBox(
-                      height: 20.0,
-                    ),
-                    SwitchListTile(
-                        title: const Text('顯示週數?'),
-                        subtitle: mySet.getShowWeekNumber == true
-                            ? const Text('是')
-                            : const Text('否'),
-                        contentPadding: const EdgeInsets.all(0.0),
-                        value: mySet.getShowWeekNumber,
-                        activeColor: ColorSet.primaryLightColors,
-                        onChanged: (value) async {
-                          SharedPreferences prefs =
-                              await SharedPreferences.getInstance();
-                          await prefs.setBool('keyShowWeekNumber', value);
-                          setState(() {
-                            mySet.setShowWeekNumber(value);
-                          });
-                        }),
-                    SwitchListTile(
-                        title: const Text('24小時制?'),
-                        subtitle: mySet.getIs24hourSystem == true
-                            ? const Text('是')
-                            : const Text('否'),
-                        contentPadding: const EdgeInsets.all(0.0),
-                        value: mySet.getIs24hourSystem,
-                        activeColor: ColorSet.primaryLightColors,
-                        onChanged: (value) async {
-                          SharedPreferences prefs =
-                              await SharedPreferences.getInstance();
-                          await prefs.setBool('keyIs24hourSystem', value);
-                          setState(() {
-                            mySet.setIs24hourSystem(value);
-                          });
-                        }),
-                  ],
+                  ),
                 ),
               ),
-              margin: MyCardTheme.cardMargin,
-              shape: RoundedRectangleBorder(
-                side: const BorderSide(
-                    color: ColorSet.primaryLightColors, width: 2.0),
-                borderRadius: BorderRadius.circular(5.0),
+              Expanded(
+                child: SizedBox(
+                  height: 540.0,
+                  child: Card(
+                    color: ColorSet.primaryColorsGreenOfOpacity80,
+                    margin:
+                        EdgeInsets.only(left: 22.0, top: 20.0, bottom: 17.0),
+                    shape: MyCardTheme.cardsForRightShapeBorder,
+                  ),
+                ),
               ),
-            ),
-          ],
-        ),
+            ],
+          ),
+        ],
       ),
     );
   }

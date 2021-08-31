@@ -109,28 +109,217 @@ class _CalendarPageState extends State<CalendarPage> {
         builder: (BuildContext context) {
           return StatefulBuilder(builder: (context, setState) {
             return AlertDialog(
-                title: Container(
-                  color: ColorSet.secondaryColors,
-                  alignment: Alignment.center,
-                  child: const Text('新增事件'),
-                ),
+                backgroundColor: ColorSet.colorsWhite,
                 content: SingleChildScrollView(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
-                      TextFormField(
+                      TextField(
+                        style: MyDialogTheme.dialogContentStyle,
+                        textAlign: TextAlign.end,
+                        textAlignVertical: TextAlignVertical.center,
                         controller: eventNameController,
                         focusNode: eventNameFocusNode,
-                        cursorColor: ColorSet.primaryLightColors,
+                        cursorColor: ColorSet.colorsDarkBlueGreenOfOpacity80,
                         onEditingComplete: () {
                           eventNameFocusNode.unfocus();
                         },
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           border: InputBorder.none,
-                          prefixIcon: const Icon(Icons.event_note_outlined,
-                              color: ColorSet.primaryLightColors),
-                          hintText: '點擊輸入事件名稱',
+                          prefixIcon: Text(
+                            '輸入活動名稱',
+                            style: MyDialogTheme.dialogTitleStyle,
+                          ),
+                          prefixIconConstraints:
+                              BoxConstraints(minWidth: 0, minHeight: 0),
                         ),
+                      ),
+                      Divider(),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Text(
+                            '是否全天',
+                            style: MyDialogTheme.dialogTitleStyle,
+                          ),
+                          Switch(
+                              value: isAllDay,
+                              inactiveThumbColor:
+                                  ColorSet.colorsWhiteGrayOfOpacity80,
+                              inactiveTrackColor:
+                                  ColorSet.colorsWhiteGrayOfOpacity80,
+                              activeColor:
+                                  ColorSet.colorsDarkBlueGreenOfOpacity80,
+                              activeTrackColor:
+                                  ColorSet.colorsWhiteGrayOfOpacity80,
+                              onChanged: (value) {
+                                setState(() {
+                                  isAllDay = value;
+                                });
+                              }),
+                        ],
+                      ),
+                      Divider(),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          isAllDay == false
+                              ? Text(
+                                  '開始時間',
+                                  style: MyDialogTheme.dialogTitleStyle,
+                                )
+                              : Text(
+                                  '開始日期',
+                                  style: MyDialogTheme.dialogTitleStyle,
+                                ),
+                          // All day show date, not all day show date and time
+                          isAllDay == false
+                              ? Tooltip(
+                                  message: '選擇開始時間',
+                                  child: TextButton(
+                                    onPressed: () {
+                                      DatePicker.showDateTimePicker(
+                                        context,
+                                        currentTime: DateTime.now(),
+                                        locale: LocaleType.tw,
+                                        showTitleActions: true,
+                                        onConfirm: (date) {
+                                          setState(() {
+                                            startDatetime = date;
+                                            // Change end time to start time plus an hour
+                                            endDateTime = startDatetime
+                                                .add(Duration(hours: 1));
+                                          });
+                                        },
+                                        theme: DatePickerTheme(
+                                          cancelStyle: const TextStyle(
+                                              color: Colors.redAccent),
+                                        ),
+                                      );
+                                    },
+                                    child: Text(
+                                      formattedDateAndTime
+                                          .format(startDatetime),
+                                      style: MyDialogTheme.dialogContentStyle,
+                                    ),
+                                  ),
+                                )
+                              : Tooltip(
+                                  message: '選擇開始日期',
+                                  child: TextButton(
+                                    onPressed: () {
+                                      DatePicker.showDatePicker(
+                                        context,
+                                        currentTime: DateTime.now(),
+                                        locale: LocaleType.tw,
+                                        showTitleActions: true,
+                                        minTime: DateTime(1971, 1, 1),
+                                        maxTime: DateTime(2030, 12, 31),
+                                        onConfirm: (date) {
+                                          setState(() {
+                                            startDatetime = date;
+                                            // Change end date to start date plus one day
+                                            endDateTime = startDatetime
+                                                .add(Duration(days: 1));
+                                          });
+                                        },
+                                        theme: DatePickerTheme(
+                                          cancelStyle: const TextStyle(
+                                              color: Colors.redAccent),
+                                        ),
+                                      );
+                                    },
+                                    child: Text(
+                                      formattedDate.format(startDatetime),
+                                      style: MyDialogTheme.dialogContentStyle,
+                                    ),
+                                  ),
+                                ),
+                        ],
+                      ),
+                      Divider(),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          isAllDay == false
+                              ? Text(
+                                  '結束時間',
+                                  style: MyDialogTheme.dialogTitleStyle,
+                                )
+                              : Text(
+                                  '結束日期',
+                                  style: MyDialogTheme.dialogTitleStyle,
+                                ),
+                          // All day show date, not all day show date and time
+                          isAllDay == false
+                              ? Tooltip(
+                                  message: '選擇結束時間',
+                                  child: TextButton(
+                                      onPressed: () {
+                                        DatePicker.showDateTimePicker(
+                                          context,
+                                          currentTime: DateTime.now(),
+                                          locale: LocaleType.tw,
+                                          showTitleActions: true,
+                                          onConfirm: (date) {
+                                            setState(() {
+                                              endDateTime = date;
+                                            });
+                                          },
+                                          theme: DatePickerTheme(
+                                            cancelStyle: const TextStyle(
+                                                color: Colors.redAccent),
+                                          ),
+                                        );
+                                      },
+                                      child: Text(
+                                        formattedDateAndTime
+                                            .format(endDateTime),
+                                        style: MyDialogTheme.dialogContentStyle,
+                                      )),
+                                )
+                              : Tooltip(
+                                  message: '選擇結束日期',
+                                  child: TextButton(
+                                      onPressed: () {
+                                        DatePicker.showDatePicker(
+                                          context,
+                                          currentTime: DateTime.now(),
+                                          locale: LocaleType.tw,
+                                          showTitleActions: true,
+                                          minTime: DateTime(1971, 1, 1),
+                                          maxTime: DateTime(2030, 12, 31),
+                                          onConfirm: (date) {
+                                            setState(() {
+                                              endDateTime = date;
+                                            });
+                                          },
+                                          theme: DatePickerTheme(
+                                            cancelStyle: const TextStyle(
+                                                color: Colors.redAccent),
+                                          ),
+                                        );
+                                      },
+                                      child: Text(
+                                        formattedDate.format(endDateTime),
+                                        style: MyDialogTheme.dialogContentStyle,
+                                      )),
+                                ),
+                        ],
+                      ),
+                      Divider(),
+                      const SizedBox(
+                        height: 15.0,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Text(
+                            '選擇活動顏色',
+                            style: MyDialogTheme.dialogTitleStyle,
+                          ),
+                        ],
                       ),
                       ColorPicker(
                         enableShadesSelection: false,
@@ -144,178 +333,6 @@ class _CalendarPageState extends State<CalendarPage> {
                             eventColor = color;
                           });
                         },
-                        heading: Text(
-                          '選擇事件顏色',
-                          style: TextStyle(
-                              fontSize: 15.0,
-                              backgroundColor: ColorSet.secondaryColors),
-                        ),
-                      ),
-                      SwitchListTile(
-                          title: Text('整天?'),
-                          subtitle: isAllDay == true
-                              ? const Text('是')
-                              : const Text('否'),
-                          value: isAllDay,
-                          activeColor: ColorSet.primaryLightColors,
-                          onChanged: (value) {
-                            setState(() {
-                              isAllDay = value;
-                            });
-                          }),
-                      Row(
-                        children: <Widget>[
-                          isAllDay == false ? Text('開始時間：') : Text('開始日期：'),
-                          // All day show date, not all day show date and time
-                          isAllDay == false
-                              ? Container(
-                                  child: Expanded(
-                                    child: Tooltip(
-                                      message: '選擇開始時間',
-                                      child: TextButton.icon(
-                                          onPressed: () {
-                                            DatePicker.showDateTimePicker(
-                                              context,
-                                              currentTime: DateTime.now(),
-                                              locale: LocaleType.tw,
-                                              showTitleActions: true,
-                                              onConfirm: (date) {
-                                                setState(() {
-                                                  startDatetime = date;
-                                                  // Change end time to start time plus an hour
-                                                  endDateTime = startDatetime
-                                                      .add(Duration(hours: 1));
-                                                });
-                                              },
-                                              theme: DatePickerTheme(
-                                                cancelStyle: const TextStyle(
-                                                    color: Colors.redAccent),
-                                              ),
-                                            );
-                                          },
-                                          icon: Icon(Icons.calendar_today,
-                                              color:
-                                                  ColorSet.primaryLightColors),
-                                          label: Text(
-                                            formattedDateAndTime
-                                                .format(startDatetime),
-                                            style: TextStyle(
-                                                color: Colors.black54),
-                                          )),
-                                    ),
-                                  ),
-                                )
-                              : Container(
-                                  child: Expanded(
-                                      child: Tooltip(
-                                    message: '選擇開始日期',
-                                    child: TextButton.icon(
-                                      onPressed: () {
-                                        DatePicker.showDatePicker(
-                                          context,
-                                          currentTime: DateTime.now(),
-                                          locale: LocaleType.tw,
-                                          showTitleActions: true,
-                                          minTime: DateTime(1971, 1, 1),
-                                          maxTime: DateTime(2030, 12, 31),
-                                          onConfirm: (date) {
-                                            setState(() {
-                                              startDatetime = date;
-                                              // Change end date to start date plus one day
-                                              endDateTime = startDatetime
-                                                  .add(Duration(days: 1));
-                                            });
-                                          },
-                                          theme: DatePickerTheme(
-                                            cancelStyle: const TextStyle(
-                                                color: Colors.redAccent),
-                                          ),
-                                        );
-                                      },
-                                      icon: Icon(Icons.calendar_today,
-                                          color: ColorSet.primaryLightColors),
-                                      label: Text(
-                                        formattedDate.format(startDatetime),
-                                        style: TextStyle(color: Colors.black54),
-                                      ),
-                                    ),
-                                  )),
-                                ),
-                        ],
-                      ),
-                      Row(
-                        children: <Widget>[
-                          isAllDay == false ? Text('結束時間：') : Text('結束日期：'),
-                          // All day show date, not all day show date and time
-                          isAllDay == false
-                              ? Container(
-                                  child: Expanded(
-                                    child: Tooltip(
-                                      message: '選擇結束時間',
-                                      child: TextButton.icon(
-                                          onPressed: () {
-                                            DatePicker.showDateTimePicker(
-                                              context,
-                                              currentTime: DateTime.now(),
-                                              locale: LocaleType.tw,
-                                              showTitleActions: true,
-                                              onConfirm: (date) {
-                                                setState(() {
-                                                  endDateTime = date;
-                                                });
-                                              },
-                                              theme: DatePickerTheme(
-                                                cancelStyle: const TextStyle(
-                                                    color: Colors.redAccent),
-                                              ),
-                                            );
-                                          },
-                                          icon: Icon(Icons.calendar_today,
-                                              color:
-                                                  ColorSet.primaryLightColors),
-                                          label: Text(
-                                            formattedDateAndTime
-                                                .format(endDateTime),
-                                            style: TextStyle(
-                                                color: Colors.black54),
-                                          )),
-                                    ),
-                                  ),
-                                )
-                              : Container(
-                                  child: Expanded(
-                                      child: Tooltip(
-                                    message: '選擇結束日期',
-                                    child: TextButton.icon(
-                                        onPressed: () {
-                                          DatePicker.showDatePicker(
-                                            context,
-                                            currentTime: DateTime.now(),
-                                            locale: LocaleType.tw,
-                                            showTitleActions: true,
-                                            minTime: DateTime(1971, 1, 1),
-                                            maxTime: DateTime(2030, 12, 31),
-                                            onConfirm: (date) {
-                                              setState(() {
-                                                endDateTime = date;
-                                              });
-                                            },
-                                            theme: DatePickerTheme(
-                                              cancelStyle: const TextStyle(
-                                                  color: Colors.redAccent),
-                                            ),
-                                          );
-                                        },
-                                        icon: Icon(Icons.calendar_today,
-                                            color: ColorSet.primaryLightColors),
-                                        label: Text(
-                                          formattedDate.format(endDateTime),
-                                          style:
-                                              TextStyle(color: Colors.black54),
-                                        )),
-                                  )),
-                                ),
-                        ],
                       ),
                     ],
                   ),
@@ -323,65 +340,89 @@ class _CalendarPageState extends State<CalendarPage> {
                 actions: <Widget>[
                   TextButton(
                     onPressed: () => Navigator.pop(context, 'Cancel'),
-                    child: const Text('取消'),
+                    child: const Text(
+                      '取消',
+                      style: TextStyle(
+                          color: ColorSet.colorsBlackOfOpacity80,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13.0,
+                          letterSpacing: 2.0),
+                    ),
                   ),
-                  TextButton(
-                    onPressed: () async {
-                      // end date must late than start date
-                      if (startDatetime.isAfter(endDateTime)) {
-                        Fluttertoast.showToast(
-                            msg: "開始時間不能比結束時間晚",
-                            toastLength: Toast.LENGTH_SHORT,
-                            gravity: ToastGravity.BOTTOM,
-                            backgroundColor: Colors.white,
-                            textColor: Colors.black,
-                            fontSize: 16.0);
-                      } else {
-                        if (eventNameController.text == '') {
+                  Container(
+                    height: 34.0,
+                    width: 50.0,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.rectangle,
+                      borderRadius: BorderRadius.circular(10.0),
+                      color: ColorSet.colorsDarkBlueGreenOfOpacity80,
+                    ),
+                    child: TextButton(
+                      onPressed: () async {
+                        // end date must late than start date
+                        if (startDatetime.isAfter(endDateTime)) {
                           Fluttertoast.showToast(
-                              msg: "請輸入事件名稱",
+                              msg: "開始時間不能比結束時間晚",
                               toastLength: Toast.LENGTH_SHORT,
                               gravity: ToastGravity.BOTTOM,
-                              backgroundColor: Colors.white,
-                              textColor: Colors.black,
+                              backgroundColor: ColorSet.colorsWhite,
+                              textColor: ColorSet.colorsBlackOfOpacity80,
                               fontSize: 16.0);
                         } else {
-                          SharedPreferences prefs =
-                              await SharedPreferences.getInstance();
-                          Appointment newEvent = Appointment(
-                            id: prefs.getInt('keyEventId'),
-                            subject: eventNameController.text,
-                            startTime: startDatetime,
-                            endTime: endDateTime,
-                            color: eventColor,
-                            isAllDay: isAllDay,
-                          );
+                          if (eventNameController.text == '') {
+                            Fluttertoast.showToast(
+                                msg: "請輸入事件名稱",
+                                toastLength: Toast.LENGTH_SHORT,
+                                gravity: ToastGravity.BOTTOM,
+                                backgroundColor: ColorSet.colorsWhite,
+                                textColor: ColorSet.colorsBlackOfOpacity80,
+                                fontSize: 16.0);
+                          } else {
+                            SharedPreferences prefs =
+                                await SharedPreferences.getInstance();
+                            Appointment newEvent = Appointment(
+                              id: prefs.getInt('keyEventId'),
+                              subject: eventNameController.text,
+                              startTime: startDatetime,
+                              endTime: endDateTime,
+                              color: eventColor,
+                              isAllDay: isAllDay,
+                            );
 
-                          /* Add event to database */
-                          EventInfoDB.insertEvent(EventInfo(
-                            name: eventNameController.text,
-                            startDate: formattedDateAndTime
-                                .format(startDatetime)
-                                .toString(),
-                            endDate: formattedDateAndTime
-                                .format(endDateTime)
-                                .toString(),
-                            color: eventColor.toHex(),
-                            isAllDay: isAllDay == false ? 0 : 1,
-                          ));
+                            /* Add event to database */
+                            EventInfoDB.insertEvent(EventInfo(
+                              name: eventNameController.text,
+                              startDate: formattedDateAndTime
+                                  .format(startDatetime)
+                                  .toString(),
+                              endDate: formattedDateAndTime
+                                  .format(endDateTime)
+                                  .toString(),
+                              color: eventColor.toHex(),
+                              isAllDay: isAllDay == false ? 0 : 1,
+                            ));
 
-                          /* Add event to calendar */
-                          _dataSource.appointments!.add(newEvent);
-                          _dataSource.notifyListeners(
-                              CalendarDataSourceAction.add, [newEvent]);
+                            /* Add event to calendar */
+                            _dataSource.appointments!.add(newEvent);
+                            _dataSource.notifyListeners(
+                                CalendarDataSourceAction.add, [newEvent]);
 
-                          eventId += 1;
-                          prefs.setInt('keyEventId', eventId);
-                          Navigator.pop(context, 'OK');
+                            eventId += 1;
+                            prefs.setInt('keyEventId', eventId);
+                            Navigator.pop(context, 'OK');
+                          }
                         }
-                      }
-                    },
-                    child: const Text('確定'),
+                      },
+                      child: Text(
+                        '完成',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            color: ColorSet.colorsWhite,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13.0,
+                            letterSpacing: 2.0),
+                      ),
+                    ),
                   ),
                 ]);
           });
@@ -396,57 +437,136 @@ class _CalendarPageState extends State<CalendarPage> {
           context: context,
           builder: (BuildContext context) {
             return StatefulBuilder(builder: (context, setState) {
-              return Dialog(
-                backgroundColor: showEvent.color,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30.0)),
-                child: SingleChildScrollView(
-                  child: Card(
-                    margin: EdgeInsets.all(15.0),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30.0)),
-                    color: Colors.white,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: <Widget>[
-                        const SizedBox(
-                          height: 20.0,
-                        ),
-                        Text(
-                          showEvent.subject,
-                          style: TextStyle(fontSize: 20.0),
-                        ),
-                        const SizedBox(
-                          height: 20.0,
-                        ),
-                        // All day show date, not all day show date and time
-                        showEvent.isAllDay == true
-                            ? Text(
-                                '開始日期：${formattedDate.format(showEvent.startTime)}',
-                                style: TextStyle(fontSize: 15.0),
-                              )
-                            : Text(
-                                '開始時間：${formattedDateAndTime.format(showEvent.startTime)}',
-                                style: TextStyle(fontSize: 15.0),
+              return AlertDialog(
+                backgroundColor: ColorSet.colorsWhite,
+                content: SingleChildScrollView(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisSize: MainAxisSize.min,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: <Widget>[
+                      const SizedBox(
+                        height: 30.0,
+                      ),
+                      Container(
+                        width: 115.0,
+                        child: Stack(
+                          children: <Widget>[
+                            Text(
+                              '${formattedDate.format(showEvent.startTime)}',
+                              style: TextStyle(
+                                color: ColorSet.colorsBlackOfOpacity80,
+                                fontSize: 17.0,
+                                fontWeight: FontWeight.bold,
                               ),
-                        const SizedBox(
-                          height: 20.0,
+                            ),
+                            showEvent.endTime
+                                        .difference(showEvent.startTime)
+                                        .inDays ==
+                                    0
+                                ? SizedBox()
+                                : Positioned(
+                                    left: 93.0,
+                                    top: 0.0,
+                                    child: Text(
+                                      '+${showEvent.endTime.difference(showEvent.startTime).inDays + 1}',
+                                      style: TextStyle(
+                                        color: ColorSet
+                                            .colorsDarkBlueGreenOfOpacity80,
+                                        fontSize: 12.0,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                      textAlign: TextAlign.end,
+                                    ),
+                                  ),
+                          ],
                         ),
-                        // All day show date, not all day show date and time
-                        showEvent.isAllDay == true
-                            ? Text(
-                                '結束日期：${formattedDate.format(showEvent.endTime)}',
-                                style: TextStyle(fontSize: 15.0),
-                              )
-                            : Text(
-                                '結束時間：${formattedDateAndTime.format(showEvent.endTime)}',
-                                style: TextStyle(fontSize: 15.0),
-                              ),
-                        const SizedBox(
-                          height: 20.0,
+                      ),
+                      const SizedBox(
+                        height: 40.0,
+                      ),
+                      Text(
+                        showEvent.subject,
+                        style: TextStyle(
+                          color: ColorSet.colorsDarkBlueGreenOfOpacity80,
+                          fontSize: 17.0,
+                          fontWeight: FontWeight.bold,
+                          letterSpacing: 3.0,
                         ),
-                      ],
-                    ),
+                      ),
+                      Divider(
+                        color: ColorSet.colorsBlackOfOpacity80,
+                        height: 10.0,
+                        thickness: 1.0,
+                      ),
+                      const SizedBox(
+                        height: 20.0,
+                      ),
+                      // All day show date, not all day show date and time
+                      showEvent.isAllDay == true
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                Text(
+                                  '開始日期',
+                                  style: MyDialogTheme.dialogTitleStyle,
+                                ),
+                                Text(
+                                  '${formattedDate.format(showEvent.startTime)}',
+                                  style: MyDialogTheme.dialogContentStyle,
+                                )
+                              ],
+                            )
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                Text(
+                                  '開始時間',
+                                  style: MyDialogTheme.dialogTitleStyle,
+                                ),
+                                Text(
+                                  '${formattedDateAndTime.format(showEvent.startTime)}',
+                                  style: MyDialogTheme.dialogContentStyle,
+                                ),
+                              ],
+                            ),
+                      Divider(),
+                      const SizedBox(
+                        height: 20.0,
+                      ),
+                      // All day show date, not all day show date and time
+                      showEvent.isAllDay == true
+                          ? Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                Text(
+                                  '結束日期',
+                                  style: MyDialogTheme.dialogTitleStyle,
+                                ),
+                                Text(
+                                  '${formattedDate.format(showEvent.endTime)}',
+                                  style: MyDialogTheme.dialogContentStyle,
+                                ),
+                              ],
+                            )
+                          : Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: <Widget>[
+                                Text(
+                                  '結束時間',
+                                  style: MyDialogTheme.dialogTitleStyle,
+                                ),
+                                Text(
+                                  '${formattedDateAndTime.format(showEvent.endTime)}',
+                                  style: MyDialogTheme.dialogContentStyle,
+                                ),
+                              ],
+                            ),
+                      Divider(),
+                      const SizedBox(
+                        height: 30.0,
+                      ),
+                    ],
                   ),
                 ),
               );
@@ -464,65 +584,52 @@ class _CalendarPageState extends State<CalendarPage> {
           builder: (BuildContext context) {
             return StatefulBuilder(builder: (context, setState) {
               return Dialog(
-                backgroundColor: editOrDeleteEvent.color,
-                shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(30.0)),
-                child: SingleChildScrollView(
-                  child: Card(
-                    margin: EdgeInsets.all(15.0),
-                    shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(30.0)),
-                    color: Colors.white,
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.stretch,
-                      children: <Widget>[
-                        const SizedBox(
-                          height: 20.0,
-                        ),
-                        Tooltip(
-                          message: '編輯事件',
-                          child: TextButton.icon(
-                              onPressed: () {
-                                // Get event details on edit page
-                                editEventNameController.text =
-                                    editOrDeleteEvent.subject;
-                                editEventColor = editOrDeleteEvent.color;
-                                editIsAllDay = editOrDeleteEvent.isAllDay;
-                                editStartDatetime = editOrDeleteEvent.startTime;
-                                editEndDateTime = editOrDeleteEvent.endTime;
-                                _editEvent(editOrDeleteDetails);
-                              },
-                              icon: Icon(
-                                Icons.edit_outlined,
-                                color: Colors.black,
-                              ),
-                              label: Text(
-                                '編輯',
-                                style: TextStyle(color: Colors.black),
-                              )),
-                        ),
-                        Tooltip(
-                          message: '刪除事件',
-                          child: TextButton.icon(
-                              onPressed: () {
-                                _deleteEvent(editOrDeleteDetails);
-                              },
-                              icon: Icon(
-                                Icons.delete_forever_outlined,
-                                color: Colors.black,
-                              ),
-                              label: Text(
-                                '刪除',
-                                style: TextStyle(color: Colors.black),
-                              )),
-                        ),
-                        const SizedBox(
-                          height: 20.0,
-                        ),
-                      ],
+                backgroundColor: ColorSet.colorsWhite,
+                child: Row(
+                  mainAxisSize: MainAxisSize.min,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: <Widget>[
+                    Tooltip(
+                      message: '編輯活動',
+                      child: TextButton.icon(
+                          onPressed: () {
+                            // Get event details on edit page
+                            editEventNameController.text =
+                                editOrDeleteEvent.subject;
+                            editEventColor = editOrDeleteEvent.color;
+                            editIsAllDay = editOrDeleteEvent.isAllDay;
+                            editStartDatetime = editOrDeleteEvent.startTime;
+                            editEndDateTime = editOrDeleteEvent.endTime;
+                            _editEvent(editOrDeleteDetails);
+                          },
+                          icon: Icon(
+                            Icons.edit_rounded,
+                            color: ColorSet.colorsGrayOfOpacity80,
+                          ),
+                          label: Text(
+                            '編輯',
+                            style: TextStyle(
+                                color: ColorSet.colorsGrayOfOpacity80),
+                          )),
                     ),
-                  ),
+                    Tooltip(
+                      message: '刪除事件',
+                      child: TextButton.icon(
+                          onPressed: () {
+                            _deleteEvent(editOrDeleteDetails);
+                          },
+                          icon: Icon(
+                            Icons.delete_rounded,
+                            color: ColorSet.colorsGrayOfOpacity80,
+                          ),
+                          label: Text(
+                            '刪除',
+                            style: TextStyle(
+                                color: ColorSet.colorsGrayOfOpacity80),
+                          )),
+                    ),
+                  ],
                 ),
               );
             });
@@ -538,28 +645,217 @@ class _CalendarPageState extends State<CalendarPage> {
         builder: (BuildContext context) {
           return StatefulBuilder(builder: (context, setState) {
             return AlertDialog(
-                title: Container(
-                  color: ColorSet.secondaryColors,
-                  alignment: Alignment.center,
-                  child: const Text('編輯事件'),
-                ),
+                backgroundColor: ColorSet.colorsWhite,
                 content: SingleChildScrollView(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.center,
                     children: <Widget>[
                       TextFormField(
+                        style: MyDialogTheme.dialogContentStyle,
+                        textAlign: TextAlign.end,
+                        textAlignVertical: TextAlignVertical.center,
                         controller: editEventNameController,
                         focusNode: editEventNameFocusNode,
-                        cursorColor: ColorSet.primaryLightColors,
+                        cursorColor: ColorSet.colorsDarkBlueGreenOfOpacity80,
                         onEditingComplete: () {
                           editEventNameFocusNode.unfocus();
                         },
-                        decoration: const InputDecoration(
+                        decoration: InputDecoration(
                           border: InputBorder.none,
-                          prefixIcon: const Icon(Icons.event_note_outlined,
-                              color: ColorSet.primaryLightColors),
-                          hintText: '點擊輸入事件名稱',
+                          prefixIcon: Text(
+                            '輸入活動名稱',
+                            style: MyDialogTheme.dialogTitleStyle,
+                          ),
+                          prefixIconConstraints:
+                              BoxConstraints(minWidth: 0, minHeight: 0),
                         ),
+                      ),
+                      Divider(),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Text(
+                            '是否全天',
+                            style: MyDialogTheme.dialogTitleStyle,
+                          ),
+                          Switch(
+                              value: editIsAllDay,
+                              inactiveThumbColor:
+                                  ColorSet.colorsWhiteGrayOfOpacity80,
+                              inactiveTrackColor:
+                                  ColorSet.colorsWhiteGrayOfOpacity80,
+                              activeColor:
+                                  ColorSet.colorsDarkBlueGreenOfOpacity80,
+                              activeTrackColor:
+                                  ColorSet.colorsWhiteGrayOfOpacity80,
+                              onChanged: (value) {
+                                setState(() {
+                                  editIsAllDay = value;
+                                });
+                              }),
+                        ],
+                      ),
+                      Divider(),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          editIsAllDay == false
+                              ? Text(
+                                  '開始時間',
+                                  style: MyDialogTheme.dialogTitleStyle,
+                                )
+                              : Text(
+                                  '開始日期',
+                                  style: MyDialogTheme.dialogTitleStyle,
+                                ),
+                          // All day show date, not all day show date and time
+                          editIsAllDay == false
+                              ? Tooltip(
+                                  message: '選擇開始時間',
+                                  child: TextButton(
+                                      onPressed: () {
+                                        DatePicker.showDateTimePicker(
+                                          context,
+                                          currentTime: DateTime.now(),
+                                          locale: LocaleType.tw,
+                                          showTitleActions: true,
+                                          onConfirm: (date) {
+                                            setState(() {
+                                              editStartDatetime = date;
+                                              // Change end time to start time plus an hour
+                                              editEndDateTime =
+                                                  editStartDatetime
+                                                      .add(Duration(hours: 1));
+                                            });
+                                          },
+                                          theme: DatePickerTheme(
+                                            cancelStyle: const TextStyle(
+                                                color: Colors.redAccent),
+                                          ),
+                                        );
+                                      },
+                                      child: Text(
+                                        formattedDateAndTime
+                                            .format(editStartDatetime),
+                                        style: MyDialogTheme.dialogContentStyle,
+                                      )),
+                                )
+                              : Tooltip(
+                                  message: '選擇開始日期',
+                                  child: TextButton(
+                                    onPressed: () {
+                                      DatePicker.showDatePicker(
+                                        context,
+                                        currentTime: DateTime.now(),
+                                        locale: LocaleType.tw,
+                                        showTitleActions: true,
+                                        minTime: DateTime(1971, 1, 1),
+                                        maxTime: DateTime(2030, 12, 31),
+                                        onConfirm: (date) {
+                                          setState(() {
+                                            editStartDatetime = date;
+                                            // Change end date to start date plus one day
+                                            editEndDateTime = editStartDatetime
+                                                .add(Duration(days: 1));
+                                          });
+                                        },
+                                        theme: DatePickerTheme(
+                                          cancelStyle: const TextStyle(
+                                              color: Colors.redAccent),
+                                        ),
+                                      );
+                                    },
+                                    child: Text(
+                                      formattedDate.format(editStartDatetime),
+                                      style: MyDialogTheme.dialogContentStyle,
+                                    ),
+                                  ),
+                                ),
+                        ],
+                      ),
+                      Divider(),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          editIsAllDay == false
+                              ? Text(
+                                  '結束時間',
+                                  style: MyDialogTheme.dialogTitleStyle,
+                                )
+                              : Text(
+                                  '結束日期',
+                                  style: MyDialogTheme.dialogTitleStyle,
+                                ),
+                          // All day show date, not all day show date and time
+                          editIsAllDay == false
+                              ? Tooltip(
+                                  message: '選擇結束時間',
+                                  child: TextButton(
+                                      onPressed: () {
+                                        DatePicker.showDateTimePicker(
+                                          context,
+                                          currentTime: DateTime.now(),
+                                          locale: LocaleType.tw,
+                                          showTitleActions: true,
+                                          onConfirm: (date) {
+                                            setState(() {
+                                              editEndDateTime = date;
+                                            });
+                                          },
+                                          theme: DatePickerTheme(
+                                            cancelStyle: const TextStyle(
+                                                color: Colors.redAccent),
+                                          ),
+                                        );
+                                      },
+                                      child: Text(
+                                        formattedDateAndTime
+                                            .format(editEndDateTime),
+                                        style: MyDialogTheme.dialogContentStyle,
+                                      )),
+                                )
+                              : Tooltip(
+                                  message: '選擇結束日期',
+                                  child: TextButton(
+                                      onPressed: () {
+                                        DatePicker.showDatePicker(
+                                          context,
+                                          currentTime: DateTime.now(),
+                                          locale: LocaleType.tw,
+                                          showTitleActions: true,
+                                          minTime: DateTime(1971, 1, 1),
+                                          maxTime: DateTime(2030, 12, 31),
+                                          onConfirm: (date) {
+                                            setState(() {
+                                              editEndDateTime = date;
+                                            });
+                                          },
+                                          theme: DatePickerTheme(
+                                            cancelStyle: const TextStyle(
+                                                color: Colors.redAccent),
+                                          ),
+                                        );
+                                      },
+                                      child: Text(
+                                        formattedDate.format(editEndDateTime),
+                                        style: MyDialogTheme.dialogContentStyle,
+                                      )),
+                                ),
+                        ],
+                      ),
+                      Divider(),
+                      const SizedBox(
+                        height: 15.0,
+                      ),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: <Widget>[
+                          Text(
+                            '選擇活動顏色',
+                            style: MyDialogTheme.dialogTitleStyle,
+                          ),
+                        ],
                       ),
                       ColorPicker(
                         enableShadesSelection: false,
@@ -573,180 +869,6 @@ class _CalendarPageState extends State<CalendarPage> {
                             editEventColor = color;
                           });
                         },
-                        heading: Text(
-                          '選擇事件顏色',
-                          style: TextStyle(
-                              fontSize: 15.0,
-                              backgroundColor: ColorSet.secondaryColors),
-                        ),
-                      ),
-                      SwitchListTile(
-                          title: Text('整天?'),
-                          subtitle: editIsAllDay == true
-                              ? const Text('是')
-                              : const Text('否'),
-                          value: editIsAllDay,
-                          activeColor: ColorSet.primaryLightColors,
-                          onChanged: (value) {
-                            setState(() {
-                              editIsAllDay = value;
-                            });
-                          }),
-                      Row(
-                        children: <Widget>[
-                          editIsAllDay == false ? Text('開始時間：') : Text('開始日期：'),
-                          // All day show date, not all day show date and time
-                          editIsAllDay == false
-                              ? Container(
-                                  child: Expanded(
-                                    child: Tooltip(
-                                      message: '選擇開始時間',
-                                      child: TextButton.icon(
-                                          onPressed: () {
-                                            DatePicker.showDateTimePicker(
-                                              context,
-                                              currentTime: DateTime.now(),
-                                              locale: LocaleType.tw,
-                                              showTitleActions: true,
-                                              onConfirm: (date) {
-                                                setState(() {
-                                                  editStartDatetime = date;
-                                                  // Change end time to start time plus an hour
-                                                  editEndDateTime =
-                                                      editStartDatetime.add(
-                                                          Duration(hours: 1));
-                                                });
-                                              },
-                                              theme: DatePickerTheme(
-                                                cancelStyle: const TextStyle(
-                                                    color: Colors.redAccent),
-                                              ),
-                                            );
-                                          },
-                                          icon: Icon(Icons.calendar_today,
-                                              color:
-                                                  ColorSet.primaryLightColors),
-                                          label: Text(
-                                            formattedDateAndTime
-                                                .format(editStartDatetime),
-                                            style: TextStyle(
-                                                color: Colors.black54),
-                                          )),
-                                    ),
-                                  ),
-                                )
-                              : Container(
-                                  child: Expanded(
-                                      child: Tooltip(
-                                    message: '選擇開始日期',
-                                    child: TextButton.icon(
-                                      onPressed: () {
-                                        DatePicker.showDatePicker(
-                                          context,
-                                          currentTime: DateTime.now(),
-                                          locale: LocaleType.tw,
-                                          showTitleActions: true,
-                                          minTime: DateTime(1971, 1, 1),
-                                          maxTime: DateTime(2030, 12, 31),
-                                          onConfirm: (date) {
-                                            setState(() {
-                                              editStartDatetime = date;
-                                              // Change end date to start date plus one day
-                                              editEndDateTime =
-                                                  editStartDatetime
-                                                      .add(Duration(days: 1));
-                                            });
-                                          },
-                                          theme: DatePickerTheme(
-                                            cancelStyle: const TextStyle(
-                                                color: Colors.redAccent),
-                                          ),
-                                        );
-                                      },
-                                      icon: Icon(Icons.calendar_today,
-                                          color: ColorSet.primaryLightColors),
-                                      label: Text(
-                                        formattedDate.format(editStartDatetime),
-                                        style: TextStyle(color: Colors.black54),
-                                      ),
-                                    ),
-                                  )),
-                                ),
-                        ],
-                      ),
-                      Row(
-                        children: <Widget>[
-                          editIsAllDay == false ? Text('結束時間：') : Text('結束日期：'),
-                          // All day show date, not all day show date and time
-                          editIsAllDay == false
-                              ? Container(
-                                  child: Expanded(
-                                    child: Tooltip(
-                                      message: '選擇結束時間',
-                                      child: TextButton.icon(
-                                          onPressed: () {
-                                            DatePicker.showDateTimePicker(
-                                              context,
-                                              currentTime: DateTime.now(),
-                                              locale: LocaleType.tw,
-                                              showTitleActions: true,
-                                              onConfirm: (date) {
-                                                setState(() {
-                                                  editEndDateTime = date;
-                                                });
-                                              },
-                                              theme: DatePickerTheme(
-                                                cancelStyle: const TextStyle(
-                                                    color: Colors.redAccent),
-                                              ),
-                                            );
-                                          },
-                                          icon: Icon(Icons.calendar_today,
-                                              color:
-                                                  ColorSet.primaryLightColors),
-                                          label: Text(
-                                            formattedDateAndTime
-                                                .format(editEndDateTime),
-                                            style: TextStyle(
-                                                color: Colors.black54),
-                                          )),
-                                    ),
-                                  ),
-                                )
-                              : Container(
-                                  child: Expanded(
-                                      child: Tooltip(
-                                    message: '選擇結束日期',
-                                    child: TextButton.icon(
-                                        onPressed: () {
-                                          DatePicker.showDatePicker(
-                                            context,
-                                            currentTime: DateTime.now(),
-                                            locale: LocaleType.tw,
-                                            showTitleActions: true,
-                                            minTime: DateTime(1971, 1, 1),
-                                            maxTime: DateTime(2030, 12, 31),
-                                            onConfirm: (date) {
-                                              setState(() {
-                                                editEndDateTime = date;
-                                              });
-                                            },
-                                            theme: DatePickerTheme(
-                                              cancelStyle: const TextStyle(
-                                                  color: Colors.redAccent),
-                                            ),
-                                          );
-                                        },
-                                        icon: Icon(Icons.calendar_today,
-                                            color: ColorSet.primaryLightColors),
-                                        label: Text(
-                                          formattedDate.format(editEndDateTime),
-                                          style:
-                                              TextStyle(color: Colors.black54),
-                                        )),
-                                  )),
-                                ),
-                        ],
                       ),
                     ],
                   ),
@@ -754,76 +876,100 @@ class _CalendarPageState extends State<CalendarPage> {
                 actions: <Widget>[
                   TextButton(
                     onPressed: () => Navigator.pop(context, 'Cancel'),
-                    child: const Text('取消'),
+                    child: const Text(
+                      '取消',
+                      style: TextStyle(
+                          color: ColorSet.colorsBlackOfOpacity80,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 13.0,
+                          letterSpacing: 2.0),
+                    ),
                   ),
-                  TextButton(
-                    onPressed: () async {
-                      // end date must late than start date
-                      if (editStartDatetime.isAfter(editEndDateTime)) {
-                        Fluttertoast.showToast(
-                            msg: "開始時間不能比結束時間晚",
-                            toastLength: Toast.LENGTH_SHORT,
-                            gravity: ToastGravity.BOTTOM,
-                            backgroundColor: Colors.white,
-                            textColor: Colors.black,
-                            fontSize: 16.0);
-                      } else {
-                        if (editEventNameController.text == '') {
+                  Container(
+                    height: 34.0,
+                    width: 50.0,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.rectangle,
+                      borderRadius: BorderRadius.circular(10.0),
+                      color: ColorSet.colorsDarkBlueGreenOfOpacity80,
+                    ),
+                    child: TextButton(
+                      onPressed: () async {
+                        // end date must late than start date
+                        if (editStartDatetime.isAfter(editEndDateTime)) {
                           Fluttertoast.showToast(
-                              msg: "請輸入事件名稱",
+                              msg: "開始時間不能比結束時間晚",
                               toastLength: Toast.LENGTH_SHORT,
                               gravity: ToastGravity.BOTTOM,
-                              backgroundColor: Colors.white,
-                              textColor: Colors.black,
+                              backgroundColor: ColorSet.colorsWhite,
+                              textColor: ColorSet.colorsBlackOfOpacity80,
                               fontSize: 16.0);
                         } else {
-                          /* Delete event than add new one */
-                          // Delete event in calendar
-                          _dataSource.appointments!.removeAt(
-                              _dataSource.appointments!.indexOf(editEvent));
-                          _dataSource.notifyListeners(
-                              CalendarDataSourceAction.remove, [editEvent]);
-                          // Delete event in database
-                          EventInfoDB.deleteEvent(
-                              int.parse(editEvent.id.toString()));
+                          if (editEventNameController.text == '') {
+                            Fluttertoast.showToast(
+                                msg: "請輸入事件名稱",
+                                toastLength: Toast.LENGTH_SHORT,
+                                gravity: ToastGravity.BOTTOM,
+                                backgroundColor: ColorSet.colorsWhite,
+                                textColor: ColorSet.colorsBlackOfOpacity80,
+                                fontSize: 16.0);
+                          } else {
+                            /* Delete event than add new one */
+                            // Delete event in calendar
+                            _dataSource.appointments!.removeAt(
+                                _dataSource.appointments!.indexOf(editEvent));
+                            _dataSource.notifyListeners(
+                                CalendarDataSourceAction.remove, [editEvent]);
+                            // Delete event in database
+                            EventInfoDB.deleteEvent(
+                                int.parse(editEvent.id.toString()));
 
-                          // Add event to calendar
-                          SharedPreferences prefs =
-                              await SharedPreferences.getInstance();
-                          Appointment editNewEvent = Appointment(
-                            id: prefs.getInt('keyEventId'),
-                            subject: editEventNameController.text,
-                            startTime: editStartDatetime,
-                            endTime: editEndDateTime,
-                            color: editEventColor,
-                            isAllDay: editIsAllDay,
-                          );
-                          _dataSource.appointments!.add(editNewEvent);
-                          _dataSource.notifyListeners(
-                              CalendarDataSourceAction.add, [editNewEvent]);
+                            // Add event to calendar
+                            SharedPreferences prefs =
+                                await SharedPreferences.getInstance();
+                            Appointment editNewEvent = Appointment(
+                              id: prefs.getInt('keyEventId'),
+                              subject: editEventNameController.text,
+                              startTime: editStartDatetime,
+                              endTime: editEndDateTime,
+                              color: editEventColor,
+                              isAllDay: editIsAllDay,
+                            );
+                            _dataSource.appointments!.add(editNewEvent);
+                            _dataSource.notifyListeners(
+                                CalendarDataSourceAction.add, [editNewEvent]);
 
-                          // Add event to database
-                          EventInfoDB.insertEvent(EventInfo(
-                            name: editEventNameController.text,
-                            startDate: formattedDateAndTime
-                                .format(editStartDatetime)
-                                .toString(),
-                            endDate: formattedDateAndTime
-                                .format(editEndDateTime)
-                                .toString(),
-                            color: editEventColor.toHex(),
-                            isAllDay: editIsAllDay == false ? 0 : 1,
-                          ));
+                            // Add event to database
+                            EventInfoDB.insertEvent(EventInfo(
+                              name: editEventNameController.text,
+                              startDate: formattedDateAndTime
+                                  .format(editStartDatetime)
+                                  .toString(),
+                              endDate: formattedDateAndTime
+                                  .format(editEndDateTime)
+                                  .toString(),
+                              color: editEventColor.toHex(),
+                              isAllDay: editIsAllDay == false ? 0 : 1,
+                            ));
 
-                          eventId += 1;
-                          prefs.setInt('keyEventId', eventId);
-                          // back to calendar page
-                          Navigator.of(context)
-                              .popUntil((route) => route.isFirst);
+                            eventId += 1;
+                            prefs.setInt('keyEventId', eventId);
+                            // back to calendar page
+                            Navigator.of(context)
+                                .popUntil((route) => route.isFirst);
+                          }
                         }
-                      }
-                    },
-                    child: const Text('確定'),
+                      },
+                      child: const Text(
+                        '完成',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            color: ColorSet.colorsWhite,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13.0,
+                            letterSpacing: 2.0),
+                      ),
+                    ),
                   ),
                 ]);
           });
@@ -846,54 +992,142 @@ class _CalendarPageState extends State<CalendarPage> {
   @override
   Widget build(BuildContext context) {
     var mySet = Provider.of<SettingModel>(context);
-    return Scaffold(
-      body: Center(
-        child: SfCalendar(
-          view: CalendarView.week,
-          headerDateFormat: 'yyy - MMM',
-          firstDayOfWeek: mySet.getFirstDayOfWeek,
-          minDate: DateTime(1971, 01, 01),
-          maxDate: DateTime(2030, 12, 31),
-          initialDisplayDate: DateTime.now(),
-          headerHeight: 45,
-          todayHighlightColor: ColorSet.secondaryDarkColors,
-          showDatePickerButton: true,
-          showCurrentTimeIndicator: true,
-          showWeekNumber: mySet.getShowWeekNumber,
-          dataSource: _dataSource,
-          onTap: _onTapShowEventDetails,
-          onLongPress: _onLongPressEditOrDelete,
-          timeSlotViewSettings: TimeSlotViewSettings(
-              timeIntervalHeight: 50.0,
-              timeFormat: mySet.getIs24hourSystem == true ? 'HH:mm' : 'hh a'),
-          weekNumberStyle: const WeekNumberStyle(
-            backgroundColor: ColorSet.primaryLightColors,
-            textStyle: TextStyle(color: Colors.white, fontSize: 15),
+    return SafeArea(
+      child: Stack(
+        children: <Widget>[
+          Column(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: <Widget>[
+              const Text(
+                '行事曆',
+                style: TextStyle(
+                  letterSpacing: 1.0,
+                  fontSize: 25.0,
+                  fontWeight: FontWeight.bold,
+                  color: ColorSet.colorsBlackOfOpacity80,
+                ),
+              ),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Expanded(
+                    child: SizedBox(
+                      height: 540.0,
+                      child: Card(
+                        color: ColorSet.primaryColorsGreenOfOpacity80,
+                        margin: EdgeInsets.only(
+                            right: 22.0, top: 20.0, bottom: 17.0),
+                        shape: MyCardTheme.cardsForLeftShapeBorder,
+                      ),
+                    ),
+                  ),
+                  SizedBox(
+                    width: 300.0,
+                    height: 540.0,
+                    child: Card(
+                      color: ColorSet.primaryColorsGreenOfOpacity80,
+                      margin: EdgeInsets.only(top: 20.0, bottom: 17.0),
+                      child: Padding(
+                        padding: EdgeInsets.all(5.0),
+                        child: SfCalendar(
+                          view: CalendarView.week,
+                          headerDateFormat: 'yyy - MMM',
+                          firstDayOfWeek: mySet.getFirstDayOfWeek,
+                          minDate: DateTime(1971, 01, 01),
+                          maxDate: DateTime(2030, 12, 31),
+                          initialDisplayDate: DateTime.now(),
+                          headerHeight: 30,
+                          todayHighlightColor:
+                              ColorSet.colorsDarkBlueGreenOfOpacity80,
+                          cellBorderColor: ColorSet.colorsWhite,
+                          backgroundColor:
+                              ColorSet.primaryColorsGreenOfOpacity80,
+                          showDatePickerButton: true,
+                          showCurrentTimeIndicator: true,
+                          showWeekNumber: mySet.getShowWeekNumber,
+                          dataSource: _dataSource,
+                          onTap: _onTapShowEventDetails,
+                          onLongPress: _onLongPressEditOrDelete,
+                          headerStyle: CalendarHeaderStyle(
+                            textStyle: TextStyle(
+                              fontSize: 17.0,
+                              color: ColorSet.colorsBlackOfOpacity80,
+                            ),
+                          ),
+                          timeSlotViewSettings: TimeSlotViewSettings(
+                              timeIntervalHeight: 35.0,
+                              timeTextStyle: TextStyle(
+                                color: ColorSet.colorsWhite,
+                              ),
+                              timeFormat: mySet.getIs24hourSystem == true
+                                  ? 'HH'
+                                  : 'hh a'),
+                          weekNumberStyle: const WeekNumberStyle(
+                            backgroundColor:
+                                ColorSet.colorsDarkBlueGreenOfOpacity80,
+                            textStyle: TextStyle(
+                                color: ColorSet.colorsWhite, fontSize: 15),
+                          ),
+                          selectionDecoration: BoxDecoration(
+                            border: Border.all(
+                                color: ColorSet.colorsDarkBlueGreenOfOpacity80,
+                                width: 2),
+                          ),
+                          todayTextStyle: TextStyle(
+                            color: ColorSet.colorsWhite,
+                          ),
+                          viewHeaderStyle: ViewHeaderStyle(
+                            dateTextStyle: TextStyle(
+                              color: ColorSet.colorsWhite,
+                            ),
+                            dayTextStyle: TextStyle(
+                              color: ColorSet.colorsWhite,
+                              fontSize: 13.0,
+                            ),
+                          ),
+                        ),
+                      ),
+                    ),
+                  ),
+                  Expanded(
+                    child: SizedBox(
+                      height: 540.0,
+                      child: Card(
+                        color: ColorSet.primaryColorsGreenOfOpacity80,
+                        margin: EdgeInsets.only(
+                            left: 22.0, top: 20.0, bottom: 17.0),
+                        shape: MyCardTheme.cardsForRightShapeBorder,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ],
           ),
-          selectionDecoration: BoxDecoration(
-            border: Border.all(color: ColorSet.primaryLightColors, width: 2),
-            borderRadius: const BorderRadius.all(Radius.circular(5.0)),
-            shape: BoxShape.rectangle,
+          Positioned(
+            right: 26.0,
+            bottom: 34.0,
+            child: FloatingActionButton(
+              tooltip: '新增事件',
+              backgroundColor: ColorSet.colorsWhite,
+              child: Icon(
+                Icons.add_outlined,
+                color: ColorSet.colorsDarkBlueGreenOfOpacity80,
+                size: 30.0,
+              ),
+              onPressed: () {
+                setState(() {
+                  eventNameController.text = '';
+                  eventColor = Color(0xfff44336);
+                  isAllDay = false;
+                  startDatetime = DateTime.now();
+                  endDateTime = DateTime.now().add(Duration(hours: 1));
+                  _addEvent();
+                });
+              },
+            ),
           ),
-        ),
-      ),
-      floatingActionButton: FloatingActionButton(
-        tooltip: '新增事件',
-        backgroundColor: ColorSet.secondaryColors,
-        onPressed: () {
-          setState(() {
-            eventNameController.text = '';
-            eventColor = Color(0xfff44336);
-            isAllDay = false;
-            startDatetime = DateTime.now();
-            endDateTime = DateTime.now().add(Duration(hours: 1));
-            _addEvent();
-          });
-        },
-        child: Icon(
-          Icons.add_outlined,
-          color: ColorSet.primaryColors,
-        ),
+        ],
       ),
     );
   }

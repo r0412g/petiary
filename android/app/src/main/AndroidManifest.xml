@@ -2,7 +2,7 @@
     package="com.yu.pet_diary">
 
     <application
-        android:label="pet_diary"
+        android:label="寵物日記"
         android:icon="@mipmap/ic_launcher">
 
         <activity

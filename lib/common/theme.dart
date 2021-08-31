@@ -1,22 +1,68 @@
 import 'package:flutter/material.dart';
 
 class ColorSet {
-  static const primaryColors = Color(0xFF455A64);
-  static const primaryLightColors = Color(0xFF718792);
-  static const secondaryColors = Color(0xFFD7CCC8);
-  static const secondaryDarkColors = Color(0xFFA69B97);
-  static const thirdColors = Color(0xFFC4C4C4);
+  static const primaryColorsGreenOfOpacity80 =
+      Color.fromRGBO(145, 200, 146, 80.0); // Color(0xFF91C892);
+  static const colorsWhiteGrayOfOpacity80 =
+      Color.fromRGBO(226, 226, 226, 80.0); // Color(0xFFE2E2E2);
+  static const colorsDarkBlueGreenOfOpacity80 =
+      Color.fromRGBO(85, 116, 121, 80.0); // Color(0xFF557479);
+  static const colorsGrayOfOpacity80 =
+      Color.fromRGBO(186, 186, 186, 80.0); // Color(0xFFBABABA);
+  static const colorsBlackOfOpacity80 = Color.fromRGBO(0, 0, 0, 80.0);
+  static const colorsWhite = Colors.white;
 }
 
 class MyCardTheme {
-  static ShapeBorder cardShapeBorder =
-      RoundedRectangleBorder(borderRadius: BorderRadius.circular(20.0));
-  static const EdgeInsetsGeometry cardMargin = EdgeInsets.all(35.0);
+  /* Use for cards on both sides */
+  // For right
+  static ShapeBorder cardsForRightShapeBorder = RoundedRectangleBorder(
+    borderRadius: BorderRadius.only(
+        bottomLeft: Radius.circular(10), topLeft: Radius.circular(10)),
+  );
+
+  // For left
+  static ShapeBorder cardsForLeftShapeBorder = RoundedRectangleBorder(
+    borderRadius: BorderRadius.only(
+        bottomRight: Radius.circular(10), topRight: Radius.circular(10)),
+  );
+}
+
+class MyDialogTheme {
+  static TextStyle dialogTitleStyle = TextStyle(
+    color: ColorSet.colorsDarkBlueGreenOfOpacity80,
+    fontWeight: FontWeight.bold,
+    letterSpacing: 2.0,
+  );
+
+  static TextStyle dialogContentStyle = TextStyle(
+    color: ColorSet.colorsBlackOfOpacity80,
+  );
+}
+
+class ForAllTheme {
+  static BorderRadius allRadius = BorderRadius.circular(10.0);
 }
 
 final appTheme = ThemeData(
-  primaryColor: ColorSet.primaryColors,
-  primaryColorLight: ColorSet.primaryLightColors,
+  // Card
+  cardTheme: CardTheme(
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+  ),
+
+  // Dialog
+  dialogTheme: DialogTheme(
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
+  ),
+
+  // Divider
+  dividerTheme: DividerThemeData(
+    color: ColorSet.colorsBlackOfOpacity80,
+    space: 1,
+    thickness: 1.0,
+  ),
+
+  // Tooltip
   tooltipTheme: TooltipThemeData(
     preferBelow: false,
   ),

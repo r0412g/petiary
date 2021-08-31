@@ -2,9 +2,9 @@ class AllDataModel {
   static String? petType;
   static String? petBreeds;
   static String? firstDayOfWeek;
+  static bool? isShowWeekNumber;
+  static bool? is24hourSystem;
   static bool? checkFirstSeen;
-
-  static String defaultImage = 'assets/images/paw.jpg';
 
   static List<String> defaultBreeds = [];
   static List<String> dogBreeds = [
