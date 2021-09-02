@@ -8,8 +8,6 @@ import 'package:intl/intl.dart';
 import 'package:pet_diary/common/background_painter.dart';
 import 'package:pet_diary/common/data.dart';
 import 'package:pet_diary/common/theme.dart';
-import 'package:pet_diary/models/pet_model.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
@@ -20,14 +18,22 @@ class SettingMyPetPage extends StatefulWidget {
 }
 
 class _SettingMyPetPageState extends State<SettingMyPetPage> {
-  bool setIsNeutered = false;
+  bool settingPageIsNeutered = false;
   bool setIsExactDate = false;
   final formattedDate = DateFormat('yyyy-MM-dd');
-  var setImageByFile;
-  String setImagePathByAssets = 'assets/images/default_image.png';
+  var settingPageImageByFile;
+  String settingPageType = '';
+  String settingPageBreeds = '';
+  String settingPageImagePathByAssets = 'assets/images/default_image.png';
+  String settingPageGender = '公';
+  String settingPageBirthday =
+      DateFormat('yyyy-MM-dd').format(DateTime.now()).toString();
+  int settingPageAge = 0;
 
   FocusNode setNameFocusNode = new FocusNode();
   FocusNode setDateFocusNode = new FocusNode();
+  FocusNode settingPageTypeFocusNode = new FocusNode();
+  FocusNode settingPageBreedsFocusNode = new FocusNode();
   TextEditingController setTypeController = TextEditingController();
   TextEditingController setBreedsController = TextEditingController();
   TextEditingController setNameController = TextEditingController();
@@ -41,21 +47,43 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
 
   _loadData(context) async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    MyPetModel myPet = Provider.of<MyPetModel>(context, listen: false);
     setState(() {
       if (prefs.getString('keyPetImagePathByAssets') != '') {
-        setImagePathByAssets = prefs.getString('keyPetImagePathByAssets') ?? '';
+        settingPageImagePathByAssets =
+            prefs.getString('keyPetImagePathByAssets') ?? '';
       }
       if (prefs.getString('keyPetImagePathByFile') != '') {
-        setImageByFile = File(prefs.getString('keyPetImagePathByFile') ?? '');
+        settingPageImageByFile =
+            File(prefs.getString('keyPetImagePathByFile') ?? '');
       }
 
-      setIsNeutered = prefs.getBool('keyIsNeutered') ?? false;
-      setIsExactDate = prefs.getBool('keyIsExactDate') ?? false;
-      setNameController.text = myPet.getName;
-      myPet.setName(prefs.getString('keyPetName') ?? '');
+      if (prefs.getString('keyPetType') == '') {
+        settingPageType = '請選擇';
+      } else {
+        settingPageType = prefs.getString('keyPetType') ?? '';
+        setTypeController.text = prefs.getString('keyPetType') ?? '';
+      }
 
-      setAgeController.text = myPet.getAge;
+      if (prefs.getString('keyPetBreeds') == '') {
+        settingPageBreeds = '請選擇';
+      } else {
+        settingPageBreeds = prefs.getString('keyPetBreeds') ?? '';
+        setBreedsController.text = prefs.getString('keyPetBreeds') ?? '';
+      }
+
+      settingPageGender = prefs.getString('keyPetGender') ?? '公';
+      settingPageBirthday = prefs.getString('keyPetBirthday') ?? '未設定';
+
+      settingPageIsNeutered = prefs.getBool('keyIsNeutered') ?? false;
+      setIsExactDate = prefs.getBool('keyIsExactDate') ?? false;
+
+      if (prefs.getString('keyPetName') == '未設定') {
+        setNameController.text = '';
+      } else {
+        setNameController.text = prefs.getString('keyPetName') ?? '';
+      }
+
+      setAgeController.text = (prefs.getInt('keyPetAge') ?? 0).toString();
     });
   }
 
@@ -69,48 +97,63 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
     super.dispose();
   }
 
+  /* Save info when user click confirm button */
   void _confirmChanges() async {
-    MyPetModel myPet = Provider.of<MyPetModel>(context, listen: false);
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    if (setImagePathByAssets != '') {
-      await prefs.setString('keyPetImagePathByAssets', setImagePathByAssets);
+    // Save image depends on user select photo or default image
+    if (settingPageImagePathByAssets != '') {
+      await prefs.setString(
+          'keyPetImagePathByAssets', settingPageImagePathByAssets);
+    }
+    if (settingPageImageByFile != null) {
+      await prefs.setString(
+          'keyPetImagePathByFile', settingPageImageByFile.path);
     }
 
-    if (setImageByFile != null) {
-      await prefs.setString('keyPetImagePathByFile', setImageByFile.path);
+    // Save pet name
+    if (setNameController.text != '') {
+      await prefs.setString('keyPetName', setNameController.text);
+    } else {
+      await prefs.setString('keyPetName', '未設定');
     }
 
-    myPet.setName(setNameController.text);
-    await prefs.setString('keyPetName', setNameController.text);
-
-    await prefs.setBool('keyIsNeutered', setIsNeutered);
-    myPet.setIsNeutered(setIsNeutered);
+    // Save pet type
+    await prefs.setString('keyPetType', settingPageType);
+    // Save pet breeds
+    await prefs.setString('keyPetBreeds', settingPageBreeds);
+    // Save user choose input age or select date
     await prefs.setBool('keyIsExactDate', setIsExactDate);
-    myPet.setIsExactDate(setIsExactDate);
+    // Save is neutered or not
+    await prefs.setBool('keyIsNeutered', settingPageIsNeutered);
+
+    // Save pet gender
+    if (settingPageGender == '公') {
+      await prefs.setString('keyPetGender', '公');
+    } else {
+      await prefs.setString('keyPetGender', '母');
+    }
 
     // User doesn't know exact date
-    if (myPet.getIsExactDate == false) {
-      // User doesn't enter age
+    if (setIsExactDate == false) {
+      // User doesn't input age
       if (setAgeController.text == '') {
-        myPet.setAge('0');
-        await prefs.setString('keyPetAge', '0');
+        await prefs.setInt('keyPetAge', 0);
       } else {
-        myPet.setAge(setAgeController.text);
-        await prefs.setString('keyPetAge', setAgeController.text);
+        await prefs.setInt('keyPetAge', int.parse(setAgeController.text));
       }
     }
-
-    // User doesn't know exact date
-    if (myPet.getIsExactDate == true) {
+    // User know exact date
+    else {
       // User doesn't choose date
-      if (myPet.getBirthday ==
+      if (settingPageBirthday ==
           formattedDate.format(DateTime.now()).toString()) {
-        myPet.setAge('0');
-        await prefs.setString('keyPetAge', '0');
-        myPet.setBirthday(formattedDate.format(DateTime.now()).toString());
+        await prefs.setInt('keyPetAge', 0);
         await prefs.setString(
             'keyPetBirthday', formattedDate.format(DateTime.now()).toString());
+      } else {
+        await prefs.setInt('keyPetAge', settingPageAge);
+        await prefs.setString('keyPetBirthday', settingPageBirthday);
       }
     }
 
@@ -131,12 +174,12 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
     final pickedImage =
         await ImagePicker().pickImage(source: ImageSource.gallery);
     setState(() {
-      setImageByFile = pickedImage;
+      settingPageImageByFile = pickedImage;
     });
 
-    // Image selected then save
+    // If image selected, then go to crop image
     if (pickedImage != null) {
-      setImagePathByAssets = '';
+      settingPageImagePathByAssets = '';
       prefs.setString('keyPetImagePathByAssets', '');
       _cropImage();
     } else {
@@ -154,7 +197,7 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
   Future<Null> _cropImage() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     File? croppedFile = await ImageCropper.cropImage(
-      sourcePath: setImageByFile.path,
+      sourcePath: settingPageImageByFile.path,
       aspectRatioPresets: [
         CropAspectRatioPreset.square,
       ],
@@ -174,12 +217,12 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
       ),
     );
 
-    // Image cropped then save
+    // Image cropped
     if (croppedFile != null) {
       setState(() {
-        setImageByFile = croppedFile;
+        settingPageImageByFile = croppedFile;
       });
-      setImagePathByAssets = '';
+      settingPageImagePathByAssets = '';
       prefs.setString('keyPetImagePathByAssets', '');
     } else {
       Fluttertoast.showToast(
@@ -194,8 +237,6 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
 
   @override
   Widget build(BuildContext context) {
-    var myPet = Provider.of<MyPetModel>(context);
-
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Stack(
@@ -207,579 +248,902 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
             ),
           ),
           SafeArea(
-            child: Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                Text(
-                  '設定',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(
-                    letterSpacing: 1.0,
-                    fontSize: 25.0,
-                    fontWeight: FontWeight.bold,
-                    color: ColorSet.colorsBlackOfOpacity80,
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  Text(
+                    '設定',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      letterSpacing: 1.0,
+                      fontSize: 25.0,
+                      fontWeight: FontWeight.bold,
+                      color: ColorSet.colorsBlackOfOpacity80,
+                    ),
                   ),
-                ),
-                Row(
-                  children: <Widget>[
-                    Expanded(
-                      child: SizedBox(
-                        height: 600.0,
-                        child: Card(
-                          color: ColorSet.primaryColorsGreenOfOpacity80,
-                          margin: EdgeInsets.only(
-                              right: 22.0, top: 20.0, bottom: 17.0),
-                          shape: MyCardTheme.cardsForLeftShapeBorder,
+                  Row(
+                    children: <Widget>[
+                      Expanded(
+                        child: SizedBox(
+                          height: 600.0,
+                          child: Card(
+                            color: ColorSet.primaryColorsGreenOfOpacity80,
+                            margin: EdgeInsets.only(
+                                right: 22.0, top: 20.0, bottom: 17.0),
+                            shape: MyCardTheme.cardsForLeftShapeBorder,
+                          ),
                         ),
                       ),
-                    ),
-                    SizedBox(
-                      width: 300.0,
-                      height: 600.0,
-                      child: Stack(
-                        children: <Widget>[
-                          Card(
-                            color: ColorSet.primaryColorsGreenOfOpacity80,
-                            margin: EdgeInsets.only(top: 20.0, bottom: 17.0),
-                            child: Padding(
-                              padding: const EdgeInsets.fromLTRB(
-                                  25.0, 25.0, 25.0, 65.0),
-                              child: Stack(
-                                children: <Widget>[
-                                  SingleChildScrollView(
-                                    child: Column(
-                                      children: <Widget>[
-                                        Text(
-                                          '編輯基本資料',
-                                          style: TextStyle(
-                                            letterSpacing: 1.0,
-                                            fontSize: 20.0,
-                                            fontWeight: FontWeight.w500,
-                                            color:
-                                                ColorSet.colorsBlackOfOpacity80,
-                                          ),
-                                        ),
-                                        const SizedBox(
-                                          height: 35.0,
-                                        ),
-                                        Container(
-                                          width: 125.0,
-                                          height: 125.0,
-                                          alignment: Alignment.center,
-                                          decoration: ShapeDecoration(
-                                            shape: RoundedRectangleBorder(
-                                              side: BorderSide(
-                                                  color: ColorSet
-                                                      .colorsBlackOfOpacity80,
-                                                  width: 3.0),
-                                              borderRadius:
-                                                  ForAllTheme.allRadius,
-                                            ),
-                                          ),
-                                          child: GestureDetector(
-                                            child: ClipRRect(
-                                              borderRadius:
-                                                  BorderRadius.circular(7.0),
-                                              child: setImageByFile != null
-                                                  ? Image.file(
-                                                      File(setImageByFile.path),
-                                                      fit: BoxFit.fill,
-                                                      width: 125.0,
-                                                      height: 125.0)
-                                                  : Image.asset(
-                                                      setImagePathByAssets,
-                                                      fit: BoxFit.fill,
-                                                      width: 125.0,
-                                                      height: 125.0),
-                                            ),
-                                            onTap: () {
-                                              // pick pet image on phone
-                                              _pickImage();
-                                            },
-                                          ),
-                                        ),
-                                        const SizedBox(height: 15.0),
-                                        Container(
-                                          width: 250.0,
-                                          height: 40.0,
-                                          alignment: Alignment.center,
-                                          decoration: ShapeDecoration(
-                                              color: ColorSet
-                                                  .colorsWhiteGrayOfOpacity80,
-                                              shape: RoundedRectangleBorder(
-                                                  borderRadius:
-                                                      BorderRadius.circular(
-                                                          10.0))),
-                                          child: DropdownButtonHideUnderline(
-                                            child: ButtonTheme(
-                                              alignedDropdown: true,
-                                              child: DropdownButtonFormField<
-                                                  String>(
-                                                decoration:
-                                                    InputDecoration.collapsed(
-                                                        hintText: ''),
-                                                icon: Icon(Icons
-                                                    .keyboard_arrow_down_outlined),
-                                                iconSize: 30.0,
-                                                iconEnabledColor: ColorSet
-                                                    .colorsDarkBlueGreenOfOpacity80,
-                                                isExpanded: true,
-                                                value: AllDataModel.petType,
-                                                onChanged: (value) async {
-                                                  SharedPreferences prefs =
-                                                      await SharedPreferences
-                                                          .getInstance();
-                                                  setState(() {
-                                                    AllDataModel.petType =
-                                                        value;
-                                                    myPet.setBreeds('請選擇');
-                                                  });
-                                                  AllDataModel.defaultBreeds
-                                                      .clear();
-                                                  myPet.setBreeds('');
-                                                  setImageByFile = null;
-                                                  await prefs.setString(
-                                                      'keyPetBreeds', '');
-                                                  /* Change Breeds List By Select Different Type */
-                                                  switch (
-                                                      AllDataModel.petType) {
-                                                    case "狗狗":
-                                                      myPet.setType('狗狗');
-                                                      prefs.setString(
-                                                          'keyPetType', '狗狗');
-                                                      AllDataModel.defaultBreeds
-                                                          .addAll(AllDataModel
-                                                              .dogBreeds);
-                                                      setImagePathByAssets =
-                                                          'assets/images/default_dog.png';
-                                                      break;
-                                                    case "貓咪":
-                                                      myPet.setType('貓咪');
-                                                      prefs.setString(
-                                                          'keyPetType', '貓咪');
-                                                      AllDataModel.defaultBreeds
-                                                          .addAll(AllDataModel
-                                                              .catBreeds);
-                                                      setImagePathByAssets =
-                                                          'assets/images/default_cat.png';
-                                                      break;
-                                                    case "兔子":
-                                                      myPet.setType('兔子');
-                                                      prefs.setString(
-                                                          'keyPetType', '兔子');
-                                                      AllDataModel.defaultBreeds
-                                                          .addAll(AllDataModel
-                                                              .rabbitBreeds);
-                                                      setImagePathByAssets =
-                                                          'assets/images/default_rabbit.png';
-                                                      break;
-                                                    case "烏龜":
-                                                      myPet.setType('烏龜');
-                                                      prefs.setString(
-                                                          'keyPetType', '烏龜');
-                                                      AllDataModel.defaultBreeds
-                                                          .addAll(AllDataModel
-                                                              .turtleBreeds);
-                                                      setImagePathByAssets =
-                                                          'assets/images/default_turtle.png';
-                                                      break;
-                                                    case "其他":
-                                                      AllDataModel.defaultBreeds
-                                                          .add("自行輸入");
-                                                      setImagePathByAssets =
-                                                          'assets/images/default_image.png';
-                                                      prefs.setString(
-                                                          'keyPetImagePathByAssets',
-                                                          'assets/images/default_image.png');
-                                                      showDialog(
-                                                          context: context,
-                                                          builder: (BuildContext
-                                                              context) {
-                                                            return AlertDialog(
-                                                              title: const Text(
-                                                                  '自行輸入寵物類型'),
-                                                              actions: <Widget>[
-                                                                TextFormField(
-                                                                  controller:
-                                                                      setTypeController,
-                                                                  decoration:
-                                                                      const InputDecoration(
-                                                                    prefixIcon:
-                                                                        Icon(Icons
-                                                                            .pets),
-                                                                    hintText:
-                                                                        '請輸入寵物的類型',
-                                                                  ),
-                                                                ),
-                                                                Row(
-                                                                    mainAxisAlignment:
-                                                                        MainAxisAlignment
-                                                                            .end,
-                                                                    children: <
-                                                                        Widget>[
-                                                                      TextButton(
-                                                                        onPressed: () => Navigator.pop(
-                                                                            context,
-                                                                            'Cancel'),
-                                                                        child: const Text(
-                                                                            '取消'),
-                                                                      ),
-                                                                      TextButton(
-                                                                        onPressed:
-                                                                            () async {
-                                                                          Navigator.pop(
-                                                                              context,
-                                                                              'OK');
-                                                                          await prefs.setString(
-                                                                              'keyPetType',
-                                                                              setTypeController.text);
-                                                                          setState(
-                                                                              () {
-                                                                            myPet.setType(setTypeController.text);
-                                                                          });
-                                                                        },
-                                                                        child: const Text(
-                                                                            '確定'),
-                                                                      ),
-                                                                    ]),
-                                                              ],
-                                                            );
-                                                          });
-                                                      break;
-                                                    default:
-                                                      AllDataModel.defaultBreeds
-                                                          .clear();
-                                                  }
-                                                  AllDataModel.petBreeds = null;
-                                                },
-                                                items: <String>[
-                                                  '狗狗',
-                                                  '貓咪',
-                                                  '兔子',
-                                                  '烏龜',
-                                                  '其他'
-                                                ].map<DropdownMenuItem<String>>(
-                                                    (String type) {
-                                                  return DropdownMenuItem<
-                                                      String>(
-                                                    value: type,
-                                                    child: new Text(
-                                                      type,
-                                                      style: TextStyle(
-                                                        color: ColorSet
-                                                            .colorsBlackOfOpacity80,
-                                                      ),
-                                                    ),
-                                                  );
-                                                }).toList(),
-                                                hint: Text(
-                                                  myPet.getType == ''
-                                                      ? "請選擇"
-                                                      : '${myPet.getType}',
-                                                  style: TextStyle(
-                                                    color: ColorSet
-                                                        .colorsBlackOfOpacity80,
-                                                  ),
-                                                ),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(height: 15.0),
-                                        Container(
-                                          width: 250.0,
-                                          height: 40.0,
-                                          alignment: Alignment.center,
-                                          decoration: ShapeDecoration(
-                                            color: ColorSet
-                                                .colorsWhiteGrayOfOpacity80,
-                                            shape: RoundedRectangleBorder(
-                                              borderRadius:
-                                                  ForAllTheme.allRadius,
-                                            ),
-                                          ),
-                                          child: DropdownButtonHideUnderline(
-                                            child: ButtonTheme(
-                                              alignedDropdown: true,
-                                              child: DropdownButtonFormField<
-                                                  String>(
-                                                decoration:
-                                                    InputDecoration.collapsed(
-                                                        hintText: ''),
-                                                icon: Icon(Icons
-                                                    .keyboard_arrow_down_outlined),
-                                                iconSize: 30.0,
-                                                iconEnabledColor: ColorSet
-                                                    .colorsDarkBlueGreenOfOpacity80,
-                                                hint: Text(
-                                                  myPet.getBreeds == ''
-                                                      ? "請選擇"
-                                                      : '${myPet.getBreeds}',
-                                                  style: TextStyle(
-                                                    color: ColorSet
-                                                        .colorsBlackOfOpacity80,
-                                                  ),
-                                                ),
-                                                value: AllDataModel.petBreeds,
-                                                isExpanded: true,
-                                                onChanged:
-                                                    (String? value) async {
-                                                  SharedPreferences prefs =
-                                                      await SharedPreferences
-                                                          .getInstance();
-                                                  await prefs.setString(
-                                                      'keyPetBreeds',
-                                                      value.toString());
-                                                  setState(() {
-                                                    AllDataModel.petBreeds =
-                                                        value;
-                                                    myPet.setBreeds(
-                                                        value.toString());
-                                                  });
-                                                  switch (value) {
-                                                    case "自行輸入":
-                                                      showDialog(
-                                                          context: context,
-                                                          builder: (BuildContext
-                                                              context) {
-                                                            return AlertDialog(
-                                                              title: const Text(
-                                                                  '自行輸入寵物品種'),
-                                                              actions: <Widget>[
-                                                                TextFormField(
-                                                                  controller:
-                                                                      setBreedsController,
-                                                                  decoration:
-                                                                      const InputDecoration(
-                                                                    prefixIcon:
-                                                                        const Icon(
-                                                                            Icons.pets),
-                                                                    hintText:
-                                                                        '請輸入寵物的品種',
-                                                                  ),
-                                                                ),
-                                                                Row(
-                                                                    mainAxisAlignment:
-                                                                        MainAxisAlignment
-                                                                            .end,
-                                                                    children: <
-                                                                        Widget>[
-                                                                      TextButton(
-                                                                        onPressed: () => Navigator.pop(
-                                                                            context,
-                                                                            'Cancel'),
-                                                                        child: const Text(
-                                                                            '取消'),
-                                                                      ),
-                                                                      TextButton(
-                                                                        onPressed:
-                                                                            () async {
-                                                                          SharedPreferences
-                                                                              prefs =
-                                                                              await SharedPreferences.getInstance();
-                                                                          await prefs.setString(
-                                                                              'keyPetBreeds',
-                                                                              setBreedsController.text);
-                                                                          Navigator.pop(
-                                                                              context,
-                                                                              'OK');
-                                                                          setState(
-                                                                              () {
-                                                                            myPet.setBreeds(setBreedsController.text);
-                                                                          });
-                                                                        },
-                                                                        child: const Text(
-                                                                            '確定'),
-                                                                      ),
-                                                                    ]),
-                                                              ],
-                                                            );
-                                                          });
-                                                      break;
-                                                    default:
-                                                    /**/
-                                                  }
-                                                },
-                                                items: AllDataModel
-                                                    .defaultBreeds
-                                                    .map<
-                                                        DropdownMenuItem<
-                                                            String>>((breeds) {
-                                                  return DropdownMenuItem<
-                                                      String>(
-                                                    value: breeds,
-                                                    child: new Text(
-                                                      breeds,
-                                                      style: TextStyle(
-                                                        color: ColorSet
-                                                            .colorsBlackOfOpacity80,
-                                                      ),
-                                                    ),
-                                                  );
-                                                }).toList(),
-                                              ),
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(height: 15.0),
-                                        Container(
-                                          width: 250.0,
-                                          height: 40.0,
-                                          padding: EdgeInsets.only(
-                                            left: 15.0,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.rectangle,
-                                            borderRadius: ForAllTheme.allRadius,
-                                            color: ColorSet
-                                                .colorsWhiteGrayOfOpacity80,
-                                          ),
-                                          child: TextField(
+                      SizedBox(
+                        width: 300.0,
+                        height: 600.0,
+                        child: Stack(
+                          children: <Widget>[
+                            Card(
+                              color: ColorSet.primaryColorsGreenOfOpacity80,
+                              margin: EdgeInsets.only(top: 20.0, bottom: 17.0),
+                              child: Padding(
+                                padding: const EdgeInsets.fromLTRB(
+                                    25.0, 25.0, 25.0, 65.0),
+                                child: Stack(
+                                  children: <Widget>[
+                                    SingleChildScrollView(
+                                      child: Column(
+                                        children: <Widget>[
+                                          Text(
+                                            '編輯基本資料',
                                             style: TextStyle(
+                                              letterSpacing: 1.0,
+                                              fontSize: 20.0,
+                                              fontWeight: FontWeight.w500,
                                               color: ColorSet
                                                   .colorsBlackOfOpacity80,
                                             ),
-                                            textAlign: TextAlign.end,
-                                            textAlignVertical:
-                                                TextAlignVertical.center,
-                                            focusNode: setNameFocusNode,
-                                            cursorColor:
-                                                ColorSet.colorsBlackOfOpacity80,
-                                            controller: setNameController,
-                                            onEditingComplete: () {
-                                              setNameFocusNode.unfocus();
-                                            },
-                                            decoration: const InputDecoration(
-                                              border: InputBorder.none,
-                                              prefixIcon: const Text(
-                                                '輸入寵物姓名',
-                                                style: TextStyle(
+                                          ),
+                                          const SizedBox(
+                                            height: 35.0,
+                                          ),
+                                          Container(
+                                            width: 125.0,
+                                            height: 125.0,
+                                            alignment: Alignment.center,
+                                            decoration: ShapeDecoration(
+                                              shape: RoundedRectangleBorder(
+                                                side: BorderSide(
                                                     color: ColorSet
                                                         .colorsBlackOfOpacity80,
-                                                    fontSize: 17.0,
-                                                    letterSpacing: 2.0),
+                                                    width: 3.0),
+                                                borderRadius:
+                                                    ForAllTheme.allRadius,
                                               ),
-                                              prefixIconConstraints:
-                                                  BoxConstraints(
-                                                      minWidth: 0,
-                                                      minHeight: 0),
-                                              contentPadding: EdgeInsets.only(
-                                                bottom: 10.0,
-                                                right: 35.0,
+                                            ),
+                                            child: GestureDetector(
+                                              child: ClipRRect(
+                                                borderRadius:
+                                                    BorderRadius.circular(7.0),
+                                                child: settingPageImageByFile !=
+                                                        null
+                                                    ? Image.file(
+                                                        File(
+                                                            settingPageImageByFile
+                                                                .path),
+                                                        fit: BoxFit.fill,
+                                                        width: 125.0,
+                                                        height: 125.0)
+                                                    : Image.asset(
+                                                        settingPageImagePathByAssets,
+                                                        fit: BoxFit.fill,
+                                                        width: 125.0,
+                                                        height: 125.0),
+                                              ),
+                                              onTap: () {
+                                                // pick pet image on phone
+                                                _pickImage();
+                                              },
+                                            ),
+                                          ),
+                                          const SizedBox(height: 15.0),
+                                          Container(
+                                            width: 250.0,
+                                            height: 40.0,
+                                            alignment: Alignment.center,
+                                            decoration: ShapeDecoration(
+                                                color: ColorSet
+                                                    .colorsWhiteGrayOfOpacity80,
+                                                shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10.0))),
+                                            child: DropdownButtonHideUnderline(
+                                              child: ButtonTheme(
+                                                alignedDropdown: true,
+                                                child: DropdownButtonFormField<
+                                                    String>(
+                                                  decoration:
+                                                      InputDecoration.collapsed(
+                                                          hintText: ''),
+                                                  icon: Icon(Icons
+                                                      .keyboard_arrow_down_outlined),
+                                                  iconSize: 30.0,
+                                                  iconEnabledColor: ColorSet
+                                                      .colorsDarkBlueGreenOfOpacity80,
+                                                  isExpanded: true,
+                                                  value: AllDataModel.petType,
+                                                  onChanged: (value) {
+                                                    setState(() {
+                                                      AllDataModel.petType =
+                                                          value;
+                                                      // Reset breeds content
+                                                      settingPageBreeds = '請選擇';
+                                                      // Clear breeds list
+                                                      AllDataModel.defaultBreeds
+                                                          .clear();
+                                                    });
+                                                    // Set image path to null for using default image
+                                                    settingPageImageByFile =
+                                                        null;
+                                                    // Change breeds list and default image by select different type
+                                                    switch (
+                                                        AllDataModel.petType) {
+                                                      case "狗狗":
+                                                        settingPageType = '狗狗';
+                                                        AllDataModel
+                                                            .defaultBreeds
+                                                            .addAll(AllDataModel
+                                                                .dogBreeds);
+                                                        settingPageImagePathByAssets =
+                                                            'assets/images/default_dog.png';
+                                                        break;
+                                                      case "貓咪":
+                                                        settingPageType = '貓咪';
+                                                        AllDataModel
+                                                            .defaultBreeds
+                                                            .addAll(AllDataModel
+                                                                .catBreeds);
+                                                        settingPageImagePathByAssets =
+                                                            'assets/images/default_cat.png';
+                                                        break;
+                                                      case "兔子":
+                                                        settingPageType = '兔子';
+                                                        AllDataModel
+                                                            .defaultBreeds
+                                                            .addAll(AllDataModel
+                                                                .rabbitBreeds);
+                                                        settingPageImagePathByAssets =
+                                                            'assets/images/default_rabbit.png';
+                                                        break;
+                                                      case "烏龜":
+                                                        settingPageType = '烏龜';
+                                                        AllDataModel
+                                                            .defaultBreeds
+                                                            .addAll(AllDataModel
+                                                                .turtleBreeds);
+                                                        settingPageImagePathByAssets =
+                                                            'assets/images/default_turtle.png';
+                                                        break;
+                                                      case "其他":
+                                                        AllDataModel
+                                                            .defaultBreeds
+                                                            .add("其他");
+                                                        settingPageImagePathByAssets =
+                                                            'assets/images/default_image.png';
+                                                        // Show dialog for user to input custom type
+                                                        showDialog(
+                                                            context: context,
+                                                            builder:
+                                                                (BuildContext
+                                                                    context) {
+                                                              return AlertDialog(
+                                                                content:
+                                                                    SingleChildScrollView(
+                                                                  child: Column(
+                                                                    mainAxisSize:
+                                                                        MainAxisSize
+                                                                            .min,
+                                                                    crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .center,
+                                                                    children: <
+                                                                        Widget>[
+                                                                      const Text(
+                                                                        '其他',
+                                                                        style:
+                                                                            const TextStyle(
+                                                                          color:
+                                                                              ColorSet.colorsBlackOfOpacity80,
+                                                                          fontSize:
+                                                                              17.0,
+                                                                          fontWeight:
+                                                                              FontWeight.bold,
+                                                                        ),
+                                                                      ),
+                                                                      const SizedBox(
+                                                                        height:
+                                                                            30.0,
+                                                                      ),
+                                                                      TextField(
+                                                                        style: MyDialogTheme
+                                                                            .dialogContentStyle,
+                                                                        textAlign:
+                                                                            TextAlign.center,
+                                                                        textAlignVertical:
+                                                                            TextAlignVertical.center,
+                                                                        controller:
+                                                                            setTypeController,
+                                                                        focusNode:
+                                                                            settingPageTypeFocusNode,
+                                                                        cursorColor:
+                                                                            ColorSet.primaryColorsGreenOfOpacity80,
+                                                                        onEditingComplete:
+                                                                            () {
+                                                                          settingPageTypeFocusNode
+                                                                              .unfocus();
+                                                                        },
+                                                                        decoration:
+                                                                            const InputDecoration(
+                                                                          border:
+                                                                              InputBorder.none,
+                                                                          hintText:
+                                                                              '請自行輸入寵物類型',
+                                                                          hintStyle:
+                                                                              const TextStyle(color: ColorSet.colorsGrayOfOpacity80),
+                                                                        ),
+                                                                      ),
+                                                                      const Divider(),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                                actions: <
+                                                                    Widget>[
+                                                                  Row(
+                                                                      mainAxisAlignment:
+                                                                          MainAxisAlignment
+                                                                              .end,
+                                                                      children: <
+                                                                          Widget>[
+                                                                        TextButton(
+                                                                          onPressed:
+                                                                              () {
+                                                                            // If user doesn't input custom type, then set no content
+                                                                            settingPageType =
+                                                                                '';
+                                                                            Navigator.pop(context,
+                                                                                'Cancel');
+                                                                          },
+                                                                          child:
+                                                                              const Text(
+                                                                            '取消',
+                                                                            style: const TextStyle(
+                                                                                color: ColorSet.colorsGrayOfOpacity80,
+                                                                                fontWeight: FontWeight.bold,
+                                                                                fontSize: 13.0,
+                                                                                letterSpacing: 2.0),
+                                                                          ),
+                                                                        ),
+                                                                        Container(
+                                                                          height:
+                                                                              34.0,
+                                                                          width:
+                                                                              50.0,
+                                                                          decoration:
+                                                                              BoxDecoration(
+                                                                            shape:
+                                                                                BoxShape.rectangle,
+                                                                            borderRadius:
+                                                                                ForAllTheme.allRadius,
+                                                                            color:
+                                                                                ColorSet.primaryColorsGreenOfOpacity80,
+                                                                          ),
+                                                                          child:
+                                                                              TextButton(
+                                                                            onPressed:
+                                                                                () {
+                                                                              Navigator.pop(context, 'OK');
+                                                                              setState(() {
+                                                                                settingPageType = setTypeController.text;
+                                                                              });
+                                                                            },
+                                                                            child:
+                                                                                const Text(
+                                                                              '完成',
+                                                                              textAlign: TextAlign.center,
+                                                                              style: const TextStyle(color: ColorSet.colorsWhite, fontWeight: FontWeight.bold, fontSize: 13.0, letterSpacing: 2.0),
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                      ]),
+                                                                ],
+                                                              );
+                                                            });
+                                                        break;
+                                                      default:
+                                                        AllDataModel
+                                                            .defaultBreeds
+                                                            .clear();
+                                                        break;
+                                                    }
+                                                    AllDataModel.petBreeds =
+                                                        null;
+                                                  },
+                                                  items: <String>[
+                                                    '狗狗',
+                                                    '貓咪',
+                                                    '兔子',
+                                                    '烏龜',
+                                                    '其他'
+                                                  ].map<
+                                                          DropdownMenuItem<
+                                                              String>>(
+                                                      (String type) {
+                                                    return DropdownMenuItem<
+                                                        String>(
+                                                      value: type,
+                                                      child: new Text(
+                                                        type,
+                                                        style: TextStyle(
+                                                          color: ColorSet
+                                                              .colorsBlackOfOpacity80,
+                                                        ),
+                                                      ),
+                                                    );
+                                                  }).toList(),
+                                                  hint: Text(
+                                                    settingPageType,
+                                                    style: TextStyle(
+                                                      color: ColorSet
+                                                          .colorsBlackOfOpacity80,
+                                                    ),
+                                                  ),
+                                                ),
                                               ),
                                             ),
                                           ),
-                                        ),
-                                        const SizedBox(height: 15.0),
-                                        Container(
-                                          width: 250.0,
-                                          height: 40.0,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.rectangle,
-                                            borderRadius: ForAllTheme.allRadius,
-                                            color: ColorSet
-                                                .colorsWhiteGrayOfOpacity80,
+                                          const SizedBox(height: 15.0),
+                                          Container(
+                                            width: 250.0,
+                                            height: 40.0,
+                                            alignment: Alignment.center,
+                                            decoration: ShapeDecoration(
+                                              color: ColorSet
+                                                  .colorsWhiteGrayOfOpacity80,
+                                              shape: RoundedRectangleBorder(
+                                                borderRadius:
+                                                    ForAllTheme.allRadius,
+                                              ),
+                                            ),
+                                            child: DropdownButtonHideUnderline(
+                                              child: ButtonTheme(
+                                                alignedDropdown: true,
+                                                child: DropdownButtonFormField<
+                                                    String>(
+                                                  decoration:
+                                                      InputDecoration.collapsed(
+                                                          hintText: ''),
+                                                  icon: const Icon(Icons
+                                                      .keyboard_arrow_down_outlined),
+                                                  iconSize: 30.0,
+                                                  iconEnabledColor: ColorSet
+                                                      .colorsDarkBlueGreenOfOpacity80,
+                                                  hint: Text(
+                                                    settingPageBreeds,
+                                                    style: TextStyle(
+                                                      color: ColorSet
+                                                          .colorsBlackOfOpacity80,
+                                                    ),
+                                                  ),
+                                                  value: AllDataModel.petBreeds,
+                                                  isExpanded: true,
+                                                  onChanged: (String? value) {
+                                                    setState(() {
+                                                      AllDataModel.petBreeds =
+                                                          value;
+                                                      settingPageBreeds =
+                                                          value.toString();
+                                                    });
+                                                    switch (value) {
+                                                      case "其他":
+                                                        showDialog(
+                                                            context: context,
+                                                            builder:
+                                                                (BuildContext
+                                                                    context) {
+                                                              // Show dialog for user to input custom breeds
+                                                              return AlertDialog(
+                                                                content:
+                                                                    SingleChildScrollView(
+                                                                  child: Column(
+                                                                    mainAxisSize:
+                                                                        MainAxisSize
+                                                                            .min,
+                                                                    crossAxisAlignment:
+                                                                        CrossAxisAlignment
+                                                                            .center,
+                                                                    children: <
+                                                                        Widget>[
+                                                                      const Text(
+                                                                        '其他',
+                                                                        style:
+                                                                            const TextStyle(
+                                                                          color:
+                                                                              ColorSet.colorsBlackOfOpacity80,
+                                                                          fontSize:
+                                                                              17.0,
+                                                                          fontWeight:
+                                                                              FontWeight.bold,
+                                                                        ),
+                                                                      ),
+                                                                      const SizedBox(
+                                                                        height:
+                                                                            30.0,
+                                                                      ),
+                                                                      TextFormField(
+                                                                        style: MyDialogTheme
+                                                                            .dialogContentStyle,
+                                                                        textAlign:
+                                                                            TextAlign.center,
+                                                                        textAlignVertical:
+                                                                            TextAlignVertical.center,
+                                                                        controller:
+                                                                            setBreedsController,
+                                                                        focusNode:
+                                                                            settingPageBreedsFocusNode,
+                                                                        cursorColor:
+                                                                            ColorSet.primaryColorsGreenOfOpacity80,
+                                                                        onEditingComplete:
+                                                                            () {
+                                                                          settingPageBreedsFocusNode
+                                                                              .unfocus();
+                                                                        },
+                                                                        decoration:
+                                                                            const InputDecoration(
+                                                                          border:
+                                                                              InputBorder.none,
+                                                                          hintText:
+                                                                              '請自行輸入寵物品種',
+                                                                          hintStyle:
+                                                                              const TextStyle(color: ColorSet.colorsGrayOfOpacity80),
+                                                                        ),
+                                                                      ),
+                                                                      const Divider(),
+                                                                    ],
+                                                                  ),
+                                                                ),
+                                                                actions: <
+                                                                    Widget>[
+                                                                  Row(
+                                                                      mainAxisAlignment:
+                                                                          MainAxisAlignment
+                                                                              .end,
+                                                                      children: <
+                                                                          Widget>[
+                                                                        TextButton(
+                                                                          onPressed:
+                                                                              () {
+                                                                            settingPageBreeds =
+                                                                                '';
+                                                                            Navigator.pop(context,
+                                                                                'Cancel');
+                                                                          },
+                                                                          child:
+                                                                              const Text(
+                                                                            '取消',
+                                                                            style: const TextStyle(
+                                                                                color: ColorSet.colorsGrayOfOpacity80,
+                                                                                fontWeight: FontWeight.bold,
+                                                                                fontSize: 13.0,
+                                                                                letterSpacing: 2.0),
+                                                                          ),
+                                                                        ),
+                                                                        Container(
+                                                                          height:
+                                                                              34.0,
+                                                                          width:
+                                                                              50.0,
+                                                                          decoration:
+                                                                              BoxDecoration(
+                                                                            shape:
+                                                                                BoxShape.rectangle,
+                                                                            borderRadius:
+                                                                                ForAllTheme.allRadius,
+                                                                            color:
+                                                                                ColorSet.primaryColorsGreenOfOpacity80,
+                                                                          ),
+                                                                          child:
+                                                                              TextButton(
+                                                                            onPressed:
+                                                                                () {
+                                                                              settingPageBreeds = '';
+                                                                              Navigator.pop(context, 'OK');
+                                                                              setState(() {
+                                                                                settingPageBreeds = setBreedsController.text;
+                                                                              });
+                                                                            },
+                                                                            child:
+                                                                                const Text(
+                                                                              '完成',
+                                                                              textAlign: TextAlign.center,
+                                                                              style: const TextStyle(color: ColorSet.colorsWhite, fontWeight: FontWeight.bold, fontSize: 13.0, letterSpacing: 2.0),
+                                                                            ),
+                                                                          ),
+                                                                        ),
+                                                                      ]),
+                                                                ],
+                                                              );
+                                                            });
+                                                        break;
+                                                      default:
+                                                      /**/
+                                                    }
+                                                  },
+                                                  items: AllDataModel
+                                                      .defaultBreeds
+                                                      .map<
+                                                              DropdownMenuItem<
+                                                                  String>>(
+                                                          (breeds) {
+                                                    return DropdownMenuItem<
+                                                        String>(
+                                                      value: breeds,
+                                                      child: new Text(
+                                                        breeds,
+                                                        style: TextStyle(
+                                                          color: ColorSet
+                                                              .colorsBlackOfOpacity80,
+                                                        ),
+                                                      ),
+                                                    );
+                                                  }).toList(),
+                                                ),
+                                              ),
+                                            ),
                                           ),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceAround,
-                                            children: <Widget>[
-                                              Text(
-                                                '選擇性別',
-                                                style: TextStyle(
-                                                    color: ColorSet
-                                                        .colorsBlackOfOpacity80,
-                                                    fontSize: 17.0,
-                                                    letterSpacing: 2.0),
+                                          const SizedBox(height: 15.0),
+                                          Container(
+                                            width: 250.0,
+                                            height: 40.0,
+                                            padding: const EdgeInsets.only(
+                                              left: 15.0,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.rectangle,
+                                              borderRadius:
+                                                  ForAllTheme.allRadius,
+                                              color: ColorSet
+                                                  .colorsWhiteGrayOfOpacity80,
+                                            ),
+                                            child: TextField(
+                                              style: const TextStyle(
+                                                color: ColorSet
+                                                    .colorsBlackOfOpacity80,
                                               ),
-                                              const SizedBox(
-                                                width: 5.0,
+                                              textAlign: TextAlign.end,
+                                              textAlignVertical:
+                                                  TextAlignVertical.center,
+                                              focusNode: setNameFocusNode,
+                                              cursorColor: ColorSet
+                                                  .colorsBlackOfOpacity80,
+                                              controller: setNameController,
+                                              onEditingComplete: () {
+                                                setNameFocusNode.unfocus();
+                                              },
+                                              decoration: const InputDecoration(
+                                                border: InputBorder.none,
+                                                prefixIcon: const Text(
+                                                  '輸入寵物姓名',
+                                                  style: const TextStyle(
+                                                      color: ColorSet
+                                                          .colorsBlackOfOpacity80,
+                                                      fontSize: 17.0,
+                                                      letterSpacing: 2.0),
+                                                ),
+                                                prefixIconConstraints:
+                                                    const BoxConstraints(
+                                                        minWidth: 0,
+                                                        minHeight: 0),
+                                                contentPadding:
+                                                    const EdgeInsets.only(
+                                                  bottom: 10.0,
+                                                  right: 35.0,
+                                                ),
                                               ),
-                                              ToggleSwitch(
-                                                minWidth: 30.0,
-                                                minHeight: 20.0,
-                                                initialLabelIndex:
-                                                    myPet.getGender == '公'
-                                                        ? 0
-                                                        : 1,
-                                                cornerRadius: 20.0,
-                                                inactiveBgColor:
+                                            ),
+                                          ),
+                                          const SizedBox(height: 15.0),
+                                          Container(
+                                            width: 250.0,
+                                            height: 40.0,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.rectangle,
+                                              borderRadius:
+                                                  ForAllTheme.allRadius,
+                                              color: ColorSet
+                                                  .colorsWhiteGrayOfOpacity80,
+                                            ),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.spaceAround,
+                                              children: <Widget>[
+                                                const Text(
+                                                  '選擇性別',
+                                                  style: const TextStyle(
+                                                      color: ColorSet
+                                                          .colorsBlackOfOpacity80,
+                                                      fontSize: 17.0,
+                                                      letterSpacing: 2.0),
+                                                ),
+                                                const SizedBox(
+                                                  width: 5.0,
+                                                ),
+                                                ToggleSwitch(
+                                                  minWidth: 30.0,
+                                                  minHeight: 20.0,
+                                                  initialLabelIndex:
+                                                      settingPageGender == '公'
+                                                          ? 0
+                                                          : 1,
+                                                  cornerRadius: 20.0,
+                                                  inactiveBgColor:
+                                                      ColorSet.colorsWhite,
+                                                  borderColor: [
                                                     ColorSet.colorsWhite,
-                                                borderColor: [
-                                                  ColorSet.colorsWhite,
-                                                ],
-                                                borderWidth: 2.0,
-                                                totalSwitches: 2,
-                                                fontSize: 15.0,
-                                                customTextStyles: [
-                                                  TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    color: ColorSet.colorsWhite,
-                                                  ),
-                                                  TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                    color: ColorSet.colorsWhite,
-                                                  ),
-                                                ],
-                                                labels: ['公', '母'],
-                                                activeBgColors: [
-                                                  [
-                                                    ColorSet
-                                                        .colorsDarkBlueGreenOfOpacity80
                                                   ],
-                                                  [
-                                                    ColorSet
-                                                        .colorsDarkBlueGreenOfOpacity80
-                                                  ]
-                                                ],
-                                                onToggle: (index) async {
-                                                  SharedPreferences prefs =
-                                                      await SharedPreferences
-                                                          .getInstance();
-                                                  switch (index) {
-                                                    case 0:
-                                                      myPet.setGender('公');
-                                                      await prefs.setString(
-                                                          'keyPetGender', '公');
-                                                      break;
-                                                    case 1:
-                                                      myPet.setGender('母');
-                                                      await prefs.setString(
-                                                          'keyPetGender', '母');
-                                                      break;
-                                                  }
-                                                },
-                                              ),
-                                            ],
+                                                  borderWidth: 2.0,
+                                                  totalSwitches: 2,
+                                                  fontSize: 15.0,
+                                                  customTextStyles: [
+                                                    const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color:
+                                                          ColorSet.colorsWhite,
+                                                    ),
+                                                    const TextStyle(
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      color:
+                                                          ColorSet.colorsWhite,
+                                                    ),
+                                                  ],
+                                                  labels: ['公', '母'],
+                                                  activeBgColors: [
+                                                    [
+                                                      ColorSet
+                                                          .colorsDarkBlueGreenOfOpacity80
+                                                    ],
+                                                    [
+                                                      ColorSet
+                                                          .colorsDarkBlueGreenOfOpacity80
+                                                    ]
+                                                  ],
+                                                  onToggle: (index) {
+                                                    switch (index) {
+                                                      case 0:
+                                                        settingPageGender = '公';
+                                                        break;
+                                                      case 1:
+                                                        settingPageGender = '母';
+                                                        break;
+                                                    }
+                                                  },
+                                                ),
+                                              ],
+                                            ),
                                           ),
-                                        ),
-                                        const SizedBox(height: 15.0),
-                                        Container(
-                                          width: 250.0,
-                                          height: 40.0,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.rectangle,
-                                            borderRadius: ForAllTheme.allRadius,
-                                            color: ColorSet
-                                                .colorsWhiteGrayOfOpacity80,
+                                          const SizedBox(height: 15.0),
+                                          Container(
+                                            width: 250.0,
+                                            height: 40.0,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.rectangle,
+                                              borderRadius:
+                                                  ForAllTheme.allRadius,
+                                              color: ColorSet
+                                                  .colorsWhiteGrayOfOpacity80,
+                                            ),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.spaceAround,
+                                              children: <Widget>[
+                                                const Text(
+                                                  '年齡/生日',
+                                                  style: const TextStyle(
+                                                      color: ColorSet
+                                                          .colorsBlackOfOpacity80,
+                                                      fontSize: 17.0,
+                                                      letterSpacing: 2.0),
+                                                ),
+                                                const SizedBox(
+                                                  width: 5.0,
+                                                ),
+                                                Switch(
+                                                    value: setIsExactDate,
+                                                    inactiveThumbColor: ColorSet
+                                                        .colorsWhiteGrayOfOpacity80,
+                                                    inactiveTrackColor:
+                                                        ColorSet.colorsWhite,
+                                                    activeColor: ColorSet
+                                                        .colorsDarkBlueGreenOfOpacity80,
+                                                    activeTrackColor:
+                                                        ColorSet.colorsWhite,
+                                                    onChanged: (value) {
+                                                      setState(() {
+                                                        setIsExactDate = value;
+                                                      });
+                                                      /* Reset value while switch on changed */
+                                                      if (setIsExactDate ==
+                                                          false) {
+                                                        setAgeController.text =
+                                                            '';
+                                                      } else {
+                                                        settingPageBirthday =
+                                                            formattedDate
+                                                                .format(DateTime
+                                                                    .now())
+                                                                .toString();
+                                                      }
+                                                    }),
+                                              ],
+                                            ),
                                           ),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceAround,
-                                            children: <Widget>[
-                                              const Text(
-                                                '年齡/生日',
-                                                style: TextStyle(
-                                                    color: ColorSet
+                                          const SizedBox(height: 15.0),
+                                          Container(
+                                            width: 250.0,
+                                            height: 40.0,
+                                            padding: const EdgeInsets.only(
+                                              left: 15.0,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.rectangle,
+                                              borderRadius:
+                                                  ForAllTheme.allRadius,
+                                              color: ColorSet
+                                                  .colorsWhiteGrayOfOpacity80,
+                                            ),
+                                            child: setIsExactDate == true
+                                                ? Row(
+                                                    children: <Widget>[
+                                                      Expanded(
+                                                        child: const Text(
+                                                          '選擇生日',
+                                                          style: const TextStyle(
+                                                              color: ColorSet
+                                                                  .colorsBlackOfOpacity80,
+                                                              fontSize: 17.0,
+                                                              letterSpacing:
+                                                                  2.0),
+                                                        ),
+                                                      ),
+                                                      Expanded(
+                                                        child: Tooltip(
+                                                          message: '選擇日期',
+                                                          child: TextButton(
+                                                            onPressed: () {
+                                                              DatePicker
+                                                                  .showDatePicker(
+                                                                context,
+                                                                currentTime:
+                                                                    DateTime
+                                                                        .now(),
+                                                                locale:
+                                                                    LocaleType
+                                                                        .tw,
+                                                                showTitleActions:
+                                                                    true,
+                                                                minTime:
+                                                                    DateTime(
+                                                                        1971,
+                                                                        1,
+                                                                        1),
+                                                                maxTime:
+                                                                    DateTime(
+                                                                        2030,
+                                                                        12,
+                                                                        31),
+                                                                onConfirm:
+                                                                    (date) {
+                                                                  settingPageAge =
+                                                                      DateTime.now()
+                                                                              .year -
+                                                                          date.year;
+                                                                  setState(() {
+                                                                    settingPageBirthday =
+                                                                        formattedDate
+                                                                            .format(date);
+                                                                  });
+                                                                },
+                                                              );
+                                                            },
+                                                            child: Text(
+                                                              settingPageBirthday,
+                                                              style:
+                                                                  const TextStyle(
+                                                                color: ColorSet
+                                                                    .colorsBlackOfOpacity80,
+                                                              ),
+                                                            ),
+                                                          ),
+                                                        ),
+                                                      ),
+                                                    ],
+                                                  )
+                                                : TextField(
+                                                    style: const TextStyle(
+                                                      color: ColorSet
+                                                          .colorsBlackOfOpacity80,
+                                                    ),
+                                                    textAlign: TextAlign.end,
+                                                    textAlignVertical:
+                                                        TextAlignVertical
+                                                            .center,
+                                                    keyboardType:
+                                                        TextInputType.number,
+                                                    focusNode: setDateFocusNode,
+                                                    cursorColor: ColorSet
                                                         .colorsBlackOfOpacity80,
-                                                    fontSize: 17.0,
-                                                    letterSpacing: 2.0),
-                                              ),
-                                              const SizedBox(
-                                                width: 5.0,
-                                              ),
-                                              Switch(
-                                                  value: setIsExactDate,
+                                                    controller:
+                                                        setAgeController,
+                                                    onEditingComplete: () {
+                                                      setDateFocusNode
+                                                          .unfocus();
+                                                    },
+                                                    decoration:
+                                                        const InputDecoration(
+                                                      border: InputBorder.none,
+                                                      prefixIcon: const Text(
+                                                        '輸入年齡',
+                                                        style: const TextStyle(
+                                                            color: ColorSet
+                                                                .colorsBlackOfOpacity80,
+                                                            fontSize: 17.0,
+                                                            letterSpacing: 2.0),
+                                                      ),
+                                                      prefixIconConstraints:
+                                                          const BoxConstraints(
+                                                              minWidth: 0,
+                                                              minHeight: 0),
+                                                      suffixText: '歲',
+                                                      suffixStyle: const TextStyle(
+                                                          color: ColorSet
+                                                              .colorsBlackOfOpacity80,
+                                                          fontSize: 17.0,
+                                                          letterSpacing: 2.0),
+                                                      contentPadding:
+                                                          const EdgeInsets.only(
+                                                        bottom: 10.0,
+                                                        right: 35.0,
+                                                      ),
+                                                    ),
+                                                  ),
+                                          ),
+                                          const SizedBox(height: 15.0),
+                                          Container(
+                                            width: 250.0,
+                                            height: 40.0,
+                                            decoration: BoxDecoration(
+                                              shape: BoxShape.rectangle,
+                                              borderRadius:
+                                                  ForAllTheme.allRadius,
+                                              color: ColorSet
+                                                  .colorsWhiteGrayOfOpacity80,
+                                            ),
+                                            child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.spaceAround,
+                                              children: <Widget>[
+                                                const Text(
+                                                  '是否結紮',
+                                                  style: const TextStyle(
+                                                      color: ColorSet
+                                                          .colorsBlackOfOpacity80,
+                                                      fontSize: 17.0,
+                                                      letterSpacing: 2.0),
+                                                ),
+                                                const SizedBox(
+                                                  width: 5.0,
+                                                ),
+                                                Switch(
+                                                  value: settingPageIsNeutered,
                                                   inactiveThumbColor: ColorSet
                                                       .colorsWhiteGrayOfOpacity80,
                                                   inactiveTrackColor:
@@ -790,286 +1154,84 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
                                                       ColorSet.colorsWhite,
                                                   onChanged: (value) {
                                                     setState(() {
-                                                      setIsExactDate = value;
+                                                      settingPageIsNeutered =
+                                                          value;
                                                     });
-                                                    /* Reset value while switch on changed */
-                                                    if (setIsExactDate ==
-                                                        false) {
-                                                      setAgeController.text =
-                                                          '';
-                                                    } else {
-                                                      myPet.setBirthday(
-                                                          formattedDate
-                                                              .format(DateTime
-                                                                  .now())
-                                                              .toString());
-                                                    }
-                                                  }),
-                                            ],
-                                          ),
-                                        ),
-                                        const SizedBox(height: 15.0),
-                                        Container(
-                                          width: 250.0,
-                                          height: 40.0,
-                                          padding: EdgeInsets.only(
-                                            left: 15.0,
-                                          ),
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.rectangle,
-                                            borderRadius: ForAllTheme.allRadius,
-                                            color: ColorSet
-                                                .colorsWhiteGrayOfOpacity80,
-                                          ),
-                                          child: setIsExactDate == true
-                                              ? Row(
-                                                  children: <Widget>[
-                                                    Expanded(
-                                                      child: const Text(
-                                                        '選擇生日',
-                                                        style: TextStyle(
-                                                            color: ColorSet
-                                                                .colorsBlackOfOpacity80,
-                                                            fontSize: 17.0,
-                                                            letterSpacing: 2.0),
-                                                      ),
-                                                    ),
-                                                    Expanded(
-                                                      child: Tooltip(
-                                                        message: '選擇日期',
-                                                        child: TextButton(
-                                                          onPressed: () {
-                                                            DatePicker
-                                                                .showDatePicker(
-                                                              context,
-                                                              currentTime:
-                                                                  DateTime
-                                                                      .now(),
-                                                              locale:
-                                                                  LocaleType.tw,
-                                                              showTitleActions:
-                                                                  true,
-                                                              minTime: DateTime(
-                                                                  1971, 1, 1),
-                                                              maxTime: DateTime(
-                                                                  2030, 12, 31),
-                                                              onConfirm:
-                                                                  (date) async {
-                                                                int birthdayAge =
-                                                                    DateTime.now()
-                                                                            .year -
-                                                                        date.year;
-                                                                SharedPreferences
-                                                                    prefs =
-                                                                    await SharedPreferences
-                                                                        .getInstance();
-                                                                await prefs.setString(
-                                                                    'keyPetBirthday',
-                                                                    formattedDate
-                                                                        .format(
-                                                                            date));
-                                                                await prefs.setString(
-                                                                    'keyPetAge',
-                                                                    birthdayAge
-                                                                        .toString());
-                                                                setState(() {
-                                                                  myPet.setBirthday(
-                                                                      formattedDate
-                                                                          .format(
-                                                                              date));
-                                                                  myPet.setAge(
-                                                                      birthdayAge
-                                                                          .toString());
-                                                                });
-                                                              },
-                                                              theme:
-                                                                  DatePickerTheme(
-                                                                cancelStyle:
-                                                                    const TextStyle(
-                                                                        color: Colors
-                                                                            .redAccent),
-                                                              ),
-                                                            );
-                                                          },
-                                                          child: Text(
-                                                            myPet.getBirthday ==
-                                                                    ''
-                                                                ? formattedDate
-                                                                    .format(
-                                                                        DateTime
-                                                                            .now())
-                                                                    .toString()
-                                                                : myPet
-                                                                    .getBirthday,
-                                                            style: TextStyle(
-                                                              color: ColorSet
-                                                                  .colorsBlackOfOpacity80,
-                                                            ),
-                                                          ),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ],
-                                                )
-                                              : TextField(
-                                                  style: TextStyle(
-                                                    color: ColorSet
-                                                        .colorsBlackOfOpacity80,
-                                                  ),
-                                                  textAlign: TextAlign.end,
-                                                  textAlignVertical:
-                                                      TextAlignVertical.center,
-                                                  keyboardType:
-                                                      TextInputType.number,
-                                                  focusNode: setDateFocusNode,
-                                                  cursorColor: ColorSet
-                                                      .colorsBlackOfOpacity80,
-                                                  controller: setAgeController,
-                                                  onEditingComplete: () {
-                                                    setDateFocusNode.unfocus();
                                                   },
-                                                  decoration:
-                                                      const InputDecoration(
-                                                    border: InputBorder.none,
-                                                    prefixIcon: const Text(
-                                                      '輸入年齡',
-                                                      style: TextStyle(
-                                                          color: ColorSet
-                                                              .colorsBlackOfOpacity80,
-                                                          fontSize: 17.0,
-                                                          letterSpacing: 2.0),
-                                                    ),
-                                                    prefixIconConstraints:
-                                                        BoxConstraints(
-                                                            minWidth: 0,
-                                                            minHeight: 0),
-                                                    suffixText: '歲',
-                                                    suffixStyle: TextStyle(
-                                                        color: ColorSet
-                                                            .colorsBlackOfOpacity80,
-                                                        fontSize: 17.0,
-                                                        letterSpacing: 2.0),
-                                                    contentPadding:
-                                                        EdgeInsets.only(
-                                                      bottom: 10.0,
-                                                      right: 35.0,
-                                                    ),
-                                                  ),
-                                                ),
-                                        ),
-                                        const SizedBox(height: 15.0),
-                                        Container(
-                                          width: 250.0,
-                                          height: 40.0,
-                                          decoration: BoxDecoration(
-                                            shape: BoxShape.rectangle,
-                                            borderRadius: ForAllTheme.allRadius,
-                                            color: ColorSet
-                                                .colorsWhiteGrayOfOpacity80,
+                                                )
+                                              ],
+                                            ),
                                           ),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.spaceAround,
-                                            children: <Widget>[
-                                              const Text(
-                                                '是否結紮',
-                                                style: TextStyle(
-                                                    color: ColorSet
-                                                        .colorsBlackOfOpacity80,
-                                                    fontSize: 17.0,
-                                                    letterSpacing: 2.0),
-                                              ),
-                                              const SizedBox(
-                                                width: 5.0,
-                                              ),
-                                              Switch(
-                                                value: setIsNeutered,
-                                                inactiveThumbColor: ColorSet
-                                                    .colorsWhiteGrayOfOpacity80,
-                                                inactiveTrackColor:
-                                                    ColorSet.colorsWhite,
-                                                activeColor: ColorSet
-                                                    .colorsDarkBlueGreenOfOpacity80,
-                                                activeTrackColor:
-                                                    ColorSet.colorsWhite,
-                                                onChanged: (value) {
-                                                  setState(() {
-                                                    setIsNeutered = value;
-                                                  });
-                                                },
-                                              )
-                                            ],
-                                          ),
-                                        ),
-                                      ],
+                                        ],
+                                      ),
                                     ),
-                                  ),
-                                ],
+                                  ],
+                                ),
                               ),
                             ),
-                          ),
-                          Positioned(
-                            right: 20.0,
-                            bottom: 27.0,
-                            child: Row(
-                              children: <Widget>[
-                                TextButton(
-                                  onPressed: () {
-                                    Navigator.pop(context);
-                                  },
-                                  child: Text(
-                                    '取消',
-                                    style: TextStyle(
-                                        color: ColorSet.colorsWhite,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 13.0,
-                                        letterSpacing: 2.0),
-                                  ),
-                                ),
-                                Container(
-                                  height: 34.0,
-                                  width: 50.0,
-                                  decoration: BoxDecoration(
-                                    shape: BoxShape.rectangle,
-                                    borderRadius: ForAllTheme.allRadius,
-                                    color:
-                                        ColorSet.colorsDarkBlueGreenOfOpacity80,
-                                  ),
-                                  child: TextButton(
+                            Positioned(
+                              right: 20.0,
+                              bottom: 27.0,
+                              child: Row(
+                                children: <Widget>[
+                                  TextButton(
                                     onPressed: () {
-                                      _confirmChanges();
+                                      Navigator.pop(context);
                                     },
-                                    child: Text(
-                                      '完成',
-                                      textAlign: TextAlign.center,
-                                      style: TextStyle(
+                                    child: const Text(
+                                      '取消',
+                                      style: const TextStyle(
                                           color: ColorSet.colorsWhite,
                                           fontWeight: FontWeight.bold,
                                           fontSize: 13.0,
                                           letterSpacing: 2.0),
                                     ),
                                   ),
-                                ),
-                              ],
+                                  Container(
+                                    height: 34.0,
+                                    width: 50.0,
+                                    decoration: BoxDecoration(
+                                      shape: BoxShape.rectangle,
+                                      borderRadius: ForAllTheme.allRadius,
+                                      color: ColorSet
+                                          .colorsDarkBlueGreenOfOpacity80,
+                                    ),
+                                    child: TextButton(
+                                      onPressed: () {
+                                        _confirmChanges();
+                                      },
+                                      child: const Text(
+                                        '完成',
+                                        textAlign: TextAlign.center,
+                                        style: const TextStyle(
+                                            color: ColorSet.colorsWhite,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 13.0,
+                                            letterSpacing: 2.0),
+                                      ),
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Expanded(
-                      child: SizedBox(
-                        height: 600.0,
-                        child: Card(
-                          color: ColorSet.primaryColorsGreenOfOpacity80,
-                          margin: EdgeInsets.only(
-                              left: 22.0, top: 20.0, bottom: 17.0),
-                          shape: MyCardTheme.cardsForRightShapeBorder,
+                          ],
                         ),
                       ),
-                    ),
-                  ],
-                ),
-              ],
+                      Expanded(
+                        child: SizedBox(
+                          height: 600.0,
+                          child: Card(
+                            color: ColorSet.primaryColorsGreenOfOpacity80,
+                            margin: const EdgeInsets.only(
+                                left: 22.0, top: 20.0, bottom: 17.0),
+                            shape: MyCardTheme.cardsForRightShapeBorder,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
           ),
         ],

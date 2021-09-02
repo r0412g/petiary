@@ -14,7 +14,7 @@ class DrawBackgroundPainter extends CustomPainter {
     // Draw background
     var paint = Paint()
       ..isAntiAlias = true
-      ..color =Color.fromRGBO(255, 255, 255, 80.0);
+      ..color = ColorSet.colorsWhite;
     canvas.drawRect(Offset.zero & size, paint);
 
     // Draw tag

@@ -11,8 +11,6 @@ import 'package:image_picker/image_picker.dart';
 import 'package:pet_diary/common/data.dart';
 import 'package:pet_diary/common/theme.dart';
 import 'package:pet_diary/main.dart';
-import 'package:pet_diary/models/pet_model.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toggle_switch/toggle_switch.dart';
 
@@ -21,19 +19,27 @@ class IntroPage extends StatefulWidget {
 }
 
 class _IntroPageState extends State<IntroPage> {
-  int introGenderIndex = 0;
-  bool introIsNeutered = false;
-  bool introIsExactDate = false;
+  int introPageGenderIndex = 0;
+  int introPageAge = 0;
+  bool introPageIsNeutered = false;
+  bool introPageIsExactDate = false;
   final formattedDate = DateFormat('yyyy-MM-dd');
-  var introImageByFile;
-  String introImagePathByAssets = 'assets/images/default_image.png';
+  var introPageImageByFile;
+  String introPageImagePathByAssets = 'assets/images/default_image.png';
+  String introPageType = '';
+  String introPageBreeds = '';
+  String introPageBirthday =
+      DateFormat('yyyy-MM-dd').format(DateTime.now()).toString();
 
-  FocusNode introNameFocusNode = new FocusNode();
-  FocusNode introDateFocusNode = new FocusNode();
-  TextEditingController introTypeController = TextEditingController();
-  TextEditingController introBreedsController = TextEditingController();
-  TextEditingController introNameController = TextEditingController();
-  TextEditingController introAgeController = TextEditingController();
+  FocusNode introPageNameFocusNode = new FocusNode();
+  FocusNode introPageDateFocusNode = new FocusNode();
+  FocusNode introPageTypeFocusNode = new FocusNode();
+  FocusNode introPageBreedsFocusNode = new FocusNode();
+
+  TextEditingController introPageTypeController = TextEditingController();
+  TextEditingController introPageBreedsController = TextEditingController();
+  TextEditingController introPageNameController = TextEditingController();
+  TextEditingController introPageAgeController = TextEditingController();
 
   TextStyle _titleStyle = const TextStyle(
     color: ColorSet.colorsBlackOfOpacity80,
@@ -44,8 +50,8 @@ class _IntroPageState extends State<IntroPage> {
 
   Decoration _containerOfDropdownButtonDeco = ShapeDecoration(
     shape: RoundedRectangleBorder(
-      side:
-          BorderSide(color: ColorSet.primaryColorsGreenOfOpacity80, width: 3.0),
+      side: const BorderSide(
+          color: ColorSet.primaryColorsGreenOfOpacity80, width: 3.0),
       borderRadius: ForAllTheme.allRadius,
     ),
   );
@@ -63,13 +69,17 @@ class _IntroPageState extends State<IntroPage> {
     super.initState();
   }
 
-  /* Clean up the controller when the widget is disposed */
+  /* Clean up the controller and focus node when the widget is disposed */
   @override
   void dispose() {
-    introTypeController.dispose();
-    introBreedsController.dispose();
-    introNameController.dispose();
-    introAgeController.dispose();
+    introPageTypeController.dispose();
+    introPageBreedsController.dispose();
+    introPageNameController.dispose();
+    introPageAgeController.dispose();
+    introPageNameFocusNode.dispose();
+    introPageDateFocusNode.dispose();
+    introPageTypeFocusNode.dispose();
+    introPageBreedsFocusNode.dispose();
     super.dispose();
   }
 
@@ -79,12 +89,12 @@ class _IntroPageState extends State<IntroPage> {
     final pickedImage =
         await ImagePicker().pickImage(source: ImageSource.gallery);
     setState(() {
-      introImageByFile = pickedImage;
+      introPageImageByFile = pickedImage;
     });
 
-    // Image selected then save
-    if (introImageByFile != null) {
-      introImagePathByAssets = '';
+    // If image selected, then go to crop image
+    if (introPageImageByFile != null) {
+      introPageImagePathByAssets = '';
       prefs.setString('keyPetImagePathByAssets', '');
       _cropImage();
     } else {
@@ -92,7 +102,7 @@ class _IntroPageState extends State<IntroPage> {
           msg: "您沒有選擇相片",
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.white,
+          backgroundColor: ColorSet.colorsWhite,
           textColor: ColorSet.colorsBlackOfOpacity80,
           fontSize: 16.0);
     }
@@ -102,7 +112,7 @@ class _IntroPageState extends State<IntroPage> {
   Future<Null> _cropImage() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     File? croppedFile = await ImageCropper.cropImage(
-      sourcePath: introImageByFile.path,
+      sourcePath: introPageImageByFile.path,
       aspectRatioPresets: [
         CropAspectRatioPreset.square,
       ],
@@ -122,54 +132,91 @@ class _IntroPageState extends State<IntroPage> {
       ),
     );
 
-    // Image cropped then save
+    // Image cropped
     if (croppedFile != null) {
       setState(() {
-        introImageByFile = croppedFile;
+        introPageImageByFile = croppedFile;
       });
-      introImagePathByAssets = '';
+      introPageImagePathByAssets = '';
       prefs.setString('keyPetImagePathByAssets', '');
     } else {
       Fluttertoast.showToast(
           msg: "您沒有剪裁相片",
           toastLength: Toast.LENGTH_SHORT,
           gravity: ToastGravity.BOTTOM,
-          backgroundColor: Colors.white,
+          backgroundColor: ColorSet.colorsWhite,
           textColor: ColorSet.colorsBlackOfOpacity80,
           fontSize: 16.0);
     }
   }
 
+  /* Save info when end intro page */
   _onIntroEnd(context) async {
-    MyPetModel myPet = Provider.of<MyPetModel>(context, listen: false);
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
+    // Save true then intro page won't show when user open app next time
     await prefs.setBool('keyChecked', true);
 
-    if (introImageByFile != null) {
-      //myPet.setImagePathByFile(introImageByFile.path);
-      await prefs.setString('keyPetImagePathByFile', introImageByFile.path);
+    // Save image depends on user select photo or default image
+    if (introPageImageByFile != null) {
+      await prefs.setString('keyPetImagePathByFile', introPageImageByFile.path);
     }
-    if (introImagePathByAssets != '') {
-      //myPet.setImagePathByAssets(introImagePathByAssets);
-      await prefs.setString('keyPetImagePathByAssets', introImagePathByAssets);
-    }
-    // Save pet name if user have input
-    if (introNameController.text != '') {
-      myPet.setName(introNameController.text);
-      await prefs.setString('keyPetName', introNameController.text);
+    if (introPageImagePathByAssets != '') {
+      await prefs.setString('keyPetImagePathByFile', '');
+      await prefs.setString(
+          'keyPetImagePathByAssets', introPageImagePathByAssets);
     }
 
-    myPet.setIsExactDate(introIsExactDate);
-    await prefs.setBool('keyIsExactDate', introIsExactDate);
+    // Save pet name
+    if (introPageNameController.text != '') {
+      await prefs.setString('keyPetName', introPageNameController.text);
+    } else {
+      await prefs.setString('keyPetName', '未設定');
+    }
+
+    // Save pet type
+    await prefs.setString('keyPetType', introPageType);
+    // Save pet breeds
+    await prefs.setString('keyPetBreeds', introPageBreeds);
+    // Save user choose input age or select date
+    await prefs.setBool('keyIsExactDate', introPageIsExactDate);
+    // Save is neutered or not
+    await prefs.setBool('keyIsNeutered', introPageIsNeutered);
+
+    // Save pet gender
+    if (introPageGenderIndex == 0) {
+      await prefs.setString('keyPetGender', '公');
+    } else {
+      await prefs.setString('keyPetGender', '母');
+    }
+
     // Save pet age if user have input
-    if (introAgeController.text != '') {
-      myPet.setAge(introAgeController.text);
-      await prefs.setString('keyPetAge', introAgeController.text);
+    if (introPageAgeController.text != '') {
+      await prefs.setInt('keyPetAge', int.parse(introPageAgeController.text));
     }
 
-    myPet.setIsNeutered(introIsNeutered);
-    await prefs.setBool('keyIsNeutered', introIsNeutered);
+    // User doesn't know exact date
+    if (introPageIsExactDate == false) {
+      // User doesn't input age
+      if (introPageAgeController.text == '') {
+        await prefs.setInt('keyPetAge', 0);
+      } else {
+        await prefs.setInt('keyPetAge', int.parse(introPageAgeController.text));
+      }
+    }
+    // User know exact date
+    else {
+      // User doesn't choose date
+      if (introPageBirthday ==
+          formattedDate.format(DateTime.now()).toString()) {
+        await prefs.setInt('keyPetAge', 0);
+        await prefs.setString(
+            'keyPetBirthday', formattedDate.format(DateTime.now()).toString());
+      } else {
+        await prefs.setInt('keyPetAge', introPageAge);
+        await prefs.setString('keyPetBirthday', introPageBirthday);
+      }
+    }
 
     Navigator.of(context).pushReplacement(
         new MaterialPageRoute(builder: (context) => new MyHomePage()));
@@ -177,33 +224,34 @@ class _IntroPageState extends State<IntroPage> {
 
   @override
   Widget build(BuildContext context) {
-    MyPetModel myPet = Provider.of<MyPetModel>(context, listen: false);
-
     return IntroductionScreen(
-      globalBackgroundColor: Colors.white,
+      globalBackgroundColor: ColorSet.colorsWhite,
       /* All pages in IntroScreen */
       rawPages: [
         /* Page 1: Welcome Page */
         Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: <Widget>[
-              Image.asset(
-                'assets/images/logo.png',
-                width: 175.0,
-                height: 175.0,
-              ),
-              SizedBox(
-                height: 70.0,
-              ),
-              Text(
-                '歡迎使用寵物日記\n\n一起為您的寵物建立檔案吧！',
-                textAlign: TextAlign.center,
-                style: _titleStyle,
-              ),
-            ],
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: <Widget>[
+                Image.asset(
+                  'assets/images/logo.png',
+                  width: 175.0,
+                  height: 175.0,
+                ),
+                const SizedBox(
+                  height: 70.0,
+                ),
+                Text(
+                  '歡迎使用寵物日記\n\n一起為您的寵物建立檔案吧！',
+                  textAlign: TextAlign.center,
+                  style: _titleStyle,
+                ),
+              ],
+            ),
           ),
         ),
+
         /* Page 2: Select Pet Type And Breeds */
         Center(
           child: SingleChildScrollView(
@@ -211,8 +259,9 @@ class _IntroPageState extends State<IntroPage> {
               mainAxisAlignment: MainAxisAlignment.center,
               crossAxisAlignment: CrossAxisAlignment.start,
               children: <Widget>[
+                // Show type by user selected or custom input
                 Text(
-                  '您的寵物類型：${myPet.getType}',
+                  '您的寵物類型：$introPageType',
                   style: _titleStyle,
                 ),
                 const SizedBox(height: 25.0),
@@ -226,110 +275,163 @@ class _IntroPageState extends State<IntroPage> {
                         alignedDropdown: true,
                         child: DropdownButtonFormField<String>(
                           decoration: InputDecoration.collapsed(hintText: ''),
-                          icon: Icon(Icons.keyboard_arrow_down_outlined),
+                          icon: const Icon(Icons.keyboard_arrow_down_outlined),
                           iconSize: 30.0,
                           iconEnabledColor:
                               ColorSet.primaryColorsGreenOfOpacity80,
                           isExpanded: true,
                           value: AllDataModel.petType,
-                          onChanged: (value) async {
-                            SharedPreferences prefs =
-                                await SharedPreferences.getInstance();
+                          onChanged: (value) {
                             setState(() {
                               AllDataModel.petType = value;
-                              myPet.setBreeds("請選擇");
+                              // Reset breeds content
+                              introPageBreeds = "請選擇";
+                              // Clear breeds list
+                              AllDataModel.defaultBreeds.clear();
                             });
-                            AllDataModel.defaultBreeds.clear();
-                            myPet.setBreeds('');
-                            await prefs.setString('keyPetImagePathByFile', '');
-                            introImageByFile = null;
-                            await prefs.setString('keyPetBreeds', '');
-                            /* Change Breeds List By Select Different Type */
+                            // Set image path to null for using default image
+                            introPageImageByFile = null;
+                            // Change breeds list and default image by select different type
                             switch (AllDataModel.petType) {
                               case "狗狗":
-                                myPet.setType("狗狗");
-                                prefs.setString('keyPetType', '狗狗');
+                                introPageType = '狗狗';
                                 AllDataModel.defaultBreeds
                                     .addAll(AllDataModel.dogBreeds);
-                                introImagePathByAssets =
+                                introPageImagePathByAssets =
                                     'assets/images/default_dog.png';
                                 break;
                               case "貓咪":
-                                myPet.setType("貓咪");
-                                prefs.setString('keyPetType', '貓咪');
+                                introPageType = '貓咪';
                                 AllDataModel.defaultBreeds
                                     .addAll(AllDataModel.catBreeds);
-                                introImagePathByAssets =
+                                introPageImagePathByAssets =
                                     'assets/images/default_cat.png';
                                 break;
                               case "兔子":
-                                myPet.setType("兔子");
-                                prefs.setString('keyPetType', '兔子');
+                                introPageType = '兔子';
                                 AllDataModel.defaultBreeds
                                     .addAll(AllDataModel.rabbitBreeds);
-                                introImagePathByAssets =
+                                introPageImagePathByAssets =
                                     'assets/images/default_rabbit.png';
                                 break;
                               case "烏龜":
-                                myPet.setType("烏龜");
-                                prefs.setString('keyPetType', '烏龜');
+                                introPageType = '烏龜';
                                 AllDataModel.defaultBreeds
                                     .addAll(AllDataModel.turtleBreeds);
-                                introImagePathByAssets =
+                                introPageImagePathByAssets =
                                     'assets/images/default_turtle.png';
                                 break;
                               case "其他":
-                                AllDataModel.defaultBreeds.add("自行輸入");
-                                introImagePathByAssets =
+                                AllDataModel.defaultBreeds.add("其他");
+                                introPageImagePathByAssets =
                                     'assets/images/default_image.png';
+                                // Show dialog for user to input custom type
                                 showDialog(
                                     context: context,
                                     builder: (BuildContext context) {
                                       return AlertDialog(
-                                        title: const Text('自行輸入寵物類型'),
-                                        actions: <Widget>[
-                                          TextFormField(
-                                            controller: introTypeController,
-                                            decoration: const InputDecoration(
-                                              prefixIcon:
-                                                  const Icon(Icons.pets),
-                                              hintText: '請輸入寵物的類型',
-                                            ),
+                                        content: SingleChildScrollView(
+                                          child: Column(
+                                            mainAxisSize: MainAxisSize.min,
+                                            crossAxisAlignment:
+                                                CrossAxisAlignment.center,
+                                            children: <Widget>[
+                                              const Text(
+                                                '其他',
+                                                style: const TextStyle(
+                                                  color: ColorSet
+                                                      .colorsBlackOfOpacity80,
+                                                  fontSize: 17.0,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
+                                              ),
+                                              const SizedBox(
+                                                height: 30.0,
+                                              ),
+                                              TextField(
+                                                style: MyDialogTheme
+                                                    .dialogContentStyle,
+                                                textAlign: TextAlign.center,
+                                                textAlignVertical:
+                                                    TextAlignVertical.center,
+                                                controller:
+                                                    introPageTypeController,
+                                                focusNode:
+                                                    introPageTypeFocusNode,
+                                                cursorColor: ColorSet
+                                                    .primaryColorsGreenOfOpacity80,
+                                                onEditingComplete: () {
+                                                  introPageTypeFocusNode
+                                                      .unfocus();
+                                                },
+                                                decoration:
+                                                    const InputDecoration(
+                                                  border: InputBorder.none,
+                                                  hintText: '請自行輸入寵物類型',
+                                                  hintStyle: const TextStyle(
+                                                      color: ColorSet
+                                                          .colorsGrayOfOpacity80),
+                                                ),
+                                              ),
+                                              const Divider(),
+                                            ],
                                           ),
+                                        ),
+                                        actions: <Widget>[
                                           Row(
                                               mainAxisAlignment:
                                                   MainAxisAlignment.end,
                                               children: <Widget>[
                                                 TextButton(
-                                                  onPressed: () =>
-                                                      Navigator.pop(
-                                                          context, 'Cancel'),
-                                                  child: const Text(
-                                                    '取消',
-                                                    style: TextStyle(
-                                                        color: ColorSet
-                                                            .primaryColorsGreenOfOpacity80),
-                                                  ),
-                                                ),
-                                                TextButton(
                                                   onPressed: () {
+                                                    // If user doesn't input custom type, then set no content
+                                                    introPageType = '';
                                                     Navigator.pop(
-                                                        context, 'OK');
-                                                    setState(() {
-                                                      prefs.setString(
-                                                          'keyPetType',
-                                                          introTypeController
-                                                              .text);
-                                                      myPet.setType(
-                                                          introTypeController
-                                                              .text);
-                                                    });
+                                                        context, 'Cancel');
                                                   },
                                                   child: const Text(
-                                                    '確定',
-                                                    style: TextStyle(
+                                                    '取消',
+                                                    style: const TextStyle(
                                                         color: ColorSet
-                                                            .primaryColorsGreenOfOpacity80),
+                                                            .colorsGrayOfOpacity80,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 13.0,
+                                                        letterSpacing: 2.0),
+                                                  ),
+                                                ),
+                                                Container(
+                                                  height: 34.0,
+                                                  width: 50.0,
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.rectangle,
+                                                    borderRadius:
+                                                        ForAllTheme.allRadius,
+                                                    color: ColorSet
+                                                        .primaryColorsGreenOfOpacity80,
+                                                  ),
+                                                  child: TextButton(
+                                                    onPressed: () {
+                                                      Navigator.pop(
+                                                          context, 'OK');
+                                                      setState(() {
+                                                        introPageType =
+                                                            introPageTypeController
+                                                                .text;
+                                                      });
+                                                    },
+                                                    child: const Text(
+                                                      '完成',
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                      style: const TextStyle(
+                                                          color: ColorSet
+                                                              .colorsWhite,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 13.0,
+                                                          letterSpacing: 2.0),
+                                                    ),
                                                   ),
                                                 ),
                                               ]),
@@ -338,8 +440,8 @@ class _IntroPageState extends State<IntroPage> {
                                     });
                                 break;
                               default:
-                                print('something went wrong.');
-                              /**/
+                                AllDataModel.defaultBreeds.clear();
+                                break;
                             }
                             AllDataModel.petBreeds = null;
                           },
@@ -357,8 +459,9 @@ class _IntroPageState extends State<IntroPage> {
                       ),
                     )),
                 const SizedBox(height: 70.0),
+                // Show breeds by user selected or custom input
                 Text(
-                  '您的寵物品種：${myPet.getBreeds}',
+                  '您的寵物品種：$introPageBreeds',
                   textAlign: TextAlign.center,
                   style: _titleStyle,
                 ),
@@ -373,7 +476,7 @@ class _IntroPageState extends State<IntroPage> {
                       alignedDropdown: true,
                       child: DropdownButtonFormField<String>(
                         decoration: InputDecoration.collapsed(hintText: ''),
-                        icon: Icon(Icons.keyboard_arrow_down_outlined),
+                        icon: const Icon(Icons.keyboard_arrow_down_outlined),
                         iconSize: 30.0,
                         iconEnabledColor:
                             ColorSet.primaryColorsGreenOfOpacity80,
@@ -383,66 +486,117 @@ class _IntroPageState extends State<IntroPage> {
                         ),
                         value: AllDataModel.petBreeds,
                         isExpanded: true,
-                        onChanged: (String? value) async {
-                          SharedPreferences prefs =
-                              await SharedPreferences.getInstance();
-                          await prefs.setString(
-                              'keyPetBreeds', value.toString());
+                        onChanged: (String? value) {
                           setState(() {
                             AllDataModel.petBreeds = value;
-                            myPet.setBreeds(value.toString());
+                            introPageBreeds = value.toString();
                           });
                           switch (value) {
-                            case "自行輸入":
+                            case "其他":
                               showDialog(
                                   context: context,
                                   builder: (BuildContext context) {
+                                    // Show dialog for user to input custom breeds
                                     return AlertDialog(
-                                      title: const Text('自行輸入寵物品種'),
-                                      actions: <Widget>[
-                                        TextFormField(
-                                          controller: introBreedsController,
-                                          decoration: const InputDecoration(
-                                            prefixIcon: const Icon(Icons.pets),
-                                            hintText: '請輸入寵物的品種',
-                                          ),
+                                      content: SingleChildScrollView(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: <Widget>[
+                                            const Text(
+                                              '其他',
+                                              style: const TextStyle(
+                                                color: ColorSet
+                                                    .colorsBlackOfOpacity80,
+                                                fontSize: 17.0,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                            const SizedBox(
+                                              height: 30.0,
+                                            ),
+                                            TextFormField(
+                                              style: MyDialogTheme
+                                                  .dialogContentStyle,
+                                              textAlign: TextAlign.center,
+                                              textAlignVertical:
+                                                  TextAlignVertical.center,
+                                              controller:
+                                                  introPageBreedsController,
+                                              focusNode:
+                                                  introPageBreedsFocusNode,
+                                              cursorColor: ColorSet
+                                                  .primaryColorsGreenOfOpacity80,
+                                              onEditingComplete: () {
+                                                introPageBreedsFocusNode
+                                                    .unfocus();
+                                              },
+                                              decoration: const InputDecoration(
+                                                border: InputBorder.none,
+                                                hintText: '請自行輸入寵物品種',
+                                                hintStyle: const TextStyle(
+                                                    color: ColorSet
+                                                        .colorsGrayOfOpacity80),
+                                              ),
+                                            ),
+                                            const Divider(),
+                                          ],
                                         ),
+                                      ),
+                                      actions: <Widget>[
                                         Row(
                                             mainAxisAlignment:
                                                 MainAxisAlignment.end,
                                             children: <Widget>[
                                               TextButton(
-                                                onPressed: () => Navigator.pop(
-                                                    context, 'Cancel'),
-                                                child: const Text(
-                                                  '取消',
-                                                  style: TextStyle(
-                                                    color: ColorSet
-                                                        .primaryColorsGreenOfOpacity80,
-                                                  ),
-                                                ),
-                                              ),
-                                              TextButton(
-                                                onPressed: () async {
-                                                  SharedPreferences prefs =
-                                                      await SharedPreferences
-                                                          .getInstance();
-                                                  await prefs.setString(
-                                                      'keyPetBreeds',
-                                                      introBreedsController
-                                                          .text);
-                                                  Navigator.pop(context, 'OK');
-                                                  setState(() {
-                                                    myPet.setBreeds(
-                                                        introBreedsController
-                                                            .text);
-                                                  });
+                                                onPressed: () {
+                                                  introPageBreeds = '';
+                                                  Navigator.pop(
+                                                      context, 'Cancel');
                                                 },
                                                 child: const Text(
-                                                  '確定',
-                                                  style: TextStyle(
+                                                  '取消',
+                                                  style: const TextStyle(
                                                       color: ColorSet
-                                                          .primaryColorsGreenOfOpacity80),
+                                                          .colorsGrayOfOpacity80,
+                                                      fontWeight:
+                                                          FontWeight.bold,
+                                                      fontSize: 13.0,
+                                                      letterSpacing: 2.0),
+                                                ),
+                                              ),
+                                              Container(
+                                                height: 34.0,
+                                                width: 50.0,
+                                                decoration: BoxDecoration(
+                                                  shape: BoxShape.rectangle,
+                                                  borderRadius:
+                                                      ForAllTheme.allRadius,
+                                                  color: ColorSet
+                                                      .primaryColorsGreenOfOpacity80,
+                                                ),
+                                                child: TextButton(
+                                                  onPressed: () {
+                                                    Navigator.pop(
+                                                        context, 'OK');
+                                                    setState(() {
+                                                      introPageBreeds =
+                                                          introPageBreedsController
+                                                              .text;
+                                                    });
+                                                  },
+                                                  child: const Text(
+                                                    '完成',
+                                                    textAlign: TextAlign.center,
+                                                    style: const TextStyle(
+                                                        color: ColorSet
+                                                            .colorsWhite,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 13.0,
+                                                        letterSpacing: 2.0),
+                                                  ),
                                                 ),
                                               ),
                                             ]),
@@ -487,7 +641,7 @@ class _IntroPageState extends State<IntroPage> {
                   alignment: Alignment.center,
                   decoration: ShapeDecoration(
                     shape: RoundedRectangleBorder(
-                      side: BorderSide(
+                      side: const BorderSide(
                           color: ColorSet.colorsBlackOfOpacity80, width: 3.0),
                       borderRadius: ForAllTheme.allRadius,
                     ),
@@ -495,15 +649,15 @@ class _IntroPageState extends State<IntroPage> {
                   child: GestureDetector(
                     child: ClipRRect(
                       borderRadius: BorderRadius.circular(7.0),
-                      child: introImageByFile != null
+                      child: introPageImageByFile != null
                           ? Image.file(
-                              File(introImageByFile.path),
+                              File(introPageImageByFile.path),
                               fit: BoxFit.fill,
                               width: 125.0,
                               height: 125.0,
                             )
                           : Image.asset(
-                              introImagePathByAssets,
+                              introPageImagePathByAssets,
                               fit: BoxFit.fill,
                               width: 125.0,
                               height: 125.0,
@@ -519,7 +673,7 @@ class _IntroPageState extends State<IntroPage> {
                 Container(
                   width: 300.0,
                   height: 45.0,
-                  padding: EdgeInsets.only(
+                  padding: const EdgeInsets.only(
                     left: 25.0,
                   ),
                   decoration: BoxDecoration(
@@ -529,31 +683,31 @@ class _IntroPageState extends State<IntroPage> {
                     boxShadow: _boxShadow,
                   ),
                   child: TextField(
-                    style: TextStyle(
+                    style: const TextStyle(
                       color: ColorSet.colorsWhite,
                       fontWeight: FontWeight.bold,
                     ),
                     textAlign: TextAlign.end,
                     textAlignVertical: TextAlignVertical.center,
-                    focusNode: introNameFocusNode,
+                    focusNode: introPageNameFocusNode,
                     cursorColor: ColorSet.colorsWhite,
-                    controller: introNameController,
+                    controller: introPageNameController,
                     onEditingComplete: () {
-                      introNameFocusNode.unfocus();
+                      introPageNameFocusNode.unfocus();
                     },
                     decoration: const InputDecoration(
                       border: InputBorder.none,
                       prefixIcon: const Text(
                         '輸入寵物姓名',
-                        style: TextStyle(
+                        style: const TextStyle(
                             color: ColorSet.colorsWhite,
                             fontSize: 17.0,
                             fontWeight: FontWeight.bold,
                             letterSpacing: 2.0),
                       ),
                       prefixIconConstraints:
-                          BoxConstraints(minWidth: 0, minHeight: 0),
-                      contentPadding: EdgeInsets.only(
+                          const BoxConstraints(minWidth: 0, minHeight: 0),
+                      contentPadding: const EdgeInsets.only(
                         bottom: 10.0,
                         right: 35.0,
                       ),
@@ -576,9 +730,9 @@ class _IntroPageState extends State<IntroPage> {
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: <Widget>[
-                          Text(
+                          const Text(
                             '選擇性別',
-                            style: TextStyle(
+                            style: const TextStyle(
                                 color: ColorSet.colorsWhite,
                                 fontSize: 17.0,
                                 fontWeight: FontWeight.bold,
@@ -590,19 +744,21 @@ class _IntroPageState extends State<IntroPage> {
                           ToggleSwitch(
                             minWidth: 30.0,
                             minHeight: 20.0,
-                            initialLabelIndex: introGenderIndex,
+                            initialLabelIndex: introPageGenderIndex,
                             cornerRadius: 20.0,
                             inactiveBgColor: ColorSet.colorsWhite,
-                            borderColor: [Colors.white],
+                            borderColor: [
+                              ColorSet.colorsWhite,
+                            ],
                             borderWidth: 2.0,
                             totalSwitches: 2,
                             fontSize: 15.0,
                             customTextStyles: [
-                              TextStyle(
+                              const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: ColorSet.colorsWhite,
                               ),
-                              TextStyle(
+                              const TextStyle(
                                 fontWeight: FontWeight.bold,
                                 color: ColorSet.colorsWhite,
                               ),
@@ -612,19 +768,13 @@ class _IntroPageState extends State<IntroPage> {
                               [ColorSet.colorsDarkBlueGreenOfOpacity80],
                               [ColorSet.colorsDarkBlueGreenOfOpacity80]
                             ],
-                            onToggle: (index) async {
-                              SharedPreferences prefs =
-                                  await SharedPreferences.getInstance();
+                            onToggle: (index) {
                               switch (index) {
                                 case 0:
-                                  introGenderIndex = 0;
-                                  myPet.setGender('公');
-                                  await prefs.setString('keyPetGender', '公');
+                                  introPageGenderIndex = 0;
                                   break;
                                 case 1:
-                                  introGenderIndex = 1;
-                                  myPet.setGender('母');
-                                  await prefs.setString('keyPetGender', '母');
+                                  introPageGenderIndex = 1;
                                   break;
                               }
                             },
@@ -649,7 +799,7 @@ class _IntroPageState extends State<IntroPage> {
                     children: <Widget>[
                       const Text(
                         '年齡/生日',
-                        style: TextStyle(
+                        style: const TextStyle(
                             color: ColorSet.colorsWhite,
                             fontSize: 17.0,
                             fontWeight: FontWeight.bold,
@@ -659,7 +809,7 @@ class _IntroPageState extends State<IntroPage> {
                         width: 5.0,
                       ),
                       Switch(
-                          value: introIsExactDate,
+                          value: introPageIsExactDate,
                           inactiveThumbColor:
                               ColorSet.colorsWhiteGrayOfOpacity80,
                           inactiveTrackColor: ColorSet.colorsWhite,
@@ -667,15 +817,15 @@ class _IntroPageState extends State<IntroPage> {
                           activeTrackColor: ColorSet.colorsWhite,
                           onChanged: (value) {
                             setState(() {
-                              introIsExactDate = value;
+                              introPageIsExactDate = value;
                             });
                             /* Reset value while switch on changed */
-                            if (introIsExactDate == false) {
-                              introAgeController.text = '';
+                            if (introPageIsExactDate == false) {
+                              introPageAgeController.text = '';
                             } else {
-                              myPet.setBirthday(formattedDate
+                              introPageBirthday = DateFormat('yyyy-MM-dd')
                                   .format(DateTime.now())
-                                  .toString());
+                                  .toString();
                             }
                           }),
                     ],
@@ -685,7 +835,7 @@ class _IntroPageState extends State<IntroPage> {
                 Container(
                   width: 300.0,
                   height: 45.0,
-                  padding: EdgeInsets.only(
+                  padding: const EdgeInsets.only(
                     left: 25.0,
                   ),
                   decoration: BoxDecoration(
@@ -694,13 +844,13 @@ class _IntroPageState extends State<IntroPage> {
                     color: ColorSet.primaryColorsGreenOfOpacity80,
                     boxShadow: _boxShadow,
                   ),
-                  child: introIsExactDate == true
+                  child: introPageIsExactDate == true
                       ? Row(
                           children: <Widget>[
                             Expanded(
                               child: const Text(
                                 '選擇生日',
-                                style: TextStyle(
+                                style: const TextStyle(
                                     color: ColorSet.colorsWhite,
                                     fontSize: 17.0,
                                     fontWeight: FontWeight.bold,
@@ -718,35 +868,19 @@ class _IntroPageState extends State<IntroPage> {
                                       locale: LocaleType.tw,
                                       minTime: DateTime(1971, 1, 1),
                                       maxTime: DateTime(2030, 12, 31),
-                                      onConfirm: (date) async {
-                                        int birthdayAge =
+                                      onConfirm: (date) {
+                                        introPageAge =
                                             DateTime.now().year - date.year;
-                                        SharedPreferences prefs =
-                                            await SharedPreferences
-                                                .getInstance();
-                                        await prefs.setString('keyPetBirthday',
-                                            formattedDate.format(date));
-                                        await prefs.setString('keyPetAge',
-                                            birthdayAge.toString());
                                         setState(() {
-                                          myPet.setBirthday(
-                                              formattedDate.format(date));
-                                          myPet.setAge(birthdayAge.toString());
+                                          introPageBirthday =
+                                              formattedDate.format(date);
                                         });
                                       },
-                                      theme: DatePickerTheme(
-                                        cancelStyle: const TextStyle(
-                                            color: Colors.redAccent),
-                                      ),
                                     );
                                   },
                                   child: Text(
-                                    myPet.getBirthday == ''
-                                        ? formattedDate
-                                            .format(DateTime.now())
-                                            .toString()
-                                        : myPet.getBirthday,
-                                    style: TextStyle(
+                                    introPageBirthday,
+                                    style: const TextStyle(
                                       color: ColorSet.colorsWhite,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -757,38 +891,38 @@ class _IntroPageState extends State<IntroPage> {
                           ],
                         )
                       : TextField(
-                          style: TextStyle(
+                          style: const TextStyle(
                             color: ColorSet.colorsWhite,
                             fontWeight: FontWeight.bold,
                           ),
                           textAlign: TextAlign.end,
                           textAlignVertical: TextAlignVertical.center,
                           keyboardType: TextInputType.number,
-                          focusNode: introDateFocusNode,
+                          focusNode: introPageDateFocusNode,
                           cursorColor: ColorSet.colorsWhite,
-                          controller: introAgeController,
+                          controller: introPageAgeController,
                           onEditingComplete: () {
-                            introDateFocusNode.unfocus();
+                            introPageDateFocusNode.unfocus();
                           },
                           decoration: const InputDecoration(
                             border: InputBorder.none,
                             prefixIcon: const Text(
                               '輸入年齡',
-                              style: TextStyle(
+                              style: const TextStyle(
                                   color: ColorSet.colorsWhite,
                                   fontSize: 17.0,
                                   fontWeight: FontWeight.bold,
                                   letterSpacing: 2.0),
                             ),
                             prefixIconConstraints:
-                                BoxConstraints(minWidth: 0, minHeight: 0),
+                                const BoxConstraints(minWidth: 0, minHeight: 0),
                             suffixText: '歲',
-                            suffixStyle: TextStyle(
+                            suffixStyle: const TextStyle(
                                 color: ColorSet.colorsWhite,
                                 fontSize: 17.0,
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 2.0),
-                            contentPadding: EdgeInsets.only(
+                            contentPadding: const EdgeInsets.only(
                               bottom: 10.0,
                               right: 35.0,
                             ),
@@ -810,7 +944,7 @@ class _IntroPageState extends State<IntroPage> {
                     children: <Widget>[
                       const Text(
                         '是否結紮',
-                        style: TextStyle(
+                        style: const TextStyle(
                             color: ColorSet.colorsWhite,
                             fontSize: 17.0,
                             fontWeight: FontWeight.bold,
@@ -820,14 +954,14 @@ class _IntroPageState extends State<IntroPage> {
                         width: 5.0,
                       ),
                       Switch(
-                        value: introIsNeutered,
+                        value: introPageIsNeutered,
                         inactiveThumbColor: ColorSet.colorsWhiteGrayOfOpacity80,
                         inactiveTrackColor: ColorSet.colorsWhite,
                         activeColor: ColorSet.colorsDarkBlueGreenOfOpacity80,
                         activeTrackColor: ColorSet.colorsWhite,
                         onChanged: (value) {
                           setState(() {
-                            introIsNeutered = value;
+                            introPageIsNeutered = value;
                           });
                         },
                       )
@@ -847,7 +981,7 @@ class _IntroPageState extends State<IntroPage> {
         message: '跳過初始設定',
         child: const Text(
           '略過',
-          style: TextStyle(fontWeight: FontWeight.bold),
+          style: const TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
       showSkipButton: true,
@@ -855,7 +989,7 @@ class _IntroPageState extends State<IntroPage> {
 
       /* Next Button */
       next: Container(
-        padding: EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 5.0),
+        padding: const EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 5.0),
         decoration: BoxDecoration(
           color: ColorSet.primaryColorsGreenOfOpacity80,
           borderRadius: ForAllTheme.allRadius,
@@ -863,7 +997,7 @@ class _IntroPageState extends State<IntroPage> {
         ),
         child: const Text(
           '下一頁',
-          style: TextStyle(
+          style: const TextStyle(
               color: ColorSet.colorsWhite, fontWeight: FontWeight.bold),
         ),
       ),
@@ -872,7 +1006,7 @@ class _IntroPageState extends State<IntroPage> {
 
       /* Done Button */
       done: Container(
-        padding: EdgeInsets.fromLTRB(17.0, 5.0, 17.0, 5.0),
+        padding: const EdgeInsets.fromLTRB(17.0, 5.0, 17.0, 5.0),
         decoration: BoxDecoration(
           color: ColorSet.primaryColorsGreenOfOpacity80,
           borderRadius: ForAllTheme.allRadius,
@@ -880,7 +1014,7 @@ class _IntroPageState extends State<IntroPage> {
         ),
         child: const Text(
           '完成',
-          style: TextStyle(
+          style: const TextStyle(
               color: ColorSet.colorsWhite, fontWeight: FontWeight.bold),
         ),
       ),

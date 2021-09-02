@@ -1,9 +1,6 @@
 class AllDataModel {
   static String? petType;
   static String? petBreeds;
-  static String? firstDayOfWeek;
-  static bool? isShowWeekNumber;
-  static bool? is24hourSystem;
   static bool? checkFirstSeen;
 
   static List<String> defaultBreeds = [];
@@ -27,7 +24,7 @@ class AllDataModel {
     '馬爾濟斯',
     '拉不拉多',
     '黃金獵犬',
-    '自行輸入'
+    '其他'
   ];
   static List<String> catBreeds = [
     '虎斑貓',
@@ -40,7 +37,7 @@ class AllDataModel {
     '曼赤肯貓',
     '美國短毛貓',
     '英國短毛貓',
-    '自行輸入'
+    '其他'
   ];
   static List<String> rabbitBreeds = [
     '道奇兔',
@@ -62,7 +59,7 @@ class AllDataModel {
     '長毛垂耳兔',
     '短毛垂耳兔',
     '紐西蘭大白兔',
-    '自行輸入'
+    '其他'
   ];
   static List<String> turtleBreeds = [
     '蛋龜',
@@ -73,6 +70,6 @@ class AllDataModel {
     '黃喉擬水龜',
     '巴西紅耳龜',
     '三線閉殼龜',
-    '自行輸入'
+    '其他'
   ];
 }

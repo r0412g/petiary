@@ -5,8 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:pet_diary/common/theme.dart';
 import 'package:pet_diary/database/event_db.dart';
-import 'package:pet_diary/models/setting_model.dart';
-import 'package:provider/provider.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
 
@@ -43,10 +41,6 @@ extension HexColor on Color {
 }
 
 class _CalendarPageState extends State<CalendarPage> {
-  FocusNode eventNameFocusNode = new FocusNode();
-  FocusNode editEventNameFocusNode = new FocusNode();
-  TextEditingController eventNameController = TextEditingController();
-  TextEditingController editEventNameController = TextEditingController();
   final formattedDateAndTime = DateFormat('yyyy-MM-dd HH:mm');
   final formattedDate = DateFormat('yyyy-MM-dd');
   DateTime startDatetime = DateTime.now();
@@ -55,10 +49,18 @@ class _CalendarPageState extends State<CalendarPage> {
   DateTime editEndDateTime = DateTime.now();
   Color eventColor = Color(0xfff44336);
   Color editEventColor = Color(0xfff44336);
+  CalendarDataSource _dataSource = EventDataSource(<Appointment>[]);
   bool isAllDay = false;
   bool editIsAllDay = false;
-  CalendarDataSource _dataSource = EventDataSource(<Appointment>[]);
+  bool calendarPageShowWeekNumber = false;
+  bool calendarPageIs24hourSystem = true;
   int eventId = 1;
+  int calendarPageFirstDayOfWeek = 7;
+
+  FocusNode eventNameFocusNode = new FocusNode();
+  FocusNode editEventNameFocusNode = new FocusNode();
+  TextEditingController eventNameController = TextEditingController();
+  TextEditingController editEventNameController = TextEditingController();
 
   @override
   void initState() {
@@ -67,15 +69,15 @@ class _CalendarPageState extends State<CalendarPage> {
   }
 
   void _loadData(context) async {
-    SettingModel mySet = Provider.of<SettingModel>(context, listen: false);
     SharedPreferences prefs = await SharedPreferences.getInstance();
     setState(() {
-      mySet.setFirstDayOfWeek(prefs.getInt('keyFirstDayOfWeek') ?? 7);
-      mySet.setShowWeekNumber(prefs.getBool('keyShowWeekNumber') ?? false);
-      mySet.setIs24hourSystem(prefs.getBool('keyIs24hourSystem') ?? true);
+      calendarPageFirstDayOfWeek = prefs.getInt('keyFirstDayOfWeek') ?? 7;
+      calendarPageShowWeekNumber = prefs.getBool('keyShowWeekNumber') ?? false;
+      calendarPageIs24hourSystem = prefs.getBool('keyIs24hourSystem') ?? true;
+      eventId = prefs.getInt('keyEventId') ?? 1;
     });
-    eventId = prefs.getInt('keyEventId') ?? 1;
 
+    // Show events in database
     Future<List<Map<String, Object?>>> eventData = EventInfoDB.queryEvent();
     eventData.then((value) {
       for (dynamic event in value) {
@@ -94,11 +96,13 @@ class _CalendarPageState extends State<CalendarPage> {
     });
   }
 
-  /* Clean up the controller when the widget is disposed */
+  /* Clean up the controller and focus node when the widget is disposed */
   @override
   void dispose() {
     eventNameController.dispose();
     editEventNameController.dispose();
+    eventNameFocusNode.dispose();
+    editEventNameFocusNode.dispose();
     super.dispose();
   }
 
@@ -109,7 +113,6 @@ class _CalendarPageState extends State<CalendarPage> {
         builder: (BuildContext context) {
           return StatefulBuilder(builder: (context, setState) {
             return AlertDialog(
-                backgroundColor: ColorSet.colorsWhite,
                 content: SingleChildScrollView(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -132,10 +135,10 @@ class _CalendarPageState extends State<CalendarPage> {
                             style: MyDialogTheme.dialogTitleStyle,
                           ),
                           prefixIconConstraints:
-                              BoxConstraints(minWidth: 0, minHeight: 0),
+                              const BoxConstraints(minWidth: 0, minHeight: 0),
                         ),
                       ),
-                      Divider(),
+                      const Divider(),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
@@ -160,7 +163,7 @@ class _CalendarPageState extends State<CalendarPage> {
                               }),
                         ],
                       ),
-                      Divider(),
+                      const Divider(),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
@@ -189,13 +192,9 @@ class _CalendarPageState extends State<CalendarPage> {
                                             startDatetime = date;
                                             // Change end time to start time plus an hour
                                             endDateTime = startDatetime
-                                                .add(Duration(hours: 1));
+                                                .add(const Duration(hours: 1));
                                           });
                                         },
-                                        theme: DatePickerTheme(
-                                          cancelStyle: const TextStyle(
-                                              color: Colors.redAccent),
-                                        ),
                                       );
                                     },
                                     child: Text(
@@ -221,13 +220,9 @@ class _CalendarPageState extends State<CalendarPage> {
                                             startDatetime = date;
                                             // Change end date to start date plus one day
                                             endDateTime = startDatetime
-                                                .add(Duration(days: 1));
+                                                .add(const Duration(days: 1));
                                           });
                                         },
-                                        theme: DatePickerTheme(
-                                          cancelStyle: const TextStyle(
-                                              color: Colors.redAccent),
-                                        ),
                                       );
                                     },
                                     child: Text(
@@ -238,7 +233,7 @@ class _CalendarPageState extends State<CalendarPage> {
                                 ),
                         ],
                       ),
-                      Divider(),
+                      const Divider(),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
@@ -267,10 +262,6 @@ class _CalendarPageState extends State<CalendarPage> {
                                               endDateTime = date;
                                             });
                                           },
-                                          theme: DatePickerTheme(
-                                            cancelStyle: const TextStyle(
-                                                color: Colors.redAccent),
-                                          ),
                                         );
                                       },
                                       child: Text(
@@ -295,10 +286,6 @@ class _CalendarPageState extends State<CalendarPage> {
                                               endDateTime = date;
                                             });
                                           },
-                                          theme: DatePickerTheme(
-                                            cancelStyle: const TextStyle(
-                                                color: Colors.redAccent),
-                                          ),
                                         );
                                       },
                                       child: Text(
@@ -308,7 +295,7 @@ class _CalendarPageState extends State<CalendarPage> {
                                 ),
                         ],
                       ),
-                      Divider(),
+                      const Divider(),
                       const SizedBox(
                         height: 15.0,
                       ),
@@ -342,7 +329,7 @@ class _CalendarPageState extends State<CalendarPage> {
                     onPressed: () => Navigator.pop(context, 'Cancel'),
                     child: const Text(
                       '取消',
-                      style: TextStyle(
+                      style: const TextStyle(
                           color: ColorSet.colorsBlackOfOpacity80,
                           fontWeight: FontWeight.bold,
                           fontSize: 13.0,
@@ -354,12 +341,12 @@ class _CalendarPageState extends State<CalendarPage> {
                     width: 50.0,
                     decoration: BoxDecoration(
                       shape: BoxShape.rectangle,
-                      borderRadius: BorderRadius.circular(10.0),
+                      borderRadius: ForAllTheme.allRadius,
                       color: ColorSet.colorsDarkBlueGreenOfOpacity80,
                     ),
                     child: TextButton(
                       onPressed: () async {
-                        // end date must late than start date
+                        // End date must late than start date
                         if (startDatetime.isAfter(endDateTime)) {
                           Fluttertoast.showToast(
                               msg: "開始時間不能比結束時間晚",
@@ -369,6 +356,7 @@ class _CalendarPageState extends State<CalendarPage> {
                               textColor: ColorSet.colorsBlackOfOpacity80,
                               fontSize: 16.0);
                         } else {
+                          // Show toast if user doesn't input event name
                           if (eventNameController.text == '') {
                             Fluttertoast.showToast(
                                 msg: "請輸入事件名稱",
@@ -390,17 +378,19 @@ class _CalendarPageState extends State<CalendarPage> {
                             );
 
                             /* Add event to database */
-                            EventInfoDB.insertEvent(EventInfo(
-                              name: eventNameController.text,
-                              startDate: formattedDateAndTime
-                                  .format(startDatetime)
-                                  .toString(),
-                              endDate: formattedDateAndTime
-                                  .format(endDateTime)
-                                  .toString(),
-                              color: eventColor.toHex(),
-                              isAllDay: isAllDay == false ? 0 : 1,
-                            ));
+                            EventInfoDB.insertEvent(
+                              EventInfo(
+                                name: eventNameController.text,
+                                startDate: formattedDateAndTime
+                                    .format(startDatetime)
+                                    .toString(),
+                                endDate: formattedDateAndTime
+                                    .format(endDateTime)
+                                    .toString(),
+                                color: eventColor.toHex(),
+                                isAllDay: isAllDay == false ? 0 : 1,
+                              ),
+                            );
 
                             /* Add event to calendar */
                             _dataSource.appointments!.add(newEvent);
@@ -413,10 +403,10 @@ class _CalendarPageState extends State<CalendarPage> {
                           }
                         }
                       },
-                      child: Text(
+                      child: const Text(
                         '完成',
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: const TextStyle(
                             color: ColorSet.colorsWhite,
                             fontWeight: FontWeight.bold,
                             fontSize: 13.0,
@@ -438,7 +428,6 @@ class _CalendarPageState extends State<CalendarPage> {
           builder: (BuildContext context) {
             return StatefulBuilder(builder: (context, setState) {
               return AlertDialog(
-                backgroundColor: ColorSet.colorsWhite,
                 content: SingleChildScrollView(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
@@ -454,23 +443,24 @@ class _CalendarPageState extends State<CalendarPage> {
                           children: <Widget>[
                             Text(
                               '${formattedDate.format(showEvent.startTime)}',
-                              style: TextStyle(
+                              style: const TextStyle(
                                 color: ColorSet.colorsBlackOfOpacity80,
                                 fontSize: 17.0,
                                 fontWeight: FontWeight.bold,
                               ),
                             ),
+                            // Show day range if start date and end date are not same day
                             showEvent.endTime
                                         .difference(showEvent.startTime)
                                         .inDays ==
                                     0
-                                ? SizedBox()
+                                ? const SizedBox()
                                 : Positioned(
                                     left: 93.0,
                                     top: 0.0,
                                     child: Text(
                                       '+${showEvent.endTime.difference(showEvent.startTime).inDays + 1}',
-                                      style: TextStyle(
+                                      style: const TextStyle(
                                         color: ColorSet
                                             .colorsDarkBlueGreenOfOpacity80,
                                         fontSize: 12.0,
@@ -487,18 +477,14 @@ class _CalendarPageState extends State<CalendarPage> {
                       ),
                       Text(
                         showEvent.subject,
-                        style: TextStyle(
+                        style: const TextStyle(
                           color: ColorSet.colorsDarkBlueGreenOfOpacity80,
                           fontSize: 17.0,
                           fontWeight: FontWeight.bold,
                           letterSpacing: 3.0,
                         ),
                       ),
-                      Divider(
-                        color: ColorSet.colorsBlackOfOpacity80,
-                        height: 10.0,
-                        thickness: 1.0,
-                      ),
+                      const Divider(),
                       const SizedBox(
                         height: 20.0,
                       ),
@@ -530,7 +516,7 @@ class _CalendarPageState extends State<CalendarPage> {
                                 ),
                               ],
                             ),
-                      Divider(),
+                      const Divider(),
                       const SizedBox(
                         height: 20.0,
                       ),
@@ -562,7 +548,7 @@ class _CalendarPageState extends State<CalendarPage> {
                                 ),
                               ],
                             ),
-                      Divider(),
+                      const Divider(),
                       const SizedBox(
                         height: 30.0,
                       ),
@@ -584,7 +570,6 @@ class _CalendarPageState extends State<CalendarPage> {
           builder: (BuildContext context) {
             return StatefulBuilder(builder: (context, setState) {
               return Dialog(
-                backgroundColor: ColorSet.colorsWhite,
                 child: Row(
                   mainAxisSize: MainAxisSize.min,
                   mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -603,13 +588,13 @@ class _CalendarPageState extends State<CalendarPage> {
                             editEndDateTime = editOrDeleteEvent.endTime;
                             _editEvent(editOrDeleteDetails);
                           },
-                          icon: Icon(
+                          icon: const Icon(
                             Icons.edit_rounded,
                             color: ColorSet.colorsGrayOfOpacity80,
                           ),
-                          label: Text(
+                          label: const Text(
                             '編輯',
-                            style: TextStyle(
+                            style: const TextStyle(
                                 color: ColorSet.colorsGrayOfOpacity80),
                           )),
                     ),
@@ -619,13 +604,13 @@ class _CalendarPageState extends State<CalendarPage> {
                           onPressed: () {
                             _deleteEvent(editOrDeleteDetails);
                           },
-                          icon: Icon(
+                          icon: const Icon(
                             Icons.delete_rounded,
                             color: ColorSet.colorsGrayOfOpacity80,
                           ),
-                          label: Text(
+                          label: const Text(
                             '刪除',
-                            style: TextStyle(
+                            style: const TextStyle(
                                 color: ColorSet.colorsGrayOfOpacity80),
                           )),
                     ),
@@ -645,7 +630,6 @@ class _CalendarPageState extends State<CalendarPage> {
         builder: (BuildContext context) {
           return StatefulBuilder(builder: (context, setState) {
             return AlertDialog(
-                backgroundColor: ColorSet.colorsWhite,
                 content: SingleChildScrollView(
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
@@ -671,7 +655,7 @@ class _CalendarPageState extends State<CalendarPage> {
                               BoxConstraints(minWidth: 0, minHeight: 0),
                         ),
                       ),
-                      Divider(),
+                      const Divider(),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
@@ -696,7 +680,7 @@ class _CalendarPageState extends State<CalendarPage> {
                               }),
                         ],
                       ),
-                      Divider(),
+                      const Divider(),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
@@ -725,14 +709,10 @@ class _CalendarPageState extends State<CalendarPage> {
                                               editStartDatetime = date;
                                               // Change end time to start time plus an hour
                                               editEndDateTime =
-                                                  editStartDatetime
-                                                      .add(Duration(hours: 1));
+                                                  editStartDatetime.add(
+                                                      const Duration(hours: 1));
                                             });
                                           },
-                                          theme: DatePickerTheme(
-                                            cancelStyle: const TextStyle(
-                                                color: Colors.redAccent),
-                                          ),
                                         );
                                       },
                                       child: Text(
@@ -757,13 +737,9 @@ class _CalendarPageState extends State<CalendarPage> {
                                             editStartDatetime = date;
                                             // Change end date to start date plus one day
                                             editEndDateTime = editStartDatetime
-                                                .add(Duration(days: 1));
+                                                .add(const Duration(days: 1));
                                           });
                                         },
-                                        theme: DatePickerTheme(
-                                          cancelStyle: const TextStyle(
-                                              color: Colors.redAccent),
-                                        ),
                                       );
                                     },
                                     child: Text(
@@ -774,7 +750,7 @@ class _CalendarPageState extends State<CalendarPage> {
                                 ),
                         ],
                       ),
-                      Divider(),
+                      const Divider(),
                       Row(
                         mainAxisAlignment: MainAxisAlignment.spaceBetween,
                         children: <Widget>[
@@ -803,10 +779,6 @@ class _CalendarPageState extends State<CalendarPage> {
                                               editEndDateTime = date;
                                             });
                                           },
-                                          theme: DatePickerTheme(
-                                            cancelStyle: const TextStyle(
-                                                color: Colors.redAccent),
-                                          ),
                                         );
                                       },
                                       child: Text(
@@ -831,10 +803,6 @@ class _CalendarPageState extends State<CalendarPage> {
                                               editEndDateTime = date;
                                             });
                                           },
-                                          theme: DatePickerTheme(
-                                            cancelStyle: const TextStyle(
-                                                color: Colors.redAccent),
-                                          ),
                                         );
                                       },
                                       child: Text(
@@ -844,7 +812,7 @@ class _CalendarPageState extends State<CalendarPage> {
                                 ),
                         ],
                       ),
-                      Divider(),
+                      const Divider(),
                       const SizedBox(
                         height: 15.0,
                       ),
@@ -878,7 +846,7 @@ class _CalendarPageState extends State<CalendarPage> {
                     onPressed: () => Navigator.pop(context, 'Cancel'),
                     child: const Text(
                       '取消',
-                      style: TextStyle(
+                      style: const TextStyle(
                           color: ColorSet.colorsBlackOfOpacity80,
                           fontWeight: FontWeight.bold,
                           fontSize: 13.0,
@@ -890,7 +858,7 @@ class _CalendarPageState extends State<CalendarPage> {
                     width: 50.0,
                     decoration: BoxDecoration(
                       shape: BoxShape.rectangle,
-                      borderRadius: BorderRadius.circular(10.0),
+                      borderRadius: ForAllTheme.allRadius,
                       color: ColorSet.colorsDarkBlueGreenOfOpacity80,
                     ),
                     child: TextButton(
@@ -963,7 +931,7 @@ class _CalendarPageState extends State<CalendarPage> {
                       child: const Text(
                         '完成',
                         textAlign: TextAlign.center,
-                        style: TextStyle(
+                        style: const TextStyle(
                             color: ColorSet.colorsWhite,
                             fontWeight: FontWeight.bold,
                             fontSize: 13.0,
@@ -991,143 +959,145 @@ class _CalendarPageState extends State<CalendarPage> {
 
   @override
   Widget build(BuildContext context) {
-    var mySet = Provider.of<SettingModel>(context);
     return SafeArea(
-      child: Stack(
-        children: <Widget>[
-          Column(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: <Widget>[
-              const Text(
-                '行事曆',
-                style: TextStyle(
-                  letterSpacing: 1.0,
-                  fontSize: 25.0,
-                  fontWeight: FontWeight.bold,
-                  color: ColorSet.colorsBlackOfOpacity80,
+      child: SingleChildScrollView(
+        child: Stack(
+          children: <Widget>[
+            Column(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: <Widget>[
+                const Text(
+                  '行事曆',
+                  style: const TextStyle(
+                    letterSpacing: 1.0,
+                    fontSize: 25.0,
+                    fontWeight: FontWeight.bold,
+                    color: ColorSet.colorsBlackOfOpacity80,
+                  ),
                 ),
-              ),
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                children: <Widget>[
-                  Expanded(
-                    child: SizedBox(
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    Expanded(
+                      child: SizedBox(
+                        height: 540.0,
+                        child: Card(
+                          color: ColorSet.primaryColorsGreenOfOpacity80,
+                          margin: const EdgeInsets.only(
+                              right: 22.0, top: 20.0, bottom: 17.0),
+                          shape: MyCardTheme.cardsForLeftShapeBorder,
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 300.0,
                       height: 540.0,
                       child: Card(
                         color: ColorSet.primaryColorsGreenOfOpacity80,
-                        margin: EdgeInsets.only(
-                            right: 22.0, top: 20.0, bottom: 17.0),
-                        shape: MyCardTheme.cardsForLeftShapeBorder,
-                      ),
-                    ),
-                  ),
-                  SizedBox(
-                    width: 300.0,
-                    height: 540.0,
-                    child: Card(
-                      color: ColorSet.primaryColorsGreenOfOpacity80,
-                      margin: EdgeInsets.only(top: 20.0, bottom: 17.0),
-                      child: Padding(
-                        padding: EdgeInsets.all(5.0),
-                        child: SfCalendar(
-                          view: CalendarView.week,
-                          headerDateFormat: 'yyy - MMM',
-                          firstDayOfWeek: mySet.getFirstDayOfWeek,
-                          minDate: DateTime(1971, 01, 01),
-                          maxDate: DateTime(2030, 12, 31),
-                          initialDisplayDate: DateTime.now(),
-                          headerHeight: 30,
-                          todayHighlightColor:
-                              ColorSet.colorsDarkBlueGreenOfOpacity80,
-                          cellBorderColor: ColorSet.colorsWhite,
-                          backgroundColor:
-                              ColorSet.primaryColorsGreenOfOpacity80,
-                          showDatePickerButton: true,
-                          showCurrentTimeIndicator: true,
-                          showWeekNumber: mySet.getShowWeekNumber,
-                          dataSource: _dataSource,
-                          onTap: _onTapShowEventDetails,
-                          onLongPress: _onLongPressEditOrDelete,
-                          headerStyle: CalendarHeaderStyle(
-                            textStyle: TextStyle(
-                              fontSize: 17.0,
-                              color: ColorSet.colorsBlackOfOpacity80,
+                        margin: const EdgeInsets.only(top: 20.0, bottom: 17.0),
+                        child: Padding(
+                          padding: const EdgeInsets.all(5.0),
+                          child: SfCalendar(
+                            view: CalendarView.week,
+                            headerDateFormat: 'yyy - MMM',
+                            firstDayOfWeek: calendarPageFirstDayOfWeek,
+                            minDate: DateTime(1971, 01, 01),
+                            maxDate: DateTime(2030, 12, 31),
+                            initialDisplayDate: DateTime.now(),
+                            headerHeight: 30,
+                            todayHighlightColor:
+                                ColorSet.colorsDarkBlueGreenOfOpacity80,
+                            cellBorderColor: ColorSet.colorsWhite,
+                            backgroundColor:
+                                ColorSet.primaryColorsGreenOfOpacity80,
+                            showDatePickerButton: true,
+                            showCurrentTimeIndicator: true,
+                            showWeekNumber: calendarPageShowWeekNumber,
+                            dataSource: _dataSource,
+                            onTap: _onTapShowEventDetails,
+                            onLongPress: _onLongPressEditOrDelete,
+                            headerStyle: const CalendarHeaderStyle(
+                              textStyle: const TextStyle(
+                                fontSize: 17.0,
+                                color: ColorSet.colorsBlackOfOpacity80,
+                              ),
                             ),
-                          ),
-                          timeSlotViewSettings: TimeSlotViewSettings(
-                              timeIntervalHeight: 35.0,
-                              timeTextStyle: TextStyle(
+                            timeSlotViewSettings: TimeSlotViewSettings(
+                                timeIntervalHeight: 35.0,
+                                timeTextStyle: const TextStyle(
+                                  color: ColorSet.colorsWhite,
+                                ),
+                                timeFormat: calendarPageIs24hourSystem == true
+                                    ? 'HH'
+                                    : 'hh a'),
+                            weekNumberStyle: const WeekNumberStyle(
+                              backgroundColor:
+                                  ColorSet.colorsDarkBlueGreenOfOpacity80,
+                              textStyle: const TextStyle(
+                                  color: ColorSet.colorsWhite, fontSize: 15),
+                            ),
+                            selectionDecoration: BoxDecoration(
+                              border: Border.all(
+                                  color:
+                                      ColorSet.colorsDarkBlueGreenOfOpacity80,
+                                  width: 2),
+                            ),
+                            todayTextStyle: const TextStyle(
+                              color: ColorSet.colorsWhite,
+                            ),
+                            viewHeaderStyle: const ViewHeaderStyle(
+                              dateTextStyle: const TextStyle(
                                 color: ColorSet.colorsWhite,
                               ),
-                              timeFormat: mySet.getIs24hourSystem == true
-                                  ? 'HH'
-                                  : 'hh a'),
-                          weekNumberStyle: const WeekNumberStyle(
-                            backgroundColor:
-                                ColorSet.colorsDarkBlueGreenOfOpacity80,
-                            textStyle: TextStyle(
-                                color: ColorSet.colorsWhite, fontSize: 15),
-                          ),
-                          selectionDecoration: BoxDecoration(
-                            border: Border.all(
-                                color: ColorSet.colorsDarkBlueGreenOfOpacity80,
-                                width: 2),
-                          ),
-                          todayTextStyle: TextStyle(
-                            color: ColorSet.colorsWhite,
-                          ),
-                          viewHeaderStyle: ViewHeaderStyle(
-                            dateTextStyle: TextStyle(
-                              color: ColorSet.colorsWhite,
-                            ),
-                            dayTextStyle: TextStyle(
-                              color: ColorSet.colorsWhite,
-                              fontSize: 13.0,
+                              dayTextStyle: const TextStyle(
+                                color: ColorSet.colorsWhite,
+                                fontSize: 13.0,
+                              ),
                             ),
                           ),
                         ),
                       ),
                     ),
-                  ),
-                  Expanded(
-                    child: SizedBox(
-                      height: 540.0,
-                      child: Card(
-                        color: ColorSet.primaryColorsGreenOfOpacity80,
-                        margin: EdgeInsets.only(
-                            left: 22.0, top: 20.0, bottom: 17.0),
-                        shape: MyCardTheme.cardsForRightShapeBorder,
+                    Expanded(
+                      child: SizedBox(
+                        height: 540.0,
+                        child: Card(
+                          color: ColorSet.primaryColorsGreenOfOpacity80,
+                          margin: const EdgeInsets.only(
+                              left: 22.0, top: 20.0, bottom: 17.0),
+                          shape: MyCardTheme.cardsForRightShapeBorder,
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ],
-          ),
-          Positioned(
-            right: 26.0,
-            bottom: 34.0,
-            child: FloatingActionButton(
-              tooltip: '新增事件',
-              backgroundColor: ColorSet.colorsWhite,
-              child: Icon(
-                Icons.add_outlined,
-                color: ColorSet.colorsDarkBlueGreenOfOpacity80,
-                size: 30.0,
-              ),
-              onPressed: () {
-                setState(() {
-                  eventNameController.text = '';
-                  eventColor = Color(0xfff44336);
-                  isAllDay = false;
-                  startDatetime = DateTime.now();
-                  endDateTime = DateTime.now().add(Duration(hours: 1));
-                  _addEvent();
-                });
-              },
+                  ],
+                ),
+              ],
             ),
-          ),
-        ],
+            Positioned(
+              right: 26.0,
+              bottom: 34.0,
+              child: FloatingActionButton(
+                tooltip: '新增事件',
+                backgroundColor: ColorSet.colorsWhite,
+                child: const Icon(
+                  Icons.add_outlined,
+                  color: ColorSet.colorsDarkBlueGreenOfOpacity80,
+                  size: 30.0,
+                ),
+                onPressed: () {
+                  setState(() {
+                    eventNameController.text = '';
+                    eventColor = const Color(0xfff44336);
+                    isAllDay = false;
+                    startDatetime = DateTime.now();
+                    endDateTime = DateTime.now().add(const Duration(hours: 1));
+                    _addEvent();
+                  });
+                },
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }

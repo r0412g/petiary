@@ -15,6 +15,13 @@ class HospitalPage extends StatefulWidget {
 }
 
 class _HospitalPageState extends State<HospitalPage> {
+  final formattedDate = DateFormat('yyyy-MM-dd');
+  DateTime medicalDate = DateTime.now();
+  DateTime editMedicalDate = DateTime.now();
+  bool isMedicine = false;
+  bool editIsMedicine = false;
+  List<MedicalRecords> medicalRecordsList = [];
+
   FocusNode medicineFocusNode = new FocusNode();
   FocusNode weightFocusNode = new FocusNode();
   FocusNode remarkFocusNode = new FocusNode();
@@ -27,12 +34,6 @@ class _HospitalPageState extends State<HospitalPage> {
   TextEditingController editMedicineController = TextEditingController();
   TextEditingController editWeightController = TextEditingController();
   TextEditingController editRemarkController = TextEditingController();
-  final formattedDate = DateFormat('yyyy-MM-dd');
-  DateTime medicalDate = DateTime.now();
-  DateTime editMedicalDate = DateTime.now();
-  bool isMedicine = false;
-  bool editIsMedicine = false;
-  List<MedicalRecords> medicalRecordsList = [];
 
   @override
   void initState() {
@@ -53,7 +54,7 @@ class _HospitalPageState extends State<HospitalPage> {
               isMedicine: 1,
               medicine: '驅蟲藥',
               weight: 10.0,
-              remark: '體重過重要注意飲食',
+              remark: '體重過重 要注意飲食',
             ),
           );
         });
@@ -62,7 +63,7 @@ class _HospitalPageState extends State<HospitalPage> {
     }
   }
 
-  /* Clean up the controller when the widget is disposed */
+  /* Clean up the controller and focus node when the widget is disposed */
   @override
   void dispose() {
     medicineController.dispose();
@@ -71,6 +72,12 @@ class _HospitalPageState extends State<HospitalPage> {
     editMedicineController.dispose();
     editWeightController.dispose();
     editRemarkController.dispose();
+    medicineFocusNode.dispose();
+    weightFocusNode.dispose();
+    remarkFocusNode.dispose();
+    editMedicineFocusNode.dispose();
+    editWeightFocusNode.dispose();
+    editRemarkFocusNode.dispose();
     super.dispose();
   }
 
@@ -81,7 +88,6 @@ class _HospitalPageState extends State<HospitalPage> {
         builder: (BuildContext context) {
           return StatefulBuilder(builder: (context, _setState) {
             return AlertDialog(
-              backgroundColor: ColorSet.colorsWhite,
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -90,10 +96,10 @@ class _HospitalPageState extends State<HospitalPage> {
                     const SizedBox(
                       height: 40.0,
                     ),
-                    Text(
+                    const Text(
                       '新增就醫紀錄',
-                      style: TextStyle(
-                        color: Color.fromRGBO(0, 0, 0, 80.0),
+                      style: const TextStyle(
+                        color: ColorSet.colorsBlackOfOpacity80,
                         fontSize: 17.0,
                         fontWeight: FontWeight.bold,
                       ),
@@ -123,10 +129,6 @@ class _HospitalPageState extends State<HospitalPage> {
                                       medicalDate = date;
                                     });
                                   },
-                                  theme: const DatePickerTheme(
-                                    cancelStyle: const TextStyle(
-                                        color: Colors.redAccent),
-                                  ),
                                 );
                               },
                               child: Text(
@@ -138,7 +140,7 @@ class _HospitalPageState extends State<HospitalPage> {
                         )
                       ],
                     ),
-                    Divider(),
+                    const Divider(),
                     TextField(
                       style: MyDialogTheme.dialogContentStyle,
                       textAlign: TextAlign.end,
@@ -157,11 +159,11 @@ class _HospitalPageState extends State<HospitalPage> {
                           style: MyDialogTheme.dialogTitleStyle,
                         ),
                         prefixIconConstraints:
-                            BoxConstraints(minWidth: 0, minHeight: 0),
+                            const BoxConstraints(minWidth: 0, minHeight: 0),
                         suffixText: 'kg',
                       ),
                     ),
-                    Divider(),
+                    const Divider(),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
@@ -188,7 +190,7 @@ class _HospitalPageState extends State<HospitalPage> {
                             }),
                       ],
                     ),
-                    Divider(),
+                    const Divider(),
                     isMedicine == true
                         ? Column(
                             children: <Widget>[
@@ -209,11 +211,11 @@ class _HospitalPageState extends State<HospitalPage> {
                                     '藥物',
                                     style: MyDialogTheme.dialogTitleStyle,
                                   ),
-                                  prefixIconConstraints:
-                                      BoxConstraints(minWidth: 0, minHeight: 0),
+                                  prefixIconConstraints: const BoxConstraints(
+                                      minWidth: 0, minHeight: 0),
                                 ),
                               ),
-                              Divider(),
+                              const Divider(),
                             ],
                           )
                         : Container(),
@@ -235,10 +237,10 @@ class _HospitalPageState extends State<HospitalPage> {
                           style: MyDialogTheme.dialogTitleStyle,
                         ),
                         prefixIconConstraints:
-                            BoxConstraints(minWidth: 0, minHeight: 0),
+                            const BoxConstraints(minWidth: 0, minHeight: 0),
                       ),
                     ),
-                    Divider(),
+                    const Divider(),
                     const SizedBox(
                       height: 30.0,
                     ),
@@ -250,7 +252,7 @@ class _HospitalPageState extends State<HospitalPage> {
                   onPressed: () => Navigator.pop(context, 'Cancel'),
                   child: const Text(
                     '取消',
-                    style: TextStyle(
+                    style: const TextStyle(
                         color: ColorSet.colorsBlackOfOpacity80,
                         fontWeight: FontWeight.bold,
                         fontSize: 13.0,
@@ -288,8 +290,8 @@ class _HospitalPageState extends State<HospitalPage> {
                     child: const Text(
                       '完成',
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                          color: Color.fromRGBO(255, 255, 255, 80.0),
+                      style: const TextStyle(
+                          color: ColorSet.colorsWhite,
                           fontWeight: FontWeight.bold,
                           fontSize: 13.0,
                           letterSpacing: 2.0),
@@ -310,7 +312,6 @@ class _HospitalPageState extends State<HospitalPage> {
         builder: (BuildContext context) {
           return StatefulBuilder(builder: (context, _setState) {
             return AlertDialog(
-              backgroundColor: ColorSet.colorsWhite,
               content: SingleChildScrollView(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.center,
@@ -323,7 +324,7 @@ class _HospitalPageState extends State<HospitalPage> {
                       showMedicalDetailsSnapshot.data[showMedicalDetailsIndex]
                           ['date'],
                       style: const TextStyle(
-                        color: Color.fromRGBO(0, 0, 0, 80.0),
+                        color: ColorSet.colorsBlackOfOpacity80,
                         fontSize: 17.0,
                         fontWeight: FontWeight.bold,
                       ),
@@ -354,7 +355,7 @@ class _HospitalPageState extends State<HospitalPage> {
                               ),
                       ],
                     ),
-                    Divider(),
+                    const Divider(),
                     const SizedBox(
                       height: 20.0,
                     ),
@@ -381,7 +382,7 @@ class _HospitalPageState extends State<HospitalPage> {
                               ),
                       ],
                     ),
-                    Divider(),
+                    const Divider(),
                     const SizedBox(
                       height: 20.0,
                     ),
@@ -413,7 +414,7 @@ class _HospitalPageState extends State<HospitalPage> {
                               ),
                       ],
                     ),
-                    Divider(),
+                    const Divider(),
                     const SizedBox(
                       height: 40.0,
                     ),
@@ -433,7 +434,6 @@ class _HospitalPageState extends State<HospitalPage> {
         builder: (BuildContext context) {
           return StatefulBuilder(builder: (context, _setState) {
             return Dialog(
-              backgroundColor: ColorSet.colorsWhite,
               child: Row(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -511,7 +511,6 @@ class _HospitalPageState extends State<HospitalPage> {
         builder: (BuildContext context) {
           return StatefulBuilder(builder: (context, _setState) {
             return AlertDialog(
-              backgroundColor: ColorSet.colorsWhite,
               content: SingleChildScrollView(
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
@@ -520,9 +519,9 @@ class _HospitalPageState extends State<HospitalPage> {
                     const SizedBox(
                       height: 40.0,
                     ),
-                    Text(
+                    const Text(
                       '編輯就醫紀錄',
-                      style: TextStyle(
+                      style: const TextStyle(
                         color: ColorSet.colorsBlackOfOpacity80,
                         fontSize: 17.0,
                         fontWeight: FontWeight.bold,
@@ -553,10 +552,6 @@ class _HospitalPageState extends State<HospitalPage> {
                                       editMedicalDate = date;
                                     });
                                   },
-                                  theme: const DatePickerTheme(
-                                    cancelStyle: const TextStyle(
-                                        color: Colors.redAccent),
-                                  ),
                                 );
                               },
                               child: Text(
@@ -568,7 +563,7 @@ class _HospitalPageState extends State<HospitalPage> {
                         ),
                       ],
                     ),
-                    Divider(),
+                    const Divider(),
                     TextField(
                       style: MyDialogTheme.dialogContentStyle,
                       textAlign: TextAlign.end,
@@ -587,11 +582,11 @@ class _HospitalPageState extends State<HospitalPage> {
                           style: MyDialogTheme.dialogTitleStyle,
                         ),
                         prefixIconConstraints:
-                            BoxConstraints(minWidth: 0, minHeight: 0),
+                            const BoxConstraints(minWidth: 0, minHeight: 0),
                         suffixText: 'kg',
                       ),
                     ),
-                    Divider(),
+                    const Divider(),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: <Widget>[
@@ -618,7 +613,7 @@ class _HospitalPageState extends State<HospitalPage> {
                             }),
                       ],
                     ),
-                    Divider(),
+                    const Divider(),
                     editIsMedicine == true
                         ? Column(
                             children: <Widget>[
@@ -639,11 +634,11 @@ class _HospitalPageState extends State<HospitalPage> {
                                     '藥物',
                                     style: MyDialogTheme.dialogTitleStyle,
                                   ),
-                                  prefixIconConstraints:
-                                      BoxConstraints(minWidth: 0, minHeight: 0),
+                                  prefixIconConstraints: const BoxConstraints(
+                                      minWidth: 0, minHeight: 0),
                                 ),
                               ),
-                              Divider(),
+                              const Divider(),
                             ],
                           )
                         : Container(),
@@ -665,10 +660,10 @@ class _HospitalPageState extends State<HospitalPage> {
                           style: MyDialogTheme.dialogTitleStyle,
                         ),
                         prefixIconConstraints:
-                            BoxConstraints(minWidth: 0, minHeight: 0),
+                            const BoxConstraints(minWidth: 0, minHeight: 0),
                       ),
                     ),
-                    Divider(),
+                    const Divider(),
                     const SizedBox(
                       height: 30.0,
                     ),
@@ -680,7 +675,7 @@ class _HospitalPageState extends State<HospitalPage> {
                   onPressed: () => Navigator.pop(context, 'Cancel'),
                   child: const Text(
                     '取消',
-                    style: TextStyle(
+                    style: const TextStyle(
                         color: ColorSet.colorsBlackOfOpacity80,
                         fontWeight: FontWeight.bold,
                         fontSize: 13.0,
@@ -725,7 +720,7 @@ class _HospitalPageState extends State<HospitalPage> {
                     child: const Text(
                       '完成',
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: const TextStyle(
                           color: ColorSet.colorsWhite,
                           fontWeight: FontWeight.bold,
                           fontSize: 13.0,
@@ -742,171 +737,174 @@ class _HospitalPageState extends State<HospitalPage> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
+      child: SingleChildScrollView(
         child: Stack(
-      children: <Widget>[
-        Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
           children: <Widget>[
-            const Text(
-              '就醫紀錄',
-              style: TextStyle(
-                letterSpacing: 1.0,
-                fontSize: 25.0,
-                fontWeight: FontWeight.bold,
-                color: Color.fromRGBO(0, 0, 0, 80.0),
-              ),
-            ),
-            Row(
+            Column(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: <Widget>[
-                Expanded(
-                  child: SizedBox(
-                    height: 540.0,
-                    child: Card(
-                      color: ColorSet.primaryColorsGreenOfOpacity80,
-                      margin:
-                          EdgeInsets.only(right: 22.0, top: 20.0, bottom: 17.0),
-                      shape: MyCardTheme.cardsForLeftShapeBorder,
-                    ),
+                const Text(
+                  '就醫紀錄',
+                  style: const TextStyle(
+                    letterSpacing: 1.0,
+                    fontSize: 25.0,
+                    fontWeight: FontWeight.bold,
+                    color: ColorSet.colorsBlackOfOpacity80,
                   ),
                 ),
-                SizedBox(
-                  width: 300.0,
-                  height: 540.0,
-                  child: Card(
-                    color: ColorSet.primaryColorsGreenOfOpacity80,
-                    margin: EdgeInsets.only(top: 20.0, bottom: 17.0),
-                    child: Column(
-                      children: <Widget>[
-                        Spacer(flex: 1),
-                        Expanded(
-                          flex: 10,
-                          child: FutureBuilder(
-                              future: MedicalInfoDB.queryMedicalRecords(),
-                              builder: (context, AsyncSnapshot snapshot) {
-                                if (snapshot.connectionState ==
-                                        ConnectionState.done &&
-                                    snapshot.data?.length == 0) {
-                                  return const Center(
-                                      child: const Text('沒有醫療紀錄'));
-                                }
-                                if (snapshot.connectionState ==
-                                    ConnectionState.waiting) {
-                                  return const Center(
-                                    child: const CircularProgressIndicator(
-                                      color:
-                                          ColorSet.colorsWhiteGrayOfOpacity80,
-                                      backgroundColor: ColorSet
-                                          .colorsDarkBlueGreenOfOpacity80,
-                                    ),
-                                  );
-                                }
-                                return ListView.builder(
-                                    padding: const EdgeInsets.only(
-                                        right: 15.0, left: 15.0),
-                                    itemCount: snapshot.data.length,
-                                    itemBuilder: (context, index) {
-                                      return GestureDetector(
-                                        child: Container(
-                                          height: 50.0,
-                                          margin: const EdgeInsets.fromLTRB(
-                                              3.0, 7.0, 3.0, 7.0),
-                                          child: ListTile(
-                                            shape: RoundedRectangleBorder(
-                                                borderRadius:
-                                                    BorderRadius.circular(
-                                                        10.0)),
-                                            tileColor: ColorSet
-                                                .colorsWhiteGrayOfOpacity80,
-                                            leading: Column(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.center,
-                                              children: <Widget>[
-                                                Text(
-                                                  '${snapshot.data[index]['date']}',
-                                                  style: TextStyle(
-                                                    color: ColorSet
-                                                        .colorsBlackOfOpacity80,
-                                                  ),
-                                                ),
-                                              ],
-                                            ),
-                                            title: snapshot.data[index]
-                                                        ['weight'] ==
-                                                    0.0
-                                                ? const Text(
-                                                    '沒量體重',
-                                                    style: TextStyle(
-                                                      fontSize: 15.0,
-                                                      color: ColorSet
-                                                          .colorsBlackOfOpacity80,
-                                                    ),
-                                                  )
-                                                : Text(
-                                                    '${snapshot.data[index]['weight']} kg',
-                                                    style: TextStyle(
-                                                      fontSize: 15.0,
-                                                      color: ColorSet
-                                                          .colorsBlackOfOpacity80,
-                                                    ),
-                                                  ),
-                                            onTap: () {
-                                              _onTapShowMedicalDetails(
-                                                  snapshot, index);
-                                            },
-                                            onLongPress: () {
-                                              _onLongPressEditOrDelete(
-                                                  snapshot, index);
-                                            },
-                                          ),
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: <Widget>[
+                    Expanded(
+                      child: SizedBox(
+                        height: 540.0,
+                        child: Card(
+                          color: ColorSet.primaryColorsGreenOfOpacity80,
+                          margin: const EdgeInsets.only(
+                              right: 22.0, top: 20.0, bottom: 17.0),
+                          shape: MyCardTheme.cardsForLeftShapeBorder,
+                        ),
+                      ),
+                    ),
+                    SizedBox(
+                      width: 300.0,
+                      height: 540.0,
+                      child: Card(
+                        color: ColorSet.primaryColorsGreenOfOpacity80,
+                        margin: const EdgeInsets.only(top: 20.0, bottom: 17.0),
+                        child: Column(
+                          children: <Widget>[
+                            const Spacer(flex: 1),
+                            Expanded(
+                              flex: 10,
+                              child: FutureBuilder(
+                                  future: MedicalInfoDB.queryMedicalRecords(),
+                                  builder: (context, AsyncSnapshot snapshot) {
+                                    if (snapshot.connectionState ==
+                                            ConnectionState.done &&
+                                        snapshot.data?.length == 0) {
+                                      return const Center(
+                                          child: const Text('沒有醫療紀錄'));
+                                    }
+                                    if (snapshot.connectionState ==
+                                        ConnectionState.waiting) {
+                                      return const Center(
+                                        child: const CircularProgressIndicator(
+                                          color: ColorSet
+                                              .colorsWhiteGrayOfOpacity80,
+                                          backgroundColor: ColorSet
+                                              .colorsDarkBlueGreenOfOpacity80,
                                         ),
                                       );
-                                    });
-                              }),
+                                    }
+                                    return ListView.builder(
+                                        padding: const EdgeInsets.only(
+                                            right: 15.0, left: 15.0),
+                                        itemCount: snapshot.data.length,
+                                        itemBuilder: (context, index) {
+                                          return GestureDetector(
+                                            child: Container(
+                                              height: 50.0,
+                                              margin: const EdgeInsets.fromLTRB(
+                                                  3.0, 7.0, 3.0, 7.0),
+                                              child: ListTile(
+                                                shape: RoundedRectangleBorder(
+                                                    borderRadius:
+                                                        BorderRadius.circular(
+                                                            10.0)),
+                                                tileColor: ColorSet
+                                                    .colorsWhiteGrayOfOpacity80,
+                                                leading: Column(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.center,
+                                                  children: <Widget>[
+                                                    Text(
+                                                      '${snapshot.data[index]['date']}',
+                                                      style: const TextStyle(
+                                                        color: ColorSet
+                                                            .colorsBlackOfOpacity80,
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                                title: snapshot.data[index]
+                                                            ['weight'] ==
+                                                        0.0
+                                                    ? const Text(
+                                                        '沒量體重',
+                                                        style: const TextStyle(
+                                                          fontSize: 15.0,
+                                                          color: ColorSet
+                                                              .colorsBlackOfOpacity80,
+                                                        ),
+                                                      )
+                                                    : Text(
+                                                        '${snapshot.data[index]['weight']} kg',
+                                                        style: const TextStyle(
+                                                          fontSize: 15.0,
+                                                          color: ColorSet
+                                                              .colorsBlackOfOpacity80,
+                                                        ),
+                                                      ),
+                                                onTap: () {
+                                                  _onTapShowMedicalDetails(
+                                                      snapshot, index);
+                                                },
+                                                onLongPress: () {
+                                                  _onLongPressEditOrDelete(
+                                                      snapshot, index);
+                                                },
+                                              ),
+                                            ),
+                                          );
+                                        });
+                                  }),
+                            ),
+                            const Spacer(flex: 1),
+                          ],
                         ),
-                        Spacer(flex: 1),
-                      ],
+                      ),
                     ),
-                  ),
-                ),
-                Expanded(
-                  child: SizedBox(
-                    height: 540.0,
-                    child: Card(
-                      color: ColorSet.primaryColorsGreenOfOpacity80,
-                      margin:
-                          EdgeInsets.only(left: 22.0, top: 20.0, bottom: 17.0),
-                      shape: MyCardTheme.cardsForRightShapeBorder,
+                    Expanded(
+                      child: SizedBox(
+                        height: 540.0,
+                        child: Card(
+                          color: ColorSet.primaryColorsGreenOfOpacity80,
+                          margin: const EdgeInsets.only(
+                              left: 22.0, top: 20.0, bottom: 17.0),
+                          shape: MyCardTheme.cardsForRightShapeBorder,
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
               ],
             ),
+            Positioned(
+              right: 26.0,
+              bottom: 34.0,
+              child: FloatingActionButton(
+                tooltip: '新增醫療紀錄',
+                backgroundColor: ColorSet.colorsWhite,
+                child: const Icon(
+                  Icons.add_outlined,
+                  color: ColorSet.colorsDarkBlueGreenOfOpacity80,
+                  size: 30.0,
+                ),
+                onPressed: () {
+                  /* Initial value in add medical records page */
+                  medicalDate = DateTime.now();
+                  medicineController.text = '';
+                  weightController.text = '';
+                  remarkController.text = '';
+                  isMedicine = false;
+                  _addMedicalRecords();
+                },
+              ),
+            ),
           ],
         ),
-        Positioned(
-          right: 26.0,
-          bottom: 34.0,
-          child: FloatingActionButton(
-            tooltip: '新增醫療紀錄',
-            backgroundColor: ColorSet.colorsWhite,
-            child: const Icon(
-              Icons.add_outlined,
-              color: ColorSet.colorsDarkBlueGreenOfOpacity80,
-              size: 30.0,
-            ),
-            onPressed: () {
-              /* Initial value in add medical records page */
-              medicalDate = DateTime.now();
-              medicineController.text = '';
-              weightController.text = '';
-              remarkController.text = '';
-              isMedicine = false;
-              _addMedicalRecords();
-            },
-          ),
-        ),
-      ],
-    ));
+      ),
+    );
   }
 }

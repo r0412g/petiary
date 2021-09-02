@@ -16,26 +16,30 @@ class ColorSet {
 class MyCardTheme {
   /* Use for cards on both sides */
   // For right
-  static ShapeBorder cardsForRightShapeBorder = RoundedRectangleBorder(
-    borderRadius: BorderRadius.only(
-        bottomLeft: Radius.circular(10), topLeft: Radius.circular(10)),
+  static const ShapeBorder cardsForRightShapeBorder =
+      const RoundedRectangleBorder(
+    borderRadius: const BorderRadius.only(
+        bottomLeft: const Radius.circular(10),
+        topLeft: const Radius.circular(10)),
   );
 
   // For left
-  static ShapeBorder cardsForLeftShapeBorder = RoundedRectangleBorder(
-    borderRadius: BorderRadius.only(
-        bottomRight: Radius.circular(10), topRight: Radius.circular(10)),
+  static const ShapeBorder cardsForLeftShapeBorder =
+      const RoundedRectangleBorder(
+    borderRadius: const BorderRadius.only(
+        bottomRight: const Radius.circular(10),
+        topRight: const Radius.circular(10)),
   );
 }
 
 class MyDialogTheme {
-  static TextStyle dialogTitleStyle = TextStyle(
+  static const TextStyle dialogTitleStyle = const TextStyle(
     color: ColorSet.colorsDarkBlueGreenOfOpacity80,
     fontWeight: FontWeight.bold,
     letterSpacing: 2.0,
   );
 
-  static TextStyle dialogContentStyle = TextStyle(
+  static const TextStyle dialogContentStyle = const TextStyle(
     color: ColorSet.colorsBlackOfOpacity80,
   );
 }
@@ -52,18 +56,19 @@ final appTheme = ThemeData(
 
   // Dialog
   dialogTheme: DialogTheme(
+    backgroundColor: ColorSet.colorsWhite,
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
   ),
 
   // Divider
-  dividerTheme: DividerThemeData(
+  dividerTheme: const DividerThemeData(
     color: ColorSet.colorsBlackOfOpacity80,
     space: 1,
     thickness: 1.0,
   ),
 
   // Tooltip
-  tooltipTheme: TooltipThemeData(
+  tooltipTheme: const TooltipThemeData(
     preferBelow: false,
   ),
 );
