@@ -737,173 +737,189 @@ class _HospitalPageState extends State<HospitalPage> {
   @override
   Widget build(BuildContext context) {
     return SafeArea(
-      child: SingleChildScrollView(
-        child: Stack(
-          children: <Widget>[
-            Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+      child: CustomScrollView(
+        slivers: [
+          SliverFillRemaining(
+            hasScrollBody: false,
+            child: Stack(
               children: <Widget>[
-                const Text(
-                  '就醫紀錄',
-                  style: const TextStyle(
-                    letterSpacing: 1.0,
-                    fontSize: 25.0,
-                    fontWeight: FontWeight.bold,
-                    color: ColorSet.colorsBlackOfOpacity80,
-                  ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
                   children: <Widget>[
-                    Expanded(
-                      child: SizedBox(
-                        height: 540.0,
-                        child: Card(
-                          color: ColorSet.primaryColorsGreenOfOpacity80,
-                          margin: const EdgeInsets.only(
-                              right: 22.0, top: 20.0, bottom: 17.0),
-                          shape: MyCardTheme.cardsForLeftShapeBorder,
-                        ),
+                    const Text(
+                      '就醫紀錄',
+                      style: const TextStyle(
+                        letterSpacing: 1.0,
+                        fontSize: 25.0,
+                        fontWeight: FontWeight.bold,
+                        color: ColorSet.colorsBlackOfOpacity80,
                       ),
                     ),
-                    SizedBox(
-                      width: 300.0,
-                      height: 540.0,
-                      child: Card(
-                        color: ColorSet.primaryColorsGreenOfOpacity80,
-                        margin: const EdgeInsets.only(top: 20.0, bottom: 17.0),
-                        child: Column(
-                          children: <Widget>[
-                            const Spacer(flex: 1),
-                            Expanded(
-                              flex: 10,
-                              child: FutureBuilder(
-                                  future: MedicalInfoDB.queryMedicalRecords(),
-                                  builder: (context, AsyncSnapshot snapshot) {
-                                    if (snapshot.connectionState ==
-                                            ConnectionState.done &&
-                                        snapshot.data?.length == 0) {
-                                      return const Center(
-                                          child: const Text('沒有醫療紀錄'));
-                                    }
-                                    if (snapshot.connectionState ==
-                                        ConnectionState.waiting) {
-                                      return const Center(
-                                        child: const CircularProgressIndicator(
-                                          color: ColorSet
-                                              .colorsWhiteGrayOfOpacity80,
-                                          backgroundColor: ColorSet
-                                              .colorsDarkBlueGreenOfOpacity80,
-                                        ),
-                                      );
-                                    }
-                                    return ListView.builder(
-                                        padding: const EdgeInsets.only(
-                                            right: 15.0, left: 15.0),
-                                        itemCount: snapshot.data.length,
-                                        itemBuilder: (context, index) {
-                                          return GestureDetector(
-                                            child: Container(
-                                              height: 50.0,
-                                              margin: const EdgeInsets.fromLTRB(
-                                                  3.0, 7.0, 3.0, 7.0),
-                                              child: ListTile(
-                                                shape: RoundedRectangleBorder(
-                                                    borderRadius:
-                                                        BorderRadius.circular(
-                                                            10.0)),
-                                                tileColor: ColorSet
-                                                    .colorsWhiteGrayOfOpacity80,
-                                                leading: Column(
-                                                  mainAxisAlignment:
-                                                      MainAxisAlignment.center,
-                                                  children: <Widget>[
-                                                    Text(
-                                                      '${snapshot.data[index]['date']}',
-                                                      style: const TextStyle(
-                                                        color: ColorSet
-                                                            .colorsBlackOfOpacity80,
-                                                      ),
-                                                    ),
-                                                  ],
-                                                ),
-                                                title: snapshot.data[index]
-                                                            ['weight'] ==
-                                                        0.0
-                                                    ? const Text(
-                                                        '沒量體重',
-                                                        style: const TextStyle(
-                                                          fontSize: 15.0,
-                                                          color: ColorSet
-                                                              .colorsBlackOfOpacity80,
-                                                        ),
-                                                      )
-                                                    : Text(
-                                                        '${snapshot.data[index]['weight']} kg',
-                                                        style: const TextStyle(
-                                                          fontSize: 15.0,
-                                                          color: ColorSet
-                                                              .colorsBlackOfOpacity80,
-                                                        ),
-                                                      ),
-                                                onTap: () {
-                                                  _onTapShowMedicalDetails(
-                                                      snapshot, index);
-                                                },
-                                                onLongPress: () {
-                                                  _onLongPressEditOrDelete(
-                                                      snapshot, index);
-                                                },
-                                              ),
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                      children: <Widget>[
+                        Expanded(
+                          child: SizedBox(
+                            height: 540.0,
+                            child: Card(
+                              color: ColorSet.primaryColorsGreenOfOpacity80,
+                              margin: const EdgeInsets.only(
+                                  right: 22.0, top: 55.0, bottom: 17.0),
+                              shape: MyCardTheme.cardsForLeftShapeBorder,
+                            ),
+                          ),
+                        ),
+                        SizedBox(
+                          width: 300.0,
+                          height: 540.0,
+                          child: Card(
+                            color: ColorSet.primaryColorsGreenOfOpacity80,
+                            margin:
+                                const EdgeInsets.only(top: 55.0, bottom: 17.0),
+                            child: Column(
+                              children: <Widget>[
+                                const Spacer(flex: 1),
+                                Expanded(
+                                  flex: 10,
+                                  child: FutureBuilder(
+                                      future:
+                                          MedicalInfoDB.queryMedicalRecords(),
+                                      builder:
+                                          (context, AsyncSnapshot snapshot) {
+                                        if (snapshot.connectionState ==
+                                                ConnectionState.done &&
+                                            snapshot.data?.length == 0) {
+                                          return const Center(
+                                              child: const Text('沒有醫療紀錄'));
+                                        }
+                                        if (snapshot.connectionState ==
+                                            ConnectionState.waiting) {
+                                          return const Center(
+                                            child:
+                                                const CircularProgressIndicator(
+                                              color: ColorSet
+                                                  .colorsWhiteGrayOfOpacity80,
+                                              backgroundColor: ColorSet
+                                                  .colorsDarkBlueGreenOfOpacity80,
                                             ),
                                           );
-                                        });
-                                  }),
+                                        }
+                                        return ListView.builder(
+                                            padding: const EdgeInsets.only(
+                                                right: 15.0, left: 15.0),
+                                            itemCount: snapshot.data.length,
+                                            itemBuilder: (context, index) {
+                                              return GestureDetector(
+                                                child: Container(
+                                                  height: 50.0,
+                                                  margin:
+                                                      const EdgeInsets.fromLTRB(
+                                                          3.0, 7.0, 3.0, 7.0),
+                                                  child: ListTile(
+                                                    shape:
+                                                        RoundedRectangleBorder(
+                                                            borderRadius:
+                                                                BorderRadius
+                                                                    .circular(
+                                                                        10.0)),
+                                                    tileColor: ColorSet
+                                                        .colorsWhiteGrayOfOpacity80,
+                                                    leading: Column(
+                                                      mainAxisAlignment:
+                                                          MainAxisAlignment
+                                                              .center,
+                                                      children: <Widget>[
+                                                        Text(
+                                                          '${snapshot.data[index]['date']}',
+                                                          style:
+                                                              const TextStyle(
+                                                            color: ColorSet
+                                                                .colorsBlackOfOpacity80,
+                                                          ),
+                                                        ),
+                                                      ],
+                                                    ),
+                                                    title: snapshot.data[index]
+                                                                ['weight'] ==
+                                                            0.0
+                                                        ? const Text(
+                                                            '沒量體重',
+                                                            style:
+                                                                const TextStyle(
+                                                              fontSize: 15.0,
+                                                              color: ColorSet
+                                                                  .colorsBlackOfOpacity80,
+                                                            ),
+                                                          )
+                                                        : Text(
+                                                            '${snapshot.data[index]['weight']} kg',
+                                                            style:
+                                                                const TextStyle(
+                                                              fontSize: 15.0,
+                                                              color: ColorSet
+                                                                  .colorsBlackOfOpacity80,
+                                                            ),
+                                                          ),
+                                                    onTap: () {
+                                                      _onTapShowMedicalDetails(
+                                                          snapshot, index);
+                                                    },
+                                                    onLongPress: () {
+                                                      _onLongPressEditOrDelete(
+                                                          snapshot, index);
+                                                    },
+                                                  ),
+                                                ),
+                                              );
+                                            });
+                                      }),
+                                ),
+                                const Spacer(flex: 1),
+                              ],
                             ),
-                            const Spacer(flex: 1),
-                          ],
+                          ),
                         ),
-                      ),
-                    ),
-                    Expanded(
-                      child: SizedBox(
-                        height: 540.0,
-                        child: Card(
-                          color: ColorSet.primaryColorsGreenOfOpacity80,
-                          margin: const EdgeInsets.only(
-                              left: 22.0, top: 20.0, bottom: 17.0),
-                          shape: MyCardTheme.cardsForRightShapeBorder,
+                        Expanded(
+                          child: SizedBox(
+                            height: 540.0,
+                            child: Card(
+                              color: ColorSet.primaryColorsGreenOfOpacity80,
+                              margin: const EdgeInsets.only(
+                                  left: 22.0, top: 55.0, bottom: 17.0),
+                              shape: MyCardTheme.cardsForRightShapeBorder,
+                            ),
+                          ),
                         ),
-                      ),
+                      ],
                     ),
                   ],
                 ),
+                Positioned(
+                  right: 20.0,
+                  bottom: 40.0,
+                  child: FloatingActionButton(
+                    tooltip: '新增醫療紀錄',
+                    backgroundColor: ColorSet.colorsWhite,
+                    child: const Icon(
+                      Icons.add_outlined,
+                      color: ColorSet.colorsDarkBlueGreenOfOpacity80,
+                      size: 30.0,
+                    ),
+                    onPressed: () {
+                      /* Initial value in add medical records page */
+                      medicalDate = DateTime.now();
+                      medicineController.text = '';
+                      weightController.text = '';
+                      remarkController.text = '';
+                      isMedicine = false;
+                      _addMedicalRecords();
+                    },
+                  ),
+                ),
               ],
             ),
-            Positioned(
-              right: 26.0,
-              bottom: 34.0,
-              child: FloatingActionButton(
-                tooltip: '新增醫療紀錄',
-                backgroundColor: ColorSet.colorsWhite,
-                child: const Icon(
-                  Icons.add_outlined,
-                  color: ColorSet.colorsDarkBlueGreenOfOpacity80,
-                  size: 30.0,
-                ),
-                onPressed: () {
-                  /* Initial value in add medical records page */
-                  medicalDate = DateTime.now();
-                  medicineController.text = '';
-                  weightController.text = '';
-                  remarkController.text = '';
-                  isMedicine = false;
-                  _addMedicalRecords();
-                },
-              ),
-            ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

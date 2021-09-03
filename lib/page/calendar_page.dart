@@ -41,6 +41,11 @@ extension HexColor on Color {
 }
 
 class _CalendarPageState extends State<CalendarPage> {
+  final Future<String> _futureWaitingData = Future<String>.delayed(
+    const Duration(seconds: 1),
+    () => 'Data Loaded',
+  );
+
   final formattedDateAndTime = DateFormat('yyyy-MM-dd HH:mm');
   final formattedDate = DateFormat('yyyy-MM-dd');
   DateTime startDatetime = DateTime.now();
@@ -959,146 +964,290 @@ class _CalendarPageState extends State<CalendarPage> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: SingleChildScrollView(
-        child: Stack(
-          children: <Widget>[
-            Column(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                const Text(
-                  '行事曆',
-                  style: const TextStyle(
-                    letterSpacing: 1.0,
-                    fontSize: 25.0,
-                    fontWeight: FontWeight.bold,
-                    color: ColorSet.colorsBlackOfOpacity80,
-                  ),
-                ),
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                  children: <Widget>[
-                    Expanded(
-                      child: SizedBox(
-                        height: 540.0,
-                        child: Card(
-                          color: ColorSet.primaryColorsGreenOfOpacity80,
-                          margin: const EdgeInsets.only(
-                              right: 22.0, top: 20.0, bottom: 17.0),
-                          shape: MyCardTheme.cardsForLeftShapeBorder,
-                        ),
-                      ),
-                    ),
-                    SizedBox(
-                      width: 300.0,
-                      height: 540.0,
-                      child: Card(
-                        color: ColorSet.primaryColorsGreenOfOpacity80,
-                        margin: const EdgeInsets.only(top: 20.0, bottom: 17.0),
-                        child: Padding(
-                          padding: const EdgeInsets.all(5.0),
-                          child: SfCalendar(
-                            view: CalendarView.week,
-                            headerDateFormat: 'yyy - MMM',
-                            firstDayOfWeek: calendarPageFirstDayOfWeek,
-                            minDate: DateTime(1971, 01, 01),
-                            maxDate: DateTime(2030, 12, 31),
-                            initialDisplayDate: DateTime.now(),
-                            headerHeight: 30,
-                            todayHighlightColor:
-                                ColorSet.colorsDarkBlueGreenOfOpacity80,
-                            cellBorderColor: ColorSet.colorsWhite,
-                            backgroundColor:
-                                ColorSet.primaryColorsGreenOfOpacity80,
-                            showDatePickerButton: true,
-                            showCurrentTimeIndicator: true,
-                            showWeekNumber: calendarPageShowWeekNumber,
-                            dataSource: _dataSource,
-                            onTap: _onTapShowEventDetails,
-                            onLongPress: _onLongPressEditOrDelete,
-                            headerStyle: const CalendarHeaderStyle(
-                              textStyle: const TextStyle(
-                                fontSize: 17.0,
-                                color: ColorSet.colorsBlackOfOpacity80,
-                              ),
-                            ),
-                            timeSlotViewSettings: TimeSlotViewSettings(
-                                timeIntervalHeight: 35.0,
-                                timeTextStyle: const TextStyle(
-                                  color: ColorSet.colorsWhite,
-                                ),
-                                timeFormat: calendarPageIs24hourSystem == true
-                                    ? 'HH'
-                                    : 'hh a'),
-                            weekNumberStyle: const WeekNumberStyle(
-                              backgroundColor:
-                                  ColorSet.colorsDarkBlueGreenOfOpacity80,
-                              textStyle: const TextStyle(
-                                  color: ColorSet.colorsWhite, fontSize: 15),
-                            ),
-                            selectionDecoration: BoxDecoration(
-                              border: Border.all(
-                                  color:
-                                      ColorSet.colorsDarkBlueGreenOfOpacity80,
-                                  width: 2),
-                            ),
-                            todayTextStyle: const TextStyle(
-                              color: ColorSet.colorsWhite,
-                            ),
-                            viewHeaderStyle: const ViewHeaderStyle(
-                              dateTextStyle: const TextStyle(
-                                color: ColorSet.colorsWhite,
-                              ),
-                              dayTextStyle: const TextStyle(
-                                color: ColorSet.colorsWhite,
-                                fontSize: 13.0,
-                              ),
+    return FutureBuilder<String>(
+      future: _futureWaitingData,
+      builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+        if (snapshot.hasData) {
+          return SafeArea(
+            child: CustomScrollView(
+              slivers: [
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Stack(
+                    children: <Widget>[
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          const Text(
+                            '行事曆',
+                            style: const TextStyle(
+                              letterSpacing: 1.0,
+                              fontSize: 25.0,
+                              fontWeight: FontWeight.bold,
+                              color: ColorSet.colorsBlackOfOpacity80,
                             ),
                           ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: <Widget>[
+                              Expanded(
+                                child: SizedBox(
+                                  height: 540.0,
+                                  child: Card(
+                                    color:
+                                        ColorSet.primaryColorsGreenOfOpacity80,
+                                    margin: const EdgeInsets.only(
+                                        right: 22.0, top: 55.0, bottom: 17.0),
+                                    shape: MyCardTheme.cardsForLeftShapeBorder,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                width: 300.0,
+                                height: 540.0,
+                                child: Card(
+                                  color: ColorSet.primaryColorsGreenOfOpacity80,
+                                  margin: const EdgeInsets.only(
+                                      top: 55.0, bottom: 17.0),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(5.0),
+                                    child: SfCalendar(
+                                      view: CalendarView.week,
+                                      headerDateFormat: 'yyy - MMM',
+                                      firstDayOfWeek:
+                                          calendarPageFirstDayOfWeek,
+                                      minDate: DateTime(1971, 01, 01),
+                                      maxDate: DateTime(2030, 12, 31),
+                                      initialDisplayDate: DateTime.now(),
+                                      headerHeight: 30,
+                                      todayHighlightColor: ColorSet
+                                          .colorsDarkBlueGreenOfOpacity80,
+                                      cellBorderColor: ColorSet.colorsWhite,
+                                      backgroundColor: ColorSet
+                                          .primaryColorsGreenOfOpacity80,
+                                      showDatePickerButton: true,
+                                      showCurrentTimeIndicator: true,
+                                      showWeekNumber:
+                                          calendarPageShowWeekNumber,
+                                      dataSource: _dataSource,
+                                      onTap: _onTapShowEventDetails,
+                                      onLongPress: _onLongPressEditOrDelete,
+                                      headerStyle: const CalendarHeaderStyle(
+                                        textStyle: const TextStyle(
+                                          fontSize: 17.0,
+                                          color:
+                                              ColorSet.colorsBlackOfOpacity80,
+                                        ),
+                                      ),
+                                      timeSlotViewSettings:
+                                          TimeSlotViewSettings(
+                                              timeIntervalHeight: 35.0,
+                                              timeTextStyle: const TextStyle(
+                                                color: ColorSet.colorsWhite,
+                                              ),
+                                              timeFormat:
+                                                  calendarPageIs24hourSystem ==
+                                                          true
+                                                      ? 'HH'
+                                                      : 'hh a'),
+                                      weekNumberStyle: const WeekNumberStyle(
+                                        backgroundColor: ColorSet
+                                            .colorsDarkBlueGreenOfOpacity80,
+                                        textStyle: const TextStyle(
+                                            color: ColorSet.colorsWhite,
+                                            fontSize: 15),
+                                      ),
+                                      selectionDecoration: BoxDecoration(
+                                        border: Border.all(
+                                            color: ColorSet
+                                                .colorsDarkBlueGreenOfOpacity80,
+                                            width: 2),
+                                      ),
+                                      todayTextStyle: const TextStyle(
+                                        color: ColorSet.colorsWhite,
+                                      ),
+                                      viewHeaderStyle: const ViewHeaderStyle(
+                                        dateTextStyle: const TextStyle(
+                                          color: ColorSet.colorsWhite,
+                                        ),
+                                        dayTextStyle: const TextStyle(
+                                          color: ColorSet.colorsWhite,
+                                          fontSize: 13.0,
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: SizedBox(
+                                  height: 540.0,
+                                  child: Card(
+                                    color:
+                                        ColorSet.primaryColorsGreenOfOpacity80,
+                                    margin: const EdgeInsets.only(
+                                        left: 22.0, top: 55.0, bottom: 17.0),
+                                    shape: MyCardTheme.cardsForRightShapeBorder,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      Positioned(
+                        right: 20.0,
+                        bottom: 40.0,
+                        child: FloatingActionButton(
+                          tooltip: '新增事件',
+                          backgroundColor: ColorSet.colorsWhite,
+                          child: const Icon(
+                            Icons.add_outlined,
+                            color: ColorSet.colorsDarkBlueGreenOfOpacity80,
+                            size: 30.0,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              eventNameController.text = '';
+                              eventColor = const Color(0xfff44336);
+                              isAllDay = false;
+                              startDatetime = DateTime.now();
+                              endDateTime =
+                                  DateTime.now().add(const Duration(hours: 1));
+                              _addEvent();
+                            });
+                          },
                         ),
                       ),
-                    ),
-                    Expanded(
-                      child: SizedBox(
-                        height: 540.0,
-                        child: Card(
-                          color: ColorSet.primaryColorsGreenOfOpacity80,
-                          margin: const EdgeInsets.only(
-                              left: 22.0, top: 20.0, bottom: 17.0),
-                          shape: MyCardTheme.cardsForRightShapeBorder,
-                        ),
-                      ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ],
             ),
-            Positioned(
-              right: 26.0,
-              bottom: 34.0,
-              child: FloatingActionButton(
-                tooltip: '新增事件',
-                backgroundColor: ColorSet.colorsWhite,
-                child: const Icon(
-                  Icons.add_outlined,
-                  color: ColorSet.colorsDarkBlueGreenOfOpacity80,
-                  size: 30.0,
+          );
+        } else {
+          return SafeArea(
+            child: CustomScrollView(
+              slivers: [
+                SliverFillRemaining(
+                  hasScrollBody: false,
+                  child: Stack(
+                    children: <Widget>[
+                      Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: <Widget>[
+                          const Text(
+                            '行事曆',
+                            style: const TextStyle(
+                              letterSpacing: 1.0,
+                              fontSize: 25.0,
+                              fontWeight: FontWeight.bold,
+                              color: ColorSet.colorsBlackOfOpacity80,
+                            ),
+                          ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: <Widget>[
+                              Expanded(
+                                child: SizedBox(
+                                  height: 540.0,
+                                  child: Card(
+                                    color:
+                                        ColorSet.primaryColorsGreenOfOpacity80,
+                                    margin: const EdgeInsets.only(
+                                        right: 22.0, top: 55.0, bottom: 17.0),
+                                    shape: MyCardTheme.cardsForLeftShapeBorder,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(
+                                width: 300.0,
+                                height: 540.0,
+                                child: Card(
+                                  color: ColorSet.primaryColorsGreenOfOpacity80,
+                                  margin: const EdgeInsets.only(
+                                      top: 55.0, bottom: 17.0),
+                                  child: Padding(
+                                    padding: const EdgeInsets.all(5.0),
+                                    child: Column(
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.center,
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.center,
+                                      children: <Widget>[
+                                        const Text(
+                                          '載入資料中',
+                                          style: TextStyle(
+                                            fontSize: 20.0,
+                                            color: ColorSet.colorsWhite,
+                                          ),
+                                        ),
+                                        const SizedBox(
+                                          height: 25.0,
+                                        ),
+                                        const Center(
+                                          child:
+                                              const CircularProgressIndicator(
+                                            strokeWidth: 3.0,
+                                            color: ColorSet
+                                                .colorsWhiteGrayOfOpacity80,
+                                            backgroundColor: ColorSet
+                                                .colorsDarkBlueGreenOfOpacity80,
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              Expanded(
+                                child: SizedBox(
+                                  height: 540.0,
+                                  child: Card(
+                                    color:
+                                        ColorSet.primaryColorsGreenOfOpacity80,
+                                    margin: const EdgeInsets.only(
+                                        left: 22.0, top: 55.0, bottom: 17.0),
+                                    shape: MyCardTheme.cardsForRightShapeBorder,
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
+                      ),
+                      Positioned(
+                        right: 20.0,
+                        bottom: 40.0,
+                        child: FloatingActionButton(
+                          tooltip: '新增事件',
+                          backgroundColor: ColorSet.colorsWhite,
+                          child: const Icon(
+                            Icons.add_outlined,
+                            color: ColorSet.colorsDarkBlueGreenOfOpacity80,
+                            size: 30.0,
+                          ),
+                          onPressed: () {
+                            setState(() {
+                              eventNameController.text = '';
+                              eventColor = const Color(0xfff44336);
+                              isAllDay = false;
+                              startDatetime = DateTime.now();
+                              endDateTime =
+                                  DateTime.now().add(const Duration(hours: 1));
+                              _addEvent();
+                            });
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
-                onPressed: () {
-                  setState(() {
-                    eventNameController.text = '';
-                    eventColor = const Color(0xfff44336);
-                    isAllDay = false;
-                    startDatetime = DateTime.now();
-                    endDateTime = DateTime.now().add(const Duration(hours: 1));
-                    _addEvent();
-                  });
-                },
-              ),
+              ],
             ),
-          ],
-        ),
-      ),
+          );
+        }
+      },
     );
   }
 }

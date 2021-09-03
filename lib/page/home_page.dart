@@ -10,6 +10,12 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+
+  final Future<String> _futureWaitingData = Future<String>.delayed(
+    const Duration(seconds: 1),
+    () => 'Data Loaded',
+  );
+
   var homePageImagePathByFile;
   var homePageName = '';
   var homePageIsNeutered;
@@ -72,149 +78,241 @@ class _HomePageState extends State<HomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return SafeArea(
-      child: SingleChildScrollView(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-          children: <Widget>[
-            const Text(
-              '寵物資料',
-              style: const TextStyle(
-                letterSpacing: 1.0,
-                fontSize: 25.0,
-                fontWeight: FontWeight.bold,
-                color: ColorSet.colorsBlackOfOpacity80,
-              ),
-            ),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-              children: <Widget>[
-                Expanded(
-                  child: SizedBox(
-                    height: 540.0,
-                    child: Card(
-                      color: ColorSet.primaryColorsGreenOfOpacity80,
-                      margin: const EdgeInsets.only(
-                          right: 22.0, top: 20.0, bottom: 17.0),
-                      shape: MyCardTheme.cardsForLeftShapeBorder,
+    return FutureBuilder<String>(
+      future: _futureWaitingData,
+      builder: (BuildContext context, AsyncSnapshot<String> snapshot) {
+        if (snapshot.hasData) {
+          return SafeArea(
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  const Text(
+                    '寵物資料',
+                    style: const TextStyle(
+                      letterSpacing: 1.0,
+                      fontSize: 25.0,
+                      fontWeight: FontWeight.bold,
+                      color: ColorSet.colorsBlackOfOpacity80,
                     ),
                   ),
-                ),
-                SizedBox(
-                  width: 300.0,
-                  height: 540.0,
-                  child: Card(
-                    color: ColorSet.primaryColorsGreenOfOpacity80,
-                    margin: const EdgeInsets.only(top: 20.0, bottom: 17.0),
-                    child: Padding(
-                      padding:
-                          const EdgeInsets.fromLTRB(30.0, 40.0, 30.0, 35.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.center,
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: <Widget>[
-                          Container(
-                            child: homePageImagePathByFile != null
-                                ? Image.file(
-                                    File(homePageImagePathByFile),
-                                    fit: BoxFit.fill,
-                                    width: 225.0,
-                                    height: 225.0,
-                                  )
-                                : Image.asset(
-                                    homePageImagePathByAssets,
-                                    fit: BoxFit.fill,
-                                    width: 225.0,
-                                    height: 225.0,
-                                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Expanded(
+                        child: SizedBox(
+                          height: 540.0,
+                          child: Card(
+                            color: ColorSet.primaryColorsGreenOfOpacity80,
+                            margin: const EdgeInsets.only(
+                                right: 22.0, top: 55.0, bottom: 17.0),
+                            shape: MyCardTheme.cardsForLeftShapeBorder,
                           ),
-                          Container(
-                            child: Text(
-                              '$homePageName',
-                              style: const TextStyle(
-                                color: ColorSet.colorsWhite,
-                                fontWeight: FontWeight.bold,
-                                fontSize: 28.0,
-                              ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 300.0,
+                        height: 540.0,
+                        child: Card(
+                          color: ColorSet.primaryColorsGreenOfOpacity80,
+                          margin:
+                              const EdgeInsets.only(top: 55.0, bottom: 17.0),
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(
+                                30.0, 40.0, 30.0, 25.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                              children: <Widget>[
+                                Container(
+                                  child: homePageImagePathByFile != null
+                                      ? Image.file(
+                                          File(homePageImagePathByFile),
+                                          fit: BoxFit.fill,
+                                          width: 225.0,
+                                          height: 225.0,
+                                        )
+                                      : Image.asset(
+                                          homePageImagePathByAssets,
+                                          fit: BoxFit.fill,
+                                          width: 225.0,
+                                          height: 225.0,
+                                        ),
+                                ),
+                                Container(
+                                  child: Text(
+                                    '$homePageName',
+                                    style: const TextStyle(
+                                      color: ColorSet.colorsWhite,
+                                      fontWeight: FontWeight.bold,
+                                      fontSize: 28.0,
+                                    ),
+                                  ),
+                                ),
+                                Container(
+                                  child: homePageIsExactDate == true
+                                      ? Text(
+                                          '$homePageBirthday ($homePageAge歲)',
+                                          style: const TextStyle(
+                                            color: ColorSet.colorsWhite,
+                                            fontSize: 17.0,
+                                            letterSpacing: 1.5,
+                                          ),
+                                        )
+                                      : Text(
+                                          '$homePageAge 歲',
+                                          style: const TextStyle(
+                                            color: ColorSet.colorsWhite,
+                                            fontSize: 17.0,
+                                            letterSpacing: 1.5,
+                                          ),
+                                        ),
+                                ),
+                                Row(
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceEvenly,
+                                  children: <Widget>[
+                                    Expanded(
+                                      flex: 2,
+                                      child: Text(
+                                        '$homePageType',
+                                        style: othersTextStyle,
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 2,
+                                      child: Text(
+                                        '$homePageBreeds',
+                                        style: othersTextStyle,
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 1,
+                                      child: Text(
+                                        '$homePageGender',
+                                        style: othersTextStyle,
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                    Expanded(
+                                      flex: 2,
+                                      child: Text(
+                                        '${homePageIsNeutered == false ? '未結紮' : '已結紮'}',
+                                        style: othersTextStyle,
+                                        textAlign: TextAlign.center,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ],
                             ),
                           ),
-                          Container(
-                            child: homePageIsExactDate == true
-                                ? Text(
-                                    '$homePageBirthday ($homePageAge歲)',
-                                    style: const TextStyle(
-                                      color: ColorSet.colorsWhite,
-                                      fontSize: 17.0,
-                                      letterSpacing: 1.5,
-                                    ),
-                                  )
-                                : Text(
-                                    '$homePageAge 歲',
-                                    style: const TextStyle(
-                                      color: ColorSet.colorsWhite,
-                                      fontSize: 17.0,
-                                      letterSpacing: 1.5,
-                                    ),
-                                  ),
-                          ),
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                            children: <Widget>[
-                              Expanded(
-                                flex: 2,
-                                child: Text(
-                                  '$homePageType',
-                                  style: othersTextStyle,
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                              Expanded(
-                                flex: 2,
-                                child: Text(
-                                  '$homePageBreeds',
-                                  style: othersTextStyle,
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                              Expanded(
-                                flex: 1,
-                                child: Text(
-                                  '$homePageGender',
-                                  style: othersTextStyle,
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                              Expanded(
-                                flex: 2,
-                                child: Text(
-                                  '${homePageIsNeutered == false ? '未結紮' : '已結紮'}',
-                                  style: othersTextStyle,
-                                  textAlign: TextAlign.center,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ],
+                        ),
                       ),
-                    ),
+                      Expanded(
+                        child: SizedBox(
+                          height: 540.0,
+                          child: Card(
+                            color: ColorSet.primaryColorsGreenOfOpacity80,
+                            margin: const EdgeInsets.only(
+                                left: 22.0, top: 55.0, bottom: 17.0),
+                            shape: MyCardTheme.cardsForRightShapeBorder,
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                Expanded(
-                  child: SizedBox(
-                    height: 540.0,
-                    child: Card(
-                      color: ColorSet.primaryColorsGreenOfOpacity80,
-                      margin: const EdgeInsets.only(
-                          left: 22.0, top: 20.0, bottom: 17.0),
-                      shape: MyCardTheme.cardsForRightShapeBorder,
-                    ),
-                  ),
-                ),
-              ],
+                ],
+              ),
             ),
-          ],
-        ),
-      ),
+          );
+        } else {
+          return SafeArea(
+            child: SingleChildScrollView(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                children: <Widget>[
+                  const Text(
+                    '寵物資料',
+                    style: const TextStyle(
+                      letterSpacing: 1.0,
+                      fontSize: 25.0,
+                      fontWeight: FontWeight.bold,
+                      color: ColorSet.colorsBlackOfOpacity80,
+                    ),
+                  ),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      Expanded(
+                        child: SizedBox(
+                          height: 540.0,
+                          child: Card(
+                            color: ColorSet.primaryColorsGreenOfOpacity80,
+                            margin: const EdgeInsets.only(
+                                right: 22.0, top: 55.0, bottom: 17.0),
+                            shape: MyCardTheme.cardsForLeftShapeBorder,
+                          ),
+                        ),
+                      ),
+                      SizedBox(
+                        width: 300.0,
+                        height: 540.0,
+                        child: Card(
+                          color: ColorSet.primaryColorsGreenOfOpacity80,
+                          margin:
+                              const EdgeInsets.only(top: 55.0, bottom: 17.0),
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(
+                                30.0, 40.0, 30.0, 35.0),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.center,
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: <Widget>[
+                                const Text(
+                                  '載入資料中',
+                                  style: TextStyle(
+                                    fontSize: 20.0,
+                                    color: ColorSet.colorsWhite,
+                                  ),
+                                ),
+                                const SizedBox(
+                                  height: 25.0,
+                                ),
+                                const Center(
+                                  child: const CircularProgressIndicator(
+                                    strokeWidth: 3.0,
+                                    color: ColorSet.colorsWhiteGrayOfOpacity80,
+                                    backgroundColor:
+                                        ColorSet.colorsDarkBlueGreenOfOpacity80,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                      ),
+                      Expanded(
+                        child: SizedBox(
+                          height: 540.0,
+                          child: Card(
+                            color: ColorSet.primaryColorsGreenOfOpacity80,
+                            margin: const EdgeInsets.only(
+                                left: 22.0, top: 55.0, bottom: 17.0),
+                            shape: MyCardTheme.cardsForRightShapeBorder,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        }
+      },
     );
   }
 }

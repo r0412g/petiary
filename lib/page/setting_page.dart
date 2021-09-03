@@ -39,7 +39,7 @@ class _SettingPageState extends State<SettingPage> {
                     child: Card(
                       color: ColorSet.primaryColorsGreenOfOpacity80,
                       margin: const EdgeInsets.only(
-                          right: 22.0, top: 20.0, bottom: 17.0),
+                          right: 22.0, top: 55.0, bottom: 17.0),
                       shape: MyCardTheme.cardsForLeftShapeBorder,
                     ),
                   ),
@@ -49,7 +49,7 @@ class _SettingPageState extends State<SettingPage> {
                   height: 540.0,
                   child: Card(
                     color: ColorSet.primaryColorsGreenOfOpacity80,
-                    margin: const EdgeInsets.only(top: 20.0, bottom: 17.0),
+                    margin: const EdgeInsets.only(top: 55.0, bottom: 17.0),
                     child: Padding(
                       padding:
                           const EdgeInsets.fromLTRB(20.0, 45.0, 20.0, 35.0),
@@ -139,7 +139,7 @@ class _SettingPageState extends State<SettingPage> {
                     child: Card(
                       color: ColorSet.primaryColorsGreenOfOpacity80,
                       margin: const EdgeInsets.only(
-                          left: 22.0, top: 20.0, bottom: 17.0),
+                          left: 22.0, top: 55.0, bottom: 17.0),
                       shape: MyCardTheme.cardsForRightShapeBorder,
                     ),
                   ),

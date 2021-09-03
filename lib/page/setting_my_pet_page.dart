@@ -249,6 +249,9 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
           ),
           SafeArea(
             child: SingleChildScrollView(
+              padding: EdgeInsets.only(
+                top: 50.0,
+              ),
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
@@ -270,7 +273,7 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
                           child: Card(
                             color: ColorSet.primaryColorsGreenOfOpacity80,
                             margin: EdgeInsets.only(
-                                right: 22.0, top: 20.0, bottom: 17.0),
+                                right: 22.0, top: 55.0, bottom: 17.0),
                             shape: MyCardTheme.cardsForLeftShapeBorder,
                           ),
                         ),
@@ -282,7 +285,7 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
                           children: <Widget>[
                             Card(
                               color: ColorSet.primaryColorsGreenOfOpacity80,
-                              margin: EdgeInsets.only(top: 20.0, bottom: 17.0),
+                              margin: EdgeInsets.only(top: 55.0, bottom: 17.0),
                               child: Padding(
                                 padding: const EdgeInsets.fromLTRB(
                                     25.0, 25.0, 25.0, 65.0),
@@ -1223,7 +1226,7 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
                           child: Card(
                             color: ColorSet.primaryColorsGreenOfOpacity80,
                             margin: const EdgeInsets.only(
-                                left: 22.0, top: 20.0, bottom: 17.0),
+                                left: 22.0, top: 55.0, bottom: 17.0),
                             shape: MyCardTheme.cardsForRightShapeBorder,
                           ),
                         ),
