@@ -9,8 +9,11 @@ class ColorSet {
       Color.fromRGBO(85, 116, 121, 80.0); // Color(0xFF557479);
   static const colorsGrayOfOpacity80 =
       Color.fromRGBO(186, 186, 186, 80.0); // Color(0xFFBABABA);
+  static const colorsDarkGreen =
+      Color.fromRGBO(63, 78, 64, 100.0); // Color(0xFF3F4E40);
   static const colorsBlackOfOpacity80 = Color.fromRGBO(0, 0, 0, 80.0);
   static const colorsWhite = Colors.white;
+  static const colorsBlack = Colors.black;
 }
 
 class MyCardTheme {

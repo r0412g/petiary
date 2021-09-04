@@ -1,6 +1,7 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pet_diary/common/theme.dart';
+import 'package:pet_diary/page/contact_developer_page.dart';
 import 'package:pet_diary/page/setting_calendar_page.dart';
 import 'package:pet_diary/page/setting_my_pet_page.dart';
 
@@ -54,6 +55,7 @@ class _SettingPageState extends State<SettingPage> {
                       padding:
                           const EdgeInsets.fromLTRB(20.0, 45.0, 20.0, 35.0),
                       child: Column(
+                        mainAxisAlignment: MainAxisAlignment.start,
                         children: <Widget>[
                           Container(
                             padding: const EdgeInsets.only(left: 10.0),
@@ -120,6 +122,43 @@ class _SettingPageState extends State<SettingPage> {
                                       style: const TextStyle(
                                           color:
                                               ColorSet.colorsBlackOfOpacity80,
+                                          fontSize: 16.0,
+                                          letterSpacing: 1.0),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),const SizedBox(
+                            height: 25.0,
+                          ),
+                          Container(
+                            padding: const EdgeInsets.only(left: 10.0),
+                            width: 300.0,
+                            height: 45.0,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.rectangle,
+                              borderRadius: ForAllTheme.allRadius,
+                              color: ColorSet.colorsWhiteGrayOfOpacity80,
+                            ),
+                            child: SizedBox.expand(
+                              child: Tooltip(
+                                message: '進入聯絡開發人員頁面',
+                                child: TextButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                ContactDeveloperPage()));
+                                  },
+                                  child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: const Text(
+                                      '聯絡開發人員',
+                                      style: const TextStyle(
+                                          color:
+                                          ColorSet.colorsBlackOfOpacity80,
                                           fontSize: 16.0,
                                           letterSpacing: 1.0),
                                     ),

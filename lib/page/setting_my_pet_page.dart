@@ -87,13 +87,17 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
     });
   }
 
-  /* Clean up the controller when the widget is disposed */
+  /* Clean up the controller and focus node when the widget is disposed */
   @override
   void dispose() {
     setTypeController.dispose();
     setBreedsController.dispose();
     setNameController.dispose();
     setAgeController.dispose();
+    setNameFocusNode.dispose();
+    setDateFocusNode.dispose();
+    settingPageTypeFocusNode.dispose();
+    settingPageBreedsFocusNode.dispose();
     super.dispose();
   }
 
