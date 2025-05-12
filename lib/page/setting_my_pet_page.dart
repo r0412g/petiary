@@ -1,5 +1,4 @@
 import 'dart:io';
-import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter/material.dart';
 import 'package:image_cropper/image_cropper.dart';
@@ -10,6 +9,7 @@ import 'package:pet_diary/common/data.dart';
 import 'package:pet_diary/common/theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toggle_switch/toggle_switch.dart';
+import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart' as dateTimePicker;
 
 class SettingMyPetPage extends StatefulWidget {
   SettingMyPetPage({Key? key}) : super(key: key);
@@ -200,44 +200,34 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
   /* Crop Pet Image By User Selected */
   Future<Null> _cropImage() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    File? croppedFile = await ImageCropper.cropImage(
+    CroppedFile? croppedFile = await ImageCropper().cropImage(
       sourcePath: settingPageImageByFile.path,
-      aspectRatioPresets: [
-        CropAspectRatioPreset.square,
+      uiSettings: [
+        AndroidUiSettings(
+          activeControlsWidgetColor: ColorSet.primaryColorsGreenOfOpacity80,
+          backgroundColor: ColorSet.colorsBlackOfOpacity80,
+          cropFrameStrokeWidth: 5,
+          cropGridStrokeWidth: 5,
+          cropFrameColor: ColorSet.colorsBlackOfOpacity80,
+          dimmedLayerColor: ColorSet.colorsWhiteGrayOfOpacity80,
+          initAspectRatio: CropAspectRatioPreset.square,
+          lockAspectRatio: false,
+          toolbarTitle: '剪裁相片',
+          toolbarColor: ColorSet.colorsBlackOfOpacity80,
+          toolbarWidgetColor: ColorSet.colorsWhite,
+          showCropGrid: false,
+        ),
       ],
-      androidUiSettings: const AndroidUiSettings(
-        activeControlsWidgetColor: ColorSet.primaryColorsGreenOfOpacity80,
-        backgroundColor: ColorSet.colorsBlackOfOpacity80,
-        cropFrameStrokeWidth: 5,
-        cropGridStrokeWidth: 5,
-        cropFrameColor: ColorSet.colorsBlackOfOpacity80,
-        dimmedLayerColor: ColorSet.colorsWhiteGrayOfOpacity80,
-        initAspectRatio: CropAspectRatioPreset.square,
-        lockAspectRatio: false,
-        toolbarTitle: '剪裁相片',
-        toolbarColor: ColorSet.colorsBlackOfOpacity80,
-        toolbarWidgetColor: ColorSet.colorsWhite,
-        showCropGrid: false,
-      ),
+
     );
 
     // Image cropped
-    if (croppedFile != null) {
-      setState(() {
-        settingPageImageByFile = croppedFile;
-      });
-      settingPageImagePathByAssets = '';
-      prefs.setString('keyPetImagePathByAssets', '');
-    } else {
-      Fluttertoast.showToast(
-          msg: "您沒有剪裁相片",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: ColorSet.colorsWhite,
-          textColor: ColorSet.colorsBlackOfOpacity80,
-          fontSize: 16.0);
+    setState(() {
+      settingPageImageByFile = croppedFile;
+    });
+    settingPageImagePathByAssets = '';
+    prefs.setString('keyPetImagePathByAssets', '');
     }
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -1026,14 +1016,14 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
                                                           message: '選擇日期',
                                                           child: TextButton(
                                                             onPressed: () {
-                                                              DatePicker
+                                                              dateTimePicker.DatePicker
                                                                   .showDatePicker(
                                                                 context,
                                                                 currentTime:
                                                                     DateTime
                                                                         .now(),
                                                                 locale:
-                                                                    LocaleType
+                                                                dateTimePicker.LocaleType
                                                                         .tw,
                                                                 showTitleActions:
                                                                     true,

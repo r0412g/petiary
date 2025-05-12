@@ -1,5 +1,4 @@
 import 'package:flex_color_picker/flex_color_picker.dart';
-import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -7,6 +6,7 @@ import 'package:pet_diary/common/theme.dart';
 import 'package:pet_diary/database/event_db.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
+import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart' as dateTimePicker;
 
 class CalendarPage extends StatefulWidget {
   CalendarPage({Key? key}) : super(key: key);
@@ -187,10 +187,10 @@ class _CalendarPageState extends State<CalendarPage> {
                                   message: '選擇開始時間',
                                   child: TextButton(
                                     onPressed: () {
-                                      DatePicker.showDateTimePicker(
+                                      dateTimePicker.DatePicker.showDateTimePicker(
                                         context,
                                         currentTime: DateTime.now(),
-                                        locale: LocaleType.tw,
+                                        locale: dateTimePicker.LocaleType.tw,
                                         showTitleActions: true,
                                         onConfirm: (date) {
                                           setState(() {
@@ -213,10 +213,10 @@ class _CalendarPageState extends State<CalendarPage> {
                                   message: '選擇開始日期',
                                   child: TextButton(
                                     onPressed: () {
-                                      DatePicker.showDatePicker(
+                                      dateTimePicker.DatePicker.showDatePicker(
                                         context,
                                         currentTime: DateTime.now(),
-                                        locale: LocaleType.tw,
+                                        locale: dateTimePicker.LocaleType.tw,
                                         showTitleActions: true,
                                         minTime: DateTime(1971, 1, 1),
                                         maxTime: DateTime(2030, 12, 31),
@@ -257,10 +257,10 @@ class _CalendarPageState extends State<CalendarPage> {
                                   message: '選擇結束時間',
                                   child: TextButton(
                                       onPressed: () {
-                                        DatePicker.showDateTimePicker(
+                                        dateTimePicker.DatePicker.showDateTimePicker(
                                           context,
                                           currentTime: DateTime.now(),
-                                          locale: LocaleType.tw,
+                                          locale: dateTimePicker.LocaleType.tw,
                                           showTitleActions: true,
                                           onConfirm: (date) {
                                             setState(() {
@@ -279,10 +279,10 @@ class _CalendarPageState extends State<CalendarPage> {
                                   message: '選擇結束日期',
                                   child: TextButton(
                                       onPressed: () {
-                                        DatePicker.showDatePicker(
+                                        dateTimePicker.DatePicker.showDatePicker(
                                           context,
                                           currentTime: DateTime.now(),
-                                          locale: LocaleType.tw,
+                                          locale: dateTimePicker.LocaleType.tw,
                                           showTitleActions: true,
                                           minTime: DateTime(1971, 1, 1),
                                           maxTime: DateTime(2030, 12, 31),
@@ -704,10 +704,10 @@ class _CalendarPageState extends State<CalendarPage> {
                                   message: '選擇開始時間',
                                   child: TextButton(
                                       onPressed: () {
-                                        DatePicker.showDateTimePicker(
+                                        dateTimePicker.DatePicker.showDateTimePicker(
                                           context,
                                           currentTime: DateTime.now(),
-                                          locale: LocaleType.tw,
+                                          locale: dateTimePicker.LocaleType.tw,
                                           showTitleActions: true,
                                           onConfirm: (date) {
                                             setState(() {
@@ -730,10 +730,10 @@ class _CalendarPageState extends State<CalendarPage> {
                                   message: '選擇開始日期',
                                   child: TextButton(
                                     onPressed: () {
-                                      DatePicker.showDatePicker(
+                                      dateTimePicker.DatePicker.showDatePicker(
                                         context,
                                         currentTime: DateTime.now(),
-                                        locale: LocaleType.tw,
+                                        locale: dateTimePicker.LocaleType.tw,
                                         showTitleActions: true,
                                         minTime: DateTime(1971, 1, 1),
                                         maxTime: DateTime(2030, 12, 31),
@@ -774,10 +774,10 @@ class _CalendarPageState extends State<CalendarPage> {
                                   message: '選擇結束時間',
                                   child: TextButton(
                                       onPressed: () {
-                                        DatePicker.showDateTimePicker(
+                                        dateTimePicker.DatePicker.showDateTimePicker(
                                           context,
                                           currentTime: DateTime.now(),
-                                          locale: LocaleType.tw,
+                                          locale: dateTimePicker.LocaleType.tw,
                                           showTitleActions: true,
                                           onConfirm: (date) {
                                             setState(() {
@@ -796,10 +796,10 @@ class _CalendarPageState extends State<CalendarPage> {
                                   message: '選擇結束日期',
                                   child: TextButton(
                                       onPressed: () {
-                                        DatePicker.showDatePicker(
+                                        dateTimePicker.DatePicker.showDatePicker(
                                           context,
                                           currentTime: DateTime.now(),
-                                          locale: LocaleType.tw,
+                                          locale: dateTimePicker.LocaleType.tw,
                                           showTitleActions: true,
                                           minTime: DateTime(1971, 1, 1),
                                           maxTime: DateTime(2030, 12, 31),
@@ -848,7 +848,10 @@ class _CalendarPageState extends State<CalendarPage> {
                 ),
                 actions: <Widget>[
                   TextButton(
-                    onPressed: () => Navigator.pop(context, 'Cancel'),
+                    onPressed: () {
+                      Navigator.pop(context, 'Cancel');
+                      Navigator.pop(context, 'Cancel');
+                    },
                     child: const Text(
                       '取消',
                       style: const TextStyle(

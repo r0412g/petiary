@@ -1,4 +1,3 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pet_diary/common/background_painter.dart';
 import 'package:pet_diary/common/theme.dart';
@@ -29,12 +28,10 @@ class _ContactDeveloperPageState extends State<ContactDeveloperPage> {
   }
 
   Future<void> _launchInBrowser(String url) async {
-    if (await canLaunch(url)) {
-      await launch(
-        url,
-        forceSafariVC: false,
-        forceWebView: false,
-        headers: <String, String>{'my_header_key': 'my_header_value'},
+    if (await canLaunchUrl(Uri.parse(url))) {
+      await launchUrl(
+        Uri.parse(url),
+        // headers: <String, String>{'my_header_key': 'my_header_value'},
       );
     } else {
       throw 'Could not launch $url';

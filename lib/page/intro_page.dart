@@ -1,7 +1,5 @@
 import 'dart:core';
 import 'dart:io';
-import 'package:flutter/cupertino.dart';
-import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -13,6 +11,7 @@ import 'package:pet_diary/common/theme.dart';
 import 'package:pet_diary/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toggle_switch/toggle_switch.dart';
+import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart' as dateTimePicker;
 
 class IntroPage extends StatefulWidget {
   _IntroPageState createState() => _IntroPageState();
@@ -111,44 +110,34 @@ class _IntroPageState extends State<IntroPage> {
   /* Crop Pet Image By User Selected */
   Future<Null> _cropImage() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
-    File? croppedFile = await ImageCropper.cropImage(
+    CroppedFile? croppedFile = await ImageCropper().cropImage(
       sourcePath: introPageImageByFile.path,
-      aspectRatioPresets: [
-        CropAspectRatioPreset.square,
+      uiSettings: [
+        AndroidUiSettings(
+          activeControlsWidgetColor: ColorSet.primaryColorsGreenOfOpacity80,
+          backgroundColor: ColorSet.colorsBlackOfOpacity80,
+          cropFrameStrokeWidth: 5,
+          cropGridStrokeWidth: 5,
+          cropFrameColor: ColorSet.colorsBlackOfOpacity80,
+          dimmedLayerColor: ColorSet.colorsWhiteGrayOfOpacity80,
+          initAspectRatio: CropAspectRatioPreset.square,
+          lockAspectRatio: false,
+          toolbarTitle: '剪裁相片',
+          toolbarColor: ColorSet.colorsBlackOfOpacity80,
+          toolbarWidgetColor: ColorSet.colorsWhite,
+          showCropGrid: false,
+        ),
       ],
-      androidUiSettings: const AndroidUiSettings(
-        activeControlsWidgetColor: ColorSet.primaryColorsGreenOfOpacity80,
-        backgroundColor: ColorSet.colorsBlackOfOpacity80,
-        cropFrameStrokeWidth: 5,
-        cropGridStrokeWidth: 5,
-        cropFrameColor: ColorSet.colorsBlackOfOpacity80,
-        dimmedLayerColor: ColorSet.colorsWhiteGrayOfOpacity80,
-        initAspectRatio: CropAspectRatioPreset.square,
-        lockAspectRatio: false,
-        toolbarTitle: '剪裁相片',
-        toolbarColor: ColorSet.colorsBlackOfOpacity80,
-        toolbarWidgetColor: ColorSet.colorsWhite,
-        showCropGrid: false,
-      ),
+
     );
 
     // Image cropped
-    if (croppedFile != null) {
-      setState(() {
-        introPageImageByFile = croppedFile;
-      });
-      introPageImagePathByAssets = '';
-      prefs.setString('keyPetImagePathByAssets', '');
-    } else {
-      Fluttertoast.showToast(
-          msg: "您沒有剪裁相片",
-          toastLength: Toast.LENGTH_SHORT,
-          gravity: ToastGravity.BOTTOM,
-          backgroundColor: ColorSet.colorsWhite,
-          textColor: ColorSet.colorsBlackOfOpacity80,
-          fontSize: 16.0);
+    setState(() {
+      introPageImageByFile = croppedFile;
+    });
+    introPageImagePathByAssets = '';
+    prefs.setString('keyPetImagePathByAssets', '');
     }
-  }
 
   /* Save info when end intro page */
   _onIntroEnd(context) async {
@@ -862,10 +851,10 @@ class _IntroPageState extends State<IntroPage> {
                                 message: '選擇日期',
                                 child: TextButton(
                                   onPressed: () {
-                                    DatePicker.showDatePicker(
+                                    dateTimePicker.DatePicker.showDatePicker(
                                       context,
                                       currentTime: DateTime.now(),
-                                      locale: LocaleType.tw,
+                                      locale: dateTimePicker.LocaleType.tw,
                                       minTime: DateTime(1971, 1, 1),
                                       maxTime: DateTime(2030, 12, 31),
                                       onConfirm: (date) {
@@ -973,8 +962,7 @@ class _IntroPageState extends State<IntroPage> {
           ),
         ),
       ],
-      isTopSafeArea: true,
-      isBottomSafeArea: true,
+      safeAreaList: [false, false, true, true],
 
       /* Skip Button */
       skip: const Tooltip(
@@ -985,7 +973,7 @@ class _IntroPageState extends State<IntroPage> {
         ),
       ),
       showSkipButton: true,
-      skipFlex: 1,
+      skipOrBackFlex: 1,
 
       /* Next Button */
       next: Container(
@@ -1022,7 +1010,8 @@ class _IntroPageState extends State<IntroPage> {
 
       /* controls/dots */
       controlsMargin: const EdgeInsets.fromLTRB(10.0, 10.0, 35.0, 10.0),
-      color: ColorSet.colorsBlackOfOpacity80,
+      // TODO: 這一行顏色被註解，因為這個方法不適用了，要看一下是哪裡改到怎麼加回來
+      // color: ColorSet.colorsBlackOfOpacity80,
       dotsDecorator: const DotsDecorator(
         size: const Size(10.0, 10.0),
         color: ColorSet.colorsWhiteGrayOfOpacity80,
