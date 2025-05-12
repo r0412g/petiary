@@ -3,7 +3,6 @@ import 'package:pet_diary/common/theme.dart';
 import 'package:pet_diary/page/contact_developer_page.dart';
 import 'package:pet_diary/page/setting_calendar_page.dart';
 import 'package:pet_diary/page/setting_my_pet_page.dart';
-import 'package:pet_diary/page/setting_sign_in_page.dart';
 
 class SettingPage extends StatefulWidget {
   _SettingPageState createState() => _SettingPageState();
@@ -133,6 +132,10 @@ class _SettingPageState extends State<SettingPage> {
                           const SizedBox(
                             height: 25.0,
                           ),
+
+                          // DEFER: 等新增Google帳號綁定再加回來
+                          /*
+
                           Container(
                             padding: const EdgeInsets.only(left: 10.0),
                             width: 300.0,
@@ -171,6 +174,10 @@ class _SettingPageState extends State<SettingPage> {
                           const SizedBox(
                             height: 25.0,
                           ),
+
+                           */
+
+
                           Container(
                             padding: const EdgeInsets.only(left: 10.0),
                             width: 300.0,

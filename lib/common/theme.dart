@@ -2,16 +2,16 @@ import 'package:flutter/material.dart';
 
 class ColorSet {
   static const primaryColorsGreenOfOpacity80 =
-      Color.fromRGBO(145, 200, 146, 80.0); // Color(0xFF91C892);
+      Color.fromRGBO(145, 200, 146, 0.8); // Color(0xFF91C892);
   static const colorsWhiteGrayOfOpacity80 =
-      Color.fromRGBO(226, 226, 226, 80.0); // Color(0xFFE2E2E2);
+      Color.fromRGBO(226, 226, 226, 0.8); // Color(0xFFE2E2E2);
   static const colorsDarkBlueGreenOfOpacity80 =
-      Color.fromRGBO(85, 116, 121, 80.0); // Color(0xFF557479);
+      Color.fromRGBO(85, 116, 121, 0.8); // Color(0xFF557479);
   static const colorsGrayOfOpacity80 =
-      Color.fromRGBO(186, 186, 186, 80.0); // Color(0xFFBABABA);
+      Color.fromRGBO(186, 186, 186, 0.8); // Color(0xFFBABABA);
   static const colorsDarkGreen =
-      Color.fromRGBO(63, 78, 64, 100.0); // Color(0xFF3F4E40);
-  static const colorsBlackOfOpacity80 = Color.fromRGBO(0, 0, 0, 80.0);
+      Color.fromRGBO(63, 78, 64, 1.0); // Color(0xFF3F4E40);
+  static const colorsBlackOfOpacity80 = Color.fromRGBO(0, 0, 0, 0.8);
   static const colorsWhite = Colors.white;
   static const colorsBlack = Colors.black;
 }

@@ -1,4 +1,3 @@
-import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:pet_diary/common/theme.dart';
@@ -6,10 +5,9 @@ import 'package:pet_diary/page/calendar_page.dart';
 import 'package:pet_diary/page/home_page.dart';
 import 'package:pet_diary/page/hospital_page.dart';
 import 'package:pet_diary/page/setting_page.dart';
-import 'package:pet_diary/page/splash_page.dart';
 import 'common/background_painter.dart';
 
-void main() {
+Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(MainClass());
 }
@@ -35,7 +33,7 @@ class MainClass extends StatelessWidget {
       title: '寵物日記 Petiary', // 開啟所有app管理時會看到
       theme: appTheme,
       debugShowCheckedModeBanner: false, // 去除Debug標誌
-      home: SplashPage(),
+      home: MyHomePage(),
     );
   }
 }
@@ -47,60 +45,28 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   int _selectedIndex = 1;
-  final pages = [CalendarPage(), HomePage(), HospitalPage(), SettingPage()];
-
-  // Set default `_initialized` and `_error` state to false
-  bool _initialized = false;
-  bool _error = false;
+  final pages = [
+    CalendarPage(),
+    HomePage(),
+    HospitalPage(),
+    SettingPage(),
+  ];
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-  }
-
-  // Define an async function to initialize FlutterFire
-  void initializeFlutterFire() async {
-    try {
-      // Wait for Firebase to initialize and set `_initialized` state to true
-      await Firebase.initializeApp();
-      setState(() {
-        _initialized = true;
-      });
-    } catch (e) {
-      // Set `_error` state to true if Firebase initialization fails
-      setState(() {
-        _error = true;
-      });
-    }
+    setState(
+      () {
+        _selectedIndex = index;
+      },
+    );
   }
 
   @override
   void initState() {
-    initializeFlutterFire();
     super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    // Show error message if initialization failed
-    if (_error) {
-      return Scaffold(
-        body: Center(
-          child: Text("ERROR"),
-        ),
-      );
-    }
-
-    // Show a loader until FlutterFire is initialized
-    if (!_initialized) {
-      return Scaffold(
-        body: Center(
-          child: Text("Loading"),
-        ),
-      );
-    }
-
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: Stack(
