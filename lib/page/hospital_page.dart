@@ -1,11 +1,10 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_datetime_picker/flutter_datetime_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:pet_diary/common/data.dart';
 import 'package:pet_diary/common/theme.dart';
 import 'package:pet_diary/database/medical_db.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart' as dateTimePicker;
 
 class HospitalPage extends StatefulWidget {
   HospitalPage({Key? key}) : super(key: key);
@@ -119,10 +118,10 @@ class _HospitalPageState extends State<HospitalPage> {
                             message: '選擇就診日期',
                             child: TextButton(
                               onPressed: () {
-                                DatePicker.showDatePicker(
+                                dateTimePicker.DatePicker.showDatePicker(
                                   context,
                                   currentTime: DateTime.now(),
-                                  locale: LocaleType.tw,
+                                  locale: dateTimePicker.LocaleType.tw,
                                   showTitleActions: true,
                                   onConfirm: (date) {
                                     _setState(() {
@@ -542,10 +541,10 @@ class _HospitalPageState extends State<HospitalPage> {
                             message: '更改就醫日期',
                             child: TextButton(
                               onPressed: () {
-                                DatePicker.showDatePicker(
+                                dateTimePicker.DatePicker.showDatePicker(
                                   context,
                                   currentTime: DateTime.now(),
-                                  locale: LocaleType.tw,
+                                  locale: dateTimePicker.LocaleType.tw,
                                   showTitleActions: true,
                                   onConfirm: (date) {
                                     _setState(() {
@@ -672,7 +671,10 @@ class _HospitalPageState extends State<HospitalPage> {
               ),
               actions: <Widget>[
                 TextButton(
-                  onPressed: () => Navigator.pop(context, 'Cancel'),
+                  onPressed: () {
+                    Navigator.pop(context, 'Cancel');
+                    Navigator.pop(context, 'Cancel');
+                  },
                   child: const Text(
                     '取消',
                     style: const TextStyle(

@@ -1,9 +1,9 @@
-import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:pet_diary/common/theme.dart';
 import 'package:pet_diary/page/contact_developer_page.dart';
 import 'package:pet_diary/page/setting_calendar_page.dart';
 import 'package:pet_diary/page/setting_my_pet_page.dart';
+import 'package:pet_diary/page/setting_sign_in_page.dart';
 
 class SettingPage extends StatefulWidget {
   _SettingPageState createState() => _SettingPageState();
@@ -129,7 +129,46 @@ class _SettingPageState extends State<SettingPage> {
                                 ),
                               ),
                             ),
-                          ),const SizedBox(
+                          ),
+                          const SizedBox(
+                            height: 25.0,
+                          ),
+                          Container(
+                            padding: const EdgeInsets.only(left: 10.0),
+                            width: 300.0,
+                            height: 45.0,
+                            decoration: BoxDecoration(
+                              shape: BoxShape.rectangle,
+                              borderRadius: ForAllTheme.allRadius,
+                              color: ColorSet.colorsWhiteGrayOfOpacity80,
+                            ),
+                            child: SizedBox.expand(
+                              child: Tooltip(
+                                message: '連結帳戶',
+                                child: TextButton(
+                                  onPressed: () {
+                                    Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                            builder: (context) =>
+                                                SettingSignInPage()));
+                                  },
+                                  child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: const Text(
+                                      '連結帳戶',
+                                      style: const TextStyle(
+                                          color:
+                                          ColorSet.colorsBlackOfOpacity80,
+                                          fontSize: 16.0,
+                                          letterSpacing: 1.0),
+                                    ),
+                                  ),
+                                ),
+                              ),
+                            ),
+                          ),
+                          const SizedBox(
                             height: 25.0,
                           ),
                           Container(
@@ -158,7 +197,7 @@ class _SettingPageState extends State<SettingPage> {
                                       '聯絡開發人員',
                                       style: const TextStyle(
                                           color:
-                                          ColorSet.colorsBlackOfOpacity80,
+                                              ColorSet.colorsBlackOfOpacity80,
                                           fontSize: 16.0,
                                           letterSpacing: 1.0),
                                     ),

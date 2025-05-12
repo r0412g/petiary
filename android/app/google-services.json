@@ -14,6 +14,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "821817646082-qmkfvqu844r869tq8l36alk5k3aaobrp.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.yu.pet_diary",
+            "certificate_hash": "1d49e0b00759edeea5a1aa3fd3771956655ff098"
+          }
+        },
+        {
           "client_id": "821817646082-k6v6s1s141so36reu00v0kvqonuli22g.apps.googleusercontent.com",
           "client_type": 3
         }
