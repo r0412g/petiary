@@ -11,7 +11,8 @@ import 'package:pet_diary/common/theme.dart';
 import 'package:pet_diary/main.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toggle_switch/toggle_switch.dart';
-import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart' as dateTimePicker;
+import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart'
+    as dateTimePicker;
 
 class IntroPage extends StatefulWidget {
   _IntroPageState createState() => _IntroPageState();
@@ -128,7 +129,6 @@ class _IntroPageState extends State<IntroPage> {
           showCropGrid: false,
         ),
       ],
-
     );
 
     // Image cropped
@@ -137,7 +137,7 @@ class _IntroPageState extends State<IntroPage> {
     });
     introPageImagePathByAssets = '';
     prefs.setString('keyPetImagePathByAssets', '');
-    }
+  }
 
   /* Save info when end intro page */
   _onIntroEnd(context) async {
@@ -969,7 +969,10 @@ class _IntroPageState extends State<IntroPage> {
         message: '跳過初始設定',
         child: const Text(
           '略過',
-          style: const TextStyle(fontWeight: FontWeight.bold),
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            color: ColorSet.colorsBlackOfOpacity80,
+          ),
         ),
       ),
       showSkipButton: true,

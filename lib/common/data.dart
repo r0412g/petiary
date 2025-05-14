@@ -1,7 +1,7 @@
 class AllDataModel {
   static String? petType;
   static String? petBreeds;
-  static bool? checkFirstSeen;
+  static bool checkFirstSeen = false;
 
   static List<String> defaultBreeds = [];
   static List<String> dogBreeds = [

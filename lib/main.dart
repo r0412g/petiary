@@ -1,14 +1,19 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:pet_diary/common/theme.dart';
+import 'package:pet_diary/common/data.dart';
 import 'package:pet_diary/page/calendar_page.dart';
 import 'package:pet_diary/page/home_page.dart';
 import 'package:pet_diary/page/hospital_page.dart';
+import 'package:pet_diary/page/intro_page.dart';
 import 'package:pet_diary/page/setting_page.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'common/background_painter.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  SharedPreferences prefs = await SharedPreferences.getInstance();
+  AllDataModel.checkFirstSeen = prefs.getBool('keyChecked') ?? false;
   runApp(MainClass());
 }
 
@@ -33,7 +38,7 @@ class MainClass extends StatelessWidget {
       title: '寵物日記 Petiary', // 開啟所有app管理時會看到
       theme: appTheme,
       debugShowCheckedModeBanner: false, // 去除Debug標誌
-      home: MyHomePage(),
+      home: AllDataModel.checkFirstSeen ? MyHomePage() : IntroPage(),
     );
   }
 }
