@@ -22,9 +22,11 @@ class MainClass extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      // TODO: 20250514 add i18n https://docs.flutter.dev/ui/accessibility-and-internationalization/internationalization
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,
+        GlobalCupertinoLocalizations.delegate,
       ],
       supportedLocales: const [
         const Locale.fromSubtags(
