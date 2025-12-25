@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:pet_diary/common/theme.dart';
-import 'package:pet_diary/page/contact_developer_page.dart';
+// import 'package:pet_diary/page/contact_developer_page.dart';
 import 'package:pet_diary/page/setting_calendar_page.dart';
 import 'package:pet_diary/page/setting_my_pet_page.dart';
 
@@ -177,7 +177,7 @@ class _SettingPageState extends State<SettingPage> {
 
                            */
 
-                          // DEFER: 等新增Google帳號綁定再加回來
+                          // DEFER: 暫時隱藏相關資訊
                           /*
 
                           Container(

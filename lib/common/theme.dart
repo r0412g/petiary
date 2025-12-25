@@ -53,12 +53,12 @@ class ForAllTheme {
 
 final appTheme = ThemeData(
   // Card
-  cardTheme: CardTheme(
+  cardTheme: CardThemeData(
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
   ),
 
   // Dialog
-  dialogTheme: DialogTheme(
+  dialogTheme: DialogThemeData(
     backgroundColor: ColorSet.colorsWhite,
     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10.0)),
   ),
