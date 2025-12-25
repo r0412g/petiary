@@ -177,6 +177,8 @@ class _SettingPageState extends State<SettingPage> {
 
                            */
 
+                          // DEFER: 等新增Google帳號綁定再加回來
+                          /*
 
                           Container(
                             padding: const EdgeInsets.only(left: 10.0),
@@ -213,6 +215,8 @@ class _SettingPageState extends State<SettingPage> {
                               ),
                             ),
                           ),
+
+                          */
                         ],
                       ),
                     ),
