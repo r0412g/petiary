@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:pet_diary/common/theme.dart';
 import 'package:pet_diary/common/data.dart';
-import 'package:pet_diary/page/calendar_page.dart';
+// import 'package:pet_diary/page/calendar_page.dart';
 import 'package:pet_diary/page/home_page.dart';
 import 'package:pet_diary/page/hospital_page.dart';
 import 'package:pet_diary/page/intro_page.dart';
@@ -51,9 +51,11 @@ class MyHomePage extends StatefulWidget {
 }
 
 class _MyHomePageState extends State<MyHomePage> {
-  int _selectedIndex = 1;
+  // DEFER: 20251226 Init page change to 0(Homepage)
+  int _selectedIndex = 0;
   final pages = [
-    CalendarPage(),
+    // DEFER: 20251226 Need to fix database issue
+    // CalendarPage(),
     HomePage(),
     HospitalPage(),
     SettingPage(),
@@ -117,6 +119,8 @@ class _MyHomePageState extends State<MyHomePage> {
         /* Item setting */
         onTap: _onItemTapped,
         items: <BottomNavigationBarItem>[
+          // DEFER: 20251226 Need to fix database issue
+          /*
           const BottomNavigationBarItem(
             tooltip: '選擇行事曆頁面',
             icon: const Icon(
@@ -127,6 +131,7 @@ class _MyHomePageState extends State<MyHomePage> {
             ),
             label: '行事曆',
           ),
+          */
           const BottomNavigationBarItem(
             tooltip: '選擇主頁',
             icon: const Icon(

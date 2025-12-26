@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:pet_diary/common/theme.dart';
 // import 'package:pet_diary/page/contact_developer_page.dart';
-import 'package:pet_diary/page/setting_calendar_page.dart';
+// import 'package:pet_diary/page/setting_calendar_page.dart';
 import 'package:pet_diary/page/setting_my_pet_page.dart';
 
 class SettingPage extends StatefulWidget {
@@ -94,6 +94,9 @@ class _SettingPageState extends State<SettingPage> {
                           const SizedBox(
                             height: 25.0,
                           ),
+
+                          // DEFER: 20251226 Need to fix database issue
+                          /*
                           Container(
                             padding: const EdgeInsets.only(left: 10.0),
                             width: 300.0,
@@ -132,6 +135,8 @@ class _SettingPageState extends State<SettingPage> {
                           const SizedBox(
                             height: 25.0,
                           ),
+
+                           */
 
                           // DEFER: 等新增Google帳號綁定再加回來
                           /*
