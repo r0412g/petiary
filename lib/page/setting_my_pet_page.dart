@@ -366,7 +366,7 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
                                                   iconEnabledColor: ColorSet
                                                       .colorsDarkBlueGreenOfOpacity80,
                                                   isExpanded: true,
-                                                  value: AllDataModel.petType,
+                                                  initialValue: AllDataModel.petType,
                                                   onChanged: (value) {
                                                     setState(() {
                                                       AllDataModel.petType =
@@ -629,7 +629,7 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
                                                           .colorsBlackOfOpacity80,
                                                     ),
                                                   ),
-                                                  value: AllDataModel.petBreeds,
+                                                  initialValue: AllDataModel.petBreeds,
                                                   isExpanded: true,
                                                   onChanged: (String? value) {
                                                     setState(() {
@@ -959,7 +959,7 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
                                                         .colorsWhiteGrayOfOpacity80,
                                                     inactiveTrackColor:
                                                         ColorSet.colorsWhite,
-                                                    activeColor: ColorSet
+                                                    activeThumbColor: ColorSet
                                                         .colorsDarkBlueGreenOfOpacity80,
                                                     activeTrackColor:
                                                         ColorSet.colorsWhite,
@@ -1145,7 +1145,7 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
                                                       .colorsWhiteGrayOfOpacity80,
                                                   inactiveTrackColor:
                                                       ColorSet.colorsWhite,
-                                                  activeColor: ColorSet
+                                                  activeThumbColor: ColorSet
                                                       .colorsDarkBlueGreenOfOpacity80,
                                                   activeTrackColor:
                                                       ColorSet.colorsWhite,
