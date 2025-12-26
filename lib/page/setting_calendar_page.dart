@@ -241,7 +241,7 @@ class _SettingCalendarPageState extends State<SettingCalendarPage> {
                                                   .colorsWhiteGrayOfOpacity80,
                                               inactiveTrackColor:
                                                   ColorSet.colorsWhite,
-                                              activeColor: ColorSet
+                                              activeThumbColor: ColorSet
                                                   .colorsDarkBlueGreenOfOpacity80,
                                               activeTrackColor:
                                                   ColorSet.colorsWhite,
@@ -287,7 +287,7 @@ class _SettingCalendarPageState extends State<SettingCalendarPage> {
                                                   .colorsWhiteGrayOfOpacity80,
                                               inactiveTrackColor:
                                                   ColorSet.colorsWhite,
-                                              activeColor: ColorSet
+                                              activeThumbColor: ColorSet
                                                   .colorsDarkBlueGreenOfOpacity80,
                                               activeTrackColor:
                                                   ColorSet.colorsWhite,

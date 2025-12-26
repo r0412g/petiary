@@ -56,7 +56,6 @@ dependencies:
 
   # Others
   intl: ^0.20.2
-#  intl: 0.18.1
   shared_preferences: ^2.0.6
   url_launcher: ^6.0.10
 

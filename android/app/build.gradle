@@ -39,7 +39,7 @@ android {
     defaultConfig {
         applicationId "com.yu.pet_diary"
         minSdkVersion flutter.minSdkVersion
-        targetSdkVersion 34
+        targetSdkVersion 35
         versionCode flutterVersionCode.toInteger()
         versionName flutterVersionName
     }

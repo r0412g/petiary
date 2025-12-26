@@ -176,7 +176,7 @@ class _HospitalPageState extends State<HospitalPage> {
                                 ColorSet.colorsWhiteGrayOfOpacity80,
                             inactiveTrackColor:
                                 ColorSet.colorsWhiteGrayOfOpacity80,
-                            activeColor:
+                            activeThumbColor:
                                 ColorSet.colorsDarkBlueGreenOfOpacity80,
                             activeTrackColor:
                                 ColorSet.colorsWhiteGrayOfOpacity80,
@@ -599,7 +599,7 @@ class _HospitalPageState extends State<HospitalPage> {
                                 ColorSet.colorsWhiteGrayOfOpacity80,
                             inactiveTrackColor:
                                 ColorSet.colorsWhiteGrayOfOpacity80,
-                            activeColor:
+                            activeThumbColor:
                                 ColorSet.colorsDarkBlueGreenOfOpacity80,
                             activeTrackColor:
                                 ColorSet.colorsWhiteGrayOfOpacity80,

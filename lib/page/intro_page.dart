@@ -269,7 +269,7 @@ class _IntroPageState extends State<IntroPage> {
                           iconEnabledColor:
                               ColorSet.primaryColorsGreenOfOpacity80,
                           isExpanded: true,
-                          value: AllDataModel.petType,
+                          initialValue: AllDataModel.petType,
                           onChanged: (value) {
                             setState(() {
                               AllDataModel.petType = value;
@@ -473,7 +473,7 @@ class _IntroPageState extends State<IntroPage> {
                         hint: const Text(
                           "請選擇",
                         ),
-                        value: AllDataModel.petBreeds,
+                        initialValue: AllDataModel.petBreeds,
                         isExpanded: true,
                         onChanged: (String? value) {
                           setState(() {
@@ -802,7 +802,7 @@ class _IntroPageState extends State<IntroPage> {
                           inactiveThumbColor:
                               ColorSet.colorsWhiteGrayOfOpacity80,
                           inactiveTrackColor: ColorSet.colorsWhite,
-                          activeColor: ColorSet.colorsDarkBlueGreenOfOpacity80,
+                          activeThumbColor: ColorSet.colorsDarkBlueGreenOfOpacity80,
                           activeTrackColor: ColorSet.colorsWhite,
                           onChanged: (value) {
                             setState(() {
@@ -946,7 +946,7 @@ class _IntroPageState extends State<IntroPage> {
                         value: introPageIsNeutered,
                         inactiveThumbColor: ColorSet.colorsWhiteGrayOfOpacity80,
                         inactiveTrackColor: ColorSet.colorsWhite,
-                        activeColor: ColorSet.colorsDarkBlueGreenOfOpacity80,
+                        activeThumbColor: ColorSet.colorsDarkBlueGreenOfOpacity80,
                         activeTrackColor: ColorSet.colorsWhite,
                         onChanged: (value) {
                           setState(() {
