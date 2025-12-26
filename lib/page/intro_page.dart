@@ -263,6 +263,10 @@ class _IntroPageState extends State<IntroPage> {
                       child: ButtonTheme(
                         alignedDropdown: true,
                         child: DropdownButtonFormField<String>(
+                          padding: const EdgeInsets.only(
+                            left: 5.0,
+                          ),
+                          menuMaxHeight: 250.0,
                           decoration: InputDecoration.collapsed(hintText: ''),
                           icon: const Icon(Icons.keyboard_arrow_down_outlined),
                           iconSize: 30.0,
@@ -464,6 +468,10 @@ class _IntroPageState extends State<IntroPage> {
                     child: ButtonTheme(
                       alignedDropdown: true,
                       child: DropdownButtonFormField<String>(
+                        padding: const EdgeInsets.only(
+                          left: 5.0,
+                        ),
+                        menuMaxHeight: 250.0,
                         decoration: InputDecoration.collapsed(hintText: ''),
                         icon: const Icon(Icons.keyboard_arrow_down_outlined),
                         iconSize: 30.0,
@@ -802,7 +810,8 @@ class _IntroPageState extends State<IntroPage> {
                           inactiveThumbColor:
                               ColorSet.colorsWhiteGrayOfOpacity80,
                           inactiveTrackColor: ColorSet.colorsWhite,
-                          activeThumbColor: ColorSet.colorsDarkBlueGreenOfOpacity80,
+                          activeThumbColor:
+                              ColorSet.colorsDarkBlueGreenOfOpacity80,
                           activeTrackColor: ColorSet.colorsWhite,
                           onChanged: (value) {
                             setState(() {
@@ -946,7 +955,8 @@ class _IntroPageState extends State<IntroPage> {
                         value: introPageIsNeutered,
                         inactiveThumbColor: ColorSet.colorsWhiteGrayOfOpacity80,
                         inactiveTrackColor: ColorSet.colorsWhite,
-                        activeThumbColor: ColorSet.colorsDarkBlueGreenOfOpacity80,
+                        activeThumbColor:
+                            ColorSet.colorsDarkBlueGreenOfOpacity80,
                         activeTrackColor: ColorSet.colorsWhite,
                         onChanged: (value) {
                           setState(() {

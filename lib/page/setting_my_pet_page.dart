@@ -9,7 +9,8 @@ import 'package:pet_diary/common/data.dart';
 import 'package:pet_diary/common/theme.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toggle_switch/toggle_switch.dart';
-import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart' as dateTimePicker;
+import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart'
+    as dateTimePicker;
 
 class SettingMyPetPage extends StatefulWidget {
   SettingMyPetPage({Key? key}) : super(key: key);
@@ -218,7 +219,6 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
           showCropGrid: false,
         ),
       ],
-
     );
 
     // Image cropped
@@ -227,7 +227,7 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
     });
     settingPageImagePathByAssets = '';
     prefs.setString('keyPetImagePathByAssets', '');
-    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -357,6 +357,11 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
                                                 alignedDropdown: true,
                                                 child: DropdownButtonFormField<
                                                     String>(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                    left: 5.0,
+                                                  ),
+                                                  menuMaxHeight: 250.0,
                                                   decoration:
                                                       InputDecoration.collapsed(
                                                           hintText: ''),
@@ -366,7 +371,8 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
                                                   iconEnabledColor: ColorSet
                                                       .colorsDarkBlueGreenOfOpacity80,
                                                   isExpanded: true,
-                                                  initialValue: AllDataModel.petType,
+                                                  initialValue:
+                                                      AllDataModel.petType,
                                                   onChanged: (value) {
                                                     setState(() {
                                                       AllDataModel.petType =
@@ -441,8 +447,7 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
                                                                     crossAxisAlignment:
                                                                         CrossAxisAlignment
                                                                             .center,
-                                                                    children: <
-                                                                        Widget>[
+                                                                    children: <Widget>[
                                                                       const Text(
                                                                         '其他',
                                                                         style:
@@ -491,14 +496,12 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
                                                                     ],
                                                                   ),
                                                                 ),
-                                                                actions: <
-                                                                    Widget>[
+                                                                actions: <Widget>[
                                                                   Row(
                                                                       mainAxisAlignment:
                                                                           MainAxisAlignment
                                                                               .end,
-                                                                      children: <
-                                                                          Widget>[
+                                                                      children: <Widget>[
                                                                         TextButton(
                                                                           onPressed:
                                                                               () {
@@ -614,6 +617,11 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
                                                 alignedDropdown: true,
                                                 child: DropdownButtonFormField<
                                                     String>(
+                                                  padding:
+                                                      const EdgeInsets.only(
+                                                    left: 5.0,
+                                                  ),
+                                                  menuMaxHeight: 250.0,
                                                   decoration:
                                                       InputDecoration.collapsed(
                                                           hintText: ''),
@@ -629,7 +637,8 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
                                                           .colorsBlackOfOpacity80,
                                                     ),
                                                   ),
-                                                  initialValue: AllDataModel.petBreeds,
+                                                  initialValue:
+                                                      AllDataModel.petBreeds,
                                                   isExpanded: true,
                                                   onChanged: (String? value) {
                                                     setState(() {
@@ -656,8 +665,7 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
                                                                     crossAxisAlignment:
                                                                         CrossAxisAlignment
                                                                             .center,
-                                                                    children: <
-                                                                        Widget>[
+                                                                    children: <Widget>[
                                                                       const Text(
                                                                         '其他',
                                                                         style:
@@ -706,14 +714,12 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
                                                                     ],
                                                                   ),
                                                                 ),
-                                                                actions: <
-                                                                    Widget>[
+                                                                actions: <Widget>[
                                                                   Row(
                                                                       mainAxisAlignment:
                                                                           MainAxisAlignment
                                                                               .end,
-                                                                      children: <
-                                                                          Widget>[
+                                                                      children: <Widget>[
                                                                         TextButton(
                                                                           onPressed:
                                                                               () {
@@ -1016,14 +1022,16 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
                                                           message: '選擇日期',
                                                           child: TextButton(
                                                             onPressed: () {
-                                                              dateTimePicker.DatePicker
+                                                              dateTimePicker
+                                                                      .DatePicker
                                                                   .showDatePicker(
                                                                 context,
                                                                 currentTime:
                                                                     DateTime
                                                                         .now(),
                                                                 locale:
-                                                                dateTimePicker.LocaleType
+                                                                    dateTimePicker
+                                                                        .LocaleType
                                                                         .tw,
                                                                 showTitleActions:
                                                                     true,
