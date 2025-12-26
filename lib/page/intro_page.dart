@@ -4,7 +4,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:introduction_screen/introduction_screen.dart';
-import 'package:image_cropper/image_cropper.dart';
+// import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pet_diary/common/data.dart';
 import 'package:pet_diary/common/theme.dart';
@@ -96,7 +96,8 @@ class _IntroPageState extends State<IntroPage> {
     if (introPageImageByFile != null) {
       introPageImagePathByAssets = '';
       prefs.setString('keyPetImagePathByAssets', '');
-      _cropImage();
+      // DEFER: Need to fix toolbar problem
+      // _cropImage();
     } else {
       Fluttertoast.showToast(
           msg: "您沒有選擇相片",
@@ -108,6 +109,8 @@ class _IntroPageState extends State<IntroPage> {
     }
   }
 
+  // DEFER: Need to fix toolbar problem
+  /*
   /* Crop Pet Image By User Selected */
   Future<Null> _cropImage() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -138,6 +141,8 @@ class _IntroPageState extends State<IntroPage> {
     introPageImagePathByAssets = '';
     prefs.setString('keyPetImagePathByAssets', '');
   }
+
+   */
 
   /* Save info when end intro page */
   _onIntroEnd(context) async {
