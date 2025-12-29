@@ -15,7 +15,7 @@ publish_to: 'none' # Remove this line if you wish to publish to pub.dev
 # In iOS, build-name is used as CFBundleShortVersionString while build-number used as CFBundleVersion.
 # Read more about iOS versioning at
 # https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html
-version: 1.0.0+1
+version: 1.0.2+6
 
 environment:
   sdk: ">=2.12.0 <3.0.0"
@@ -23,25 +23,53 @@ environment:
 dependencies:
   flutter:
     sdk: flutter
+  flutter_localizations:
+    sdk: flutter
 
-  #firebase
-  firebase_core: ^1.2.0
-  firebase_auth: ^1.2.0
-  firebase_storage: ^8.1.0
+  # Firebase 20250512 暫時拿掉, 有需要再使用
+  # firebase_core: ^3.13.0
+  # firebase_auth: ^5.5.3
 
-  #
-  introduction_screen: ^2.1.0
+  # Google
+  google_sign_in: ^6.2.1
+  flutter_signin_button: ^2.0.0
+
+  # Icons
+  flutter_launcher_icons: ^0.14.3
+
+  # Pages
   animated_splash_screen: ^1.1.0
-  flutter_launcher_icons: ^0.9.0
-  shared_preferences: ^2.0.6
-  hexcolor: ^2.0.3
-  image_picker: ^0.8.0
+  introduction_screen: ^3.1.14
+  page_transition: ^2.0.1-nullsafety.0
 
+  # Widget
+  flex_color_picker: ^3.4.1
+  flutter_datetime_picker_plus: ^2.2.0
+  fluttertoast: ^8.0.7
+  image_cropper: ^9.1.0
+  image_picker: ^1.1.1
+  syncfusion_flutter_calendar: ^29.1.41
+  toggle_switch: ^2.3.0
+
+  # Database
+  sqflite: ^2.0.0+3
+
+  # Others
+  intl: ^0.20.2
+  shared_preferences: ^2.0.6
+  url_launcher: ^6.0.10
 
   # The following adds the Cupertino Icons font to your application.
   # Use with the CupertinoIcons class for iOS style icons.
   cupertino_icons: ^1.0.2
 
+  path: any
+  firebase_auth_web: any
+  firebase_core_web: any
+  google_sign_in_web: any
+  image_picker_for_web: any
+  shared_preferences_web: any
+  url_launcher_web: any
 dev_dependencies:
   flutter_test:
     sdk: flutter
@@ -49,15 +77,23 @@ dev_dependencies:
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
 
-flutter_icons:
+flutter_launcher_icons:
   android: true
   ios: true
-  image_path: "assets/icons/paw.jpg"
+  image_path: "assets/icons/icon.png"
+  adaptive_icon_background: "#91C892"
+  adaptive_icon_foreground: "assets/icons/icon.png"
 
 # The following section is specific to Flutter.
 flutter:
   assets:
-    - assets/
+    - assets/images/logo.png
+    - assets/images/default_image.png
+    - assets/images/default_cat.png
+    - assets/images/default_dog.png
+    - assets/images/default_rabbit.png
+    - assets/images/default_turtle.png
+    - assets/images/loading.png
   # The following line ensures that the Material Icons font is
   # included with your application, so that you can use the icons in
   # the material Icons class.
