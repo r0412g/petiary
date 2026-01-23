@@ -341,8 +341,10 @@ class _IntroPageState extends State<IntroPage> {
                                                   introPageTypeFocusNode
                                                       .unfocus();
                                                 },
+                                                maxLength: 15,
                                                 decoration:
                                                     const InputDecoration(
+                                                  counterText: '',
                                                   border: InputBorder.none,
                                                   hintText: '請自行輸入寵物類型',
                                                   hintStyle: const TextStyle(
@@ -511,7 +513,9 @@ class _IntroPageState extends State<IntroPage> {
                                               introPageBreedsFocusNode
                                                   .unfocus();
                                             },
+                                            maxLength: 15,
                                             decoration: const InputDecoration(
+                                              counterText: '',
                                               border: InputBorder.none,
                                               hintText: '請自行輸入寵物品種',
                                               hintStyle: const TextStyle(
@@ -679,7 +683,9 @@ class _IntroPageState extends State<IntroPage> {
                       onEditingComplete: () {
                         introPageNameFocusNode.unfocus();
                       },
+                      maxLength: 15,
                       decoration: const InputDecoration(
+                        counterText: '',
                         border: InputBorder.none,
                         prefixIcon: const Text(
                           '輸入寵物姓名',
