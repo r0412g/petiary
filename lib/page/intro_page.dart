@@ -868,7 +868,7 @@ class _IntroPageState extends State<IntroPage> {
                                         currentTime: DateTime.now(),
                                         locale: dateTimePicker.LocaleType.tw,
                                         minTime: DateTime(1971, 1, 1),
-                                        maxTime: DateTime(2030, 12, 31),
+                                        maxTime: DateTime.now(),
                                         onConfirm: (date) {
                                           introPageAge =
                                               DateTime.now().year - date.year;
