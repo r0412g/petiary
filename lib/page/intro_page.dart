@@ -1,5 +1,6 @@
 import 'dart:core';
 import 'dart:io';
+import 'package:flutter/services.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
@@ -901,14 +902,19 @@ class _IntroPageState extends State<IntroPage> {
                             textAlign: TextAlign.end,
                             textAlignVertical: TextAlignVertical.center,
                             keyboardType: TextInputType.number,
+                            inputFormatters: [
+                              FilteringTextInputFormatter.digitsOnly,
+                            ],
+                            maxLength: 3,
                             focusNode: introPageDateFocusNode,
                             cursorColor: ColorSet.colorsWhite,
                             controller: introPageAgeController,
                             onEditingComplete: () {
                               introPageDateFocusNode.unfocus();
                             },
-                            decoration: const InputDecoration(
+                            decoration: InputDecoration(
                               border: InputBorder.none,
+                              counterText: '',
                               prefixIcon: const Text(
                                 '輸入年齡',
                                 style: const TextStyle(
