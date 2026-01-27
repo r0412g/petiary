@@ -369,8 +369,9 @@ class _IntroPageState extends State<IntroPage> {
                                                   children: <Widget>[
                                                     TextButton(
                                                       onPressed: () {
-                                                        // If user doesn't input custom type, then set no content
-                                                        introPageType = '';
+                                                        setState(() {
+                                                          introPageType = '未設定';
+                                                        });
                                                         Navigator.pop(
                                                             context, 'Cancel');
                                                       },
@@ -561,7 +562,9 @@ class _IntroPageState extends State<IntroPage> {
                                               children: <Widget>[
                                                 TextButton(
                                                   onPressed: () {
-                                                    introPageBreeds = '';
+                                                    setState(() {
+                                                      introPageBreeds = '未設定';
+                                                    });
                                                     Navigator.pop(
                                                         context, 'Cancel');
                                                   },
