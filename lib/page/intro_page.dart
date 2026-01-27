@@ -358,63 +358,85 @@ class _IntroPageState extends State<IntroPage> {
                                           ),
                                         ),
                                         actions: <Widget>[
-                                          Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.end,
-                                              children: <Widget>[
-                                                TextButton(
-                                                  onPressed: () {
-                                                    // If user doesn't input custom type, then set no content
-                                                    introPageType = '';
-                                                    Navigator.pop(
-                                                        context, 'Cancel');
-                                                  },
-                                                  child: const Text(
-                                                    '取消',
-                                                    style: const TextStyle(
-                                                        color: ColorSet
-                                                            .colorsGrayOfOpacity80,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 13.0,
-                                                        letterSpacing: 2.0),
-                                                  ),
-                                                ),
-                                                Container(
-                                                  height: 34.0,
-                                                  width: 50.0,
-                                                  decoration: BoxDecoration(
-                                                    shape: BoxShape.rectangle,
-                                                    borderRadius:
-                                                        ForAllTheme.allRadius,
-                                                    color: ColorSet
-                                                        .primaryColorsGreenOfOpacity80,
-                                                  ),
-                                                  child: TextButton(
-                                                    onPressed: () {
-                                                      Navigator.pop(
-                                                          context, 'OK');
-                                                      setState(() {
-                                                        introPageType =
-                                                            introPageTypeController
-                                                                .text;
-                                                      });
-                                                    },
-                                                    child: const Text(
-                                                      '完成',
-                                                      textAlign:
-                                                          TextAlign.center,
-                                                      style: const TextStyle(
-                                                          color: ColorSet
-                                                              .colorsWhite,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                          fontSize: 13.0,
-                                                          letterSpacing: 2.0),
+                                          ValueListenableBuilder<
+                                                  TextEditingValue>(
+                                              valueListenable:
+                                                  introPageTypeController,
+                                              builder: (context, value, child) {
+                                                return Row(
+                                                  mainAxisAlignment:
+                                                      MainAxisAlignment.end,
+                                                  children: <Widget>[
+                                                    TextButton(
+                                                      onPressed: () {
+                                                        // If user doesn't input custom type, then set no content
+                                                        introPageType = '';
+                                                        Navigator.pop(
+                                                            context, 'Cancel');
+                                                      },
+                                                      child: const Text(
+                                                        '取消',
+                                                        style: const TextStyle(
+                                                            color: ColorSet
+                                                                .colorsGrayOfOpacity80,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            fontSize: 13.0,
+                                                            letterSpacing: 2.0),
+                                                      ),
                                                     ),
-                                                  ),
-                                                ),
-                                              ]),
+                                                    Container(
+                                                      height: 34.0,
+                                                      width: 50.0,
+                                                      decoration: BoxDecoration(
+                                                        shape:
+                                                            BoxShape.rectangle,
+                                                        borderRadius:
+                                                            ForAllTheme
+                                                                .allRadius,
+                                                        color: introPageTypeController
+                                                                .text.isEmpty
+                                                            ? ColorSet
+                                                                .colorsWhiteGrayOfOpacity80
+                                                            : ColorSet
+                                                                .primaryColorsGreenOfOpacity80,
+                                                      ),
+                                                      child: TextButton(
+                                                        onPressed:
+                                                            introPageTypeController
+                                                                    .text
+                                                                    .isEmpty
+                                                                ? null
+                                                                : () {
+                                                                    Navigator.pop(
+                                                                        context,
+                                                                        'OK');
+                                                                    setState(
+                                                                        () {
+                                                                      introPageType =
+                                                                          introPageTypeController
+                                                                              .text;
+                                                                    });
+                                                                  },
+                                                        child: const Text(
+                                                          '完成',
+                                                          textAlign:
+                                                              TextAlign.center,
+                                                          style: const TextStyle(
+                                                              color: ColorSet
+                                                                  .colorsWhite,
+                                                              fontWeight:
+                                                                  FontWeight
+                                                                      .bold,
+                                                              fontSize: 13.0,
+                                                              letterSpacing:
+                                                                  2.0),
+                                                        ),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                );
+                                              }),
                                         ],
                                       );
                                     });
@@ -529,59 +551,77 @@ class _IntroPageState extends State<IntroPage> {
                                       ),
                                     ),
                                     actions: <Widget>[
-                                      Row(
-                                          mainAxisAlignment:
-                                              MainAxisAlignment.end,
-                                          children: <Widget>[
-                                            TextButton(
-                                              onPressed: () {
-                                                introPageBreeds = '';
-                                                Navigator.pop(
-                                                    context, 'Cancel');
-                                              },
-                                              child: const Text(
-                                                '取消',
-                                                style: const TextStyle(
-                                                    color: ColorSet
-                                                        .colorsGrayOfOpacity80,
-                                                    fontWeight: FontWeight.bold,
-                                                    fontSize: 13.0,
-                                                    letterSpacing: 2.0),
-                                              ),
-                                            ),
-                                            Container(
-                                              height: 34.0,
-                                              width: 50.0,
-                                              decoration: BoxDecoration(
-                                                shape: BoxShape.rectangle,
-                                                borderRadius:
-                                                    ForAllTheme.allRadius,
-                                                color: ColorSet
-                                                    .primaryColorsGreenOfOpacity80,
-                                              ),
-                                              child: TextButton(
-                                                onPressed: () {
-                                                  Navigator.pop(context, 'OK');
-                                                  setState(() {
-                                                    introPageBreeds =
-                                                        introPageBreedsController
-                                                            .text;
-                                                  });
-                                                },
-                                                child: const Text(
-                                                  '完成',
-                                                  textAlign: TextAlign.center,
-                                                  style: const TextStyle(
-                                                      color:
-                                                          ColorSet.colorsWhite,
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                      fontSize: 13.0,
-                                                      letterSpacing: 2.0),
+                                      ValueListenableBuilder<TextEditingValue>(
+                                          valueListenable:
+                                              introPageBreedsController,
+                                          builder: (context, value, child) {
+                                            return Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.end,
+                                              children: <Widget>[
+                                                TextButton(
+                                                  onPressed: () {
+                                                    introPageBreeds = '';
+                                                    Navigator.pop(
+                                                        context, 'Cancel');
+                                                  },
+                                                  child: const Text(
+                                                    '取消',
+                                                    style: const TextStyle(
+                                                        color: ColorSet
+                                                            .colorsGrayOfOpacity80,
+                                                        fontWeight:
+                                                            FontWeight.bold,
+                                                        fontSize: 13.0,
+                                                        letterSpacing: 2.0),
+                                                  ),
                                                 ),
-                                              ),
-                                            ),
-                                          ]),
+                                                Container(
+                                                  height: 34.0,
+                                                  width: 50.0,
+                                                  decoration: BoxDecoration(
+                                                    shape: BoxShape.rectangle,
+                                                    borderRadius:
+                                                        ForAllTheme.allRadius,
+                                                    color: introPageBreedsController
+                                                            .text.isEmpty
+                                                        ? ColorSet
+                                                            .colorsWhiteGrayOfOpacity80
+                                                        : ColorSet
+                                                            .primaryColorsGreenOfOpacity80,
+                                                  ),
+                                                  child: TextButton(
+                                                    onPressed:
+                                                        introPageBreedsController
+                                                                .text.isEmpty
+                                                            ? null
+                                                            : () {
+                                                                Navigator.pop(
+                                                                    context,
+                                                                    'OK');
+                                                                setState(() {
+                                                                  introPageBreeds =
+                                                                      introPageBreedsController
+                                                                          .text;
+                                                                });
+                                                              },
+                                                    child: const Text(
+                                                      '完成',
+                                                      textAlign:
+                                                          TextAlign.center,
+                                                      style: const TextStyle(
+                                                          color: ColorSet
+                                                              .colorsWhite,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                          fontSize: 13.0,
+                                                          letterSpacing: 2.0),
+                                                    ),
+                                                  ),
+                                                ),
+                                              ],
+                                            );
+                                          }),
                                     ],
                                   );
                                 });
