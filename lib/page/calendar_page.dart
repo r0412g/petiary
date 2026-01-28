@@ -6,7 +6,8 @@ import 'package:pet_diary/common/theme.dart';
 import 'package:pet_diary/database/event_db.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:syncfusion_flutter_calendar/calendar.dart';
-import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart' as dateTimePicker;
+import 'package:flutter_datetime_picker_plus/flutter_datetime_picker_plus.dart'
+    as dateTimePicker;
 
 class CalendarPage extends StatefulWidget {
   CalendarPage({Key? key}) : super(key: key);
@@ -31,13 +32,6 @@ extension HexColor on Color {
     buffer.write(hexString.replaceFirst('#', ''));
     return Color(int.parse(buffer.toString(), radix: 16));
   }
-
-  // Color to String
-  String toHex({bool leadingHashSign = true}) => '${leadingHashSign ? '#' : ''}'
-      '${alpha.toRadixString(16).padLeft(2, '0')}'
-      '${red.toRadixString(16).padLeft(2, '0')}'
-      '${green.toRadixString(16).padLeft(2, '0')}'
-      '${blue.toRadixString(16).padLeft(2, '0')}';
 }
 
 class _CalendarPageState extends State<CalendarPage> {
@@ -187,7 +181,8 @@ class _CalendarPageState extends State<CalendarPage> {
                                   message: '選擇開始時間',
                                   child: TextButton(
                                     onPressed: () {
-                                      dateTimePicker.DatePicker.showDateTimePicker(
+                                      dateTimePicker.DatePicker
+                                          .showDateTimePicker(
                                         context,
                                         currentTime: DateTime.now(),
                                         locale: dateTimePicker.LocaleType.tw,
@@ -257,7 +252,8 @@ class _CalendarPageState extends State<CalendarPage> {
                                   message: '選擇結束時間',
                                   child: TextButton(
                                       onPressed: () {
-                                        dateTimePicker.DatePicker.showDateTimePicker(
+                                        dateTimePicker.DatePicker
+                                            .showDateTimePicker(
                                           context,
                                           currentTime: DateTime.now(),
                                           locale: dateTimePicker.LocaleType.tw,
@@ -279,7 +275,8 @@ class _CalendarPageState extends State<CalendarPage> {
                                   message: '選擇結束日期',
                                   child: TextButton(
                                       onPressed: () {
-                                        dateTimePicker.DatePicker.showDatePicker(
+                                        dateTimePicker.DatePicker
+                                            .showDatePicker(
                                           context,
                                           currentTime: DateTime.now(),
                                           locale: dateTimePicker.LocaleType.tw,
@@ -392,7 +389,7 @@ class _CalendarPageState extends State<CalendarPage> {
                                 endDate: formattedDateAndTime
                                     .format(endDateTime)
                                     .toString(),
-                                color: eventColor.toHex(),
+                                color: eventColor.toString(),
                                 isAllDay: isAllDay == false ? 0 : 1,
                               ),
                             );
@@ -704,7 +701,8 @@ class _CalendarPageState extends State<CalendarPage> {
                                   message: '選擇開始時間',
                                   child: TextButton(
                                       onPressed: () {
-                                        dateTimePicker.DatePicker.showDateTimePicker(
+                                        dateTimePicker.DatePicker
+                                            .showDateTimePicker(
                                           context,
                                           currentTime: DateTime.now(),
                                           locale: dateTimePicker.LocaleType.tw,
@@ -774,7 +772,8 @@ class _CalendarPageState extends State<CalendarPage> {
                                   message: '選擇結束時間',
                                   child: TextButton(
                                       onPressed: () {
-                                        dateTimePicker.DatePicker.showDateTimePicker(
+                                        dateTimePicker.DatePicker
+                                            .showDateTimePicker(
                                           context,
                                           currentTime: DateTime.now(),
                                           locale: dateTimePicker.LocaleType.tw,
@@ -796,7 +795,8 @@ class _CalendarPageState extends State<CalendarPage> {
                                   message: '選擇結束日期',
                                   child: TextButton(
                                       onPressed: () {
-                                        dateTimePicker.DatePicker.showDatePicker(
+                                        dateTimePicker.DatePicker
+                                            .showDatePicker(
                                           context,
                                           currentTime: DateTime.now(),
                                           locale: dateTimePicker.LocaleType.tw,
@@ -924,7 +924,7 @@ class _CalendarPageState extends State<CalendarPage> {
                               endDate: formattedDateAndTime
                                   .format(editEndDateTime)
                                   .toString(),
-                              color: editEventColor.toHex(),
+                              color: editEventColor.toString(),
                               isAllDay: editIsAllDay == false ? 0 : 1,
                             ));
 
