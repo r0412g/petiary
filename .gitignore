@@ -46,3 +46,12 @@ app.*.map.json
 /android/app/release
 /android/app/.cxx
 /devtools_options.yaml
+
+# Python
+.venv/
+__pycache__/
+
+# Test reports
+reports/
+allure-results/
+allure-report/
