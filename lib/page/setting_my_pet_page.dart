@@ -1,7 +1,7 @@
 import 'dart:io';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter/material.dart';
-// import 'package:image_cropper/image_cropper.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:intl/intl.dart';
 import 'package:pet_diary/common/background_painter.dart';
@@ -186,8 +186,7 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
     if (pickedImage != null) {
       settingPageImagePathByAssets = '';
       prefs.setString('keyPetImagePathByAssets', '');
-      // DEFER: Need to fix toolbar problem
-      // _cropImage();
+      _cropImage();
     } else {
       Fluttertoast.showToast(
           msg: "您沒有選擇相片",
@@ -199,8 +198,6 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
     }
   }
 
-  // DEFER: Need to fix toolbar problem
-  /*
   /* Crop Pet Image By User Selected */
   Future<Null> _cropImage() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -208,14 +205,14 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
       sourcePath: settingPageImageByFile.path,
       uiSettings: [
         AndroidUiSettings(
-          activeControlsWidgetColor: ColorSet.primaryColorsGreenOfOpacity80,
+          // activeControlsWidgetColor: ColorSet.primaryColorsGreenOfOpacity80,
           backgroundColor: ColorSet.colorsBlackOfOpacity80,
           cropFrameStrokeWidth: 5,
           cropGridStrokeWidth: 5,
           cropFrameColor: ColorSet.colorsBlackOfOpacity80,
           dimmedLayerColor: ColorSet.colorsWhiteGrayOfOpacity80,
+          hideBottomControls: true,
           initAspectRatio: CropAspectRatioPreset.square,
-          lockAspectRatio: false,
           toolbarTitle: '剪裁相片',
           toolbarColor: ColorSet.colorsBlackOfOpacity80,
           toolbarWidgetColor: ColorSet.colorsWhite,
@@ -231,8 +228,6 @@ class _SettingMyPetPageState extends State<SettingMyPetPage> {
     settingPageImagePathByAssets = '';
     prefs.setString('keyPetImagePathByAssets', '');
   }
-
-   */
 
   @override
   Widget build(BuildContext context) {
