@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - main
-      - chore/setting-app-distribution
   workflow_dispatch:
 
 jobs:
