@@ -67,15 +67,17 @@ jobs:
       - name: Run Appium Smoke Tests
         uses: ReactiveCircus/android-emulator-runner@v2
         with:
-          api-level: 30
+          api-level: 31
           target: google_apis
           arch: arm64-v8a
           profile: pixel
+          force-avd-creation: false
           disable-animations: true
           ram-size: 4096MB
-          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect
+          emulator-options: -no-snapshot-save -no-window
           script: |
-            adb devices
+            echo "Waiting for emulator to finish booting..."
+            adb wait-for-device
             appium --log appium.log &
             sleep 10
             pytest tests/ -m smoke --html=report.html --self-contained-html || true
