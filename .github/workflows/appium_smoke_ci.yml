@@ -39,7 +39,7 @@ jobs:
           GRADLE_OPTS: "-Dorg.gradle.jvmargs=-Xmx4096m -XX:MaxMetaspaceSize=1024m"
         run: |
           flutter pub get
-          flutter build apk --debug --target-platform android-x86-64
+          flutter build apk --debug
 
       - name: Set up Python
         uses: actions/setup-python@v5
