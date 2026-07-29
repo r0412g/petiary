@@ -1,6 +1,8 @@
 name: Appium Smoke UI Test
 
 on:
+  workflow_dispatch:
+
   pull_request:
     types: [opened, synchronize, reopened]
     branches:
@@ -12,6 +14,7 @@ jobs:
     name: Run Appium Smoke Tests
 
     if: >-
+      github.event_name == 'workflow_dispatch' ||
       (github.event.pull_request.head.ref == 'dev' && github.event.pull_request.base.ref == 'master') ||
       (github.event.pull_request.head.ref == 'test/setting-action-for-smoke-test' && github.event.pull_request.base.ref == 'qa')
 
@@ -64,11 +67,15 @@ jobs:
       - name: Run Appium Smoke Tests
         uses: ReactiveCircus/android-emulator-runner@v2
         with:
-          api-level: 31
+          api-level: 30
           target: google_apis
           arch: x86_64
-          profile: Pixel_6
+          profile: pixel
+          disable-animations: true
+          ram-size: 4096MB
+          emulator-options: -no-snapshot-save -no-window -gpu swiftshader_indirect
           script: |
+            adb devices
             appium --log appium.log &
             sleep 10
             pytest tests/ -m smoke --html=report.html --self-contained-html || true
