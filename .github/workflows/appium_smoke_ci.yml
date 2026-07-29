@@ -85,6 +85,7 @@ jobs:
             adb wait-for-device
             appium --log appium.log &
             sleep 10
+            cd automation
             pytest tests/ -m smoke --html=report.html --self-contained-html || true
 
       - name: Upload Test Report Artifact
