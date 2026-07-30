@@ -5,7 +5,7 @@ import 'package:fluttertoast/fluttertoast.dart';
 import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:introduction_screen/introduction_screen.dart';
-// import 'package:image_cropper/image_cropper.dart';
+import 'package:image_cropper/image_cropper.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:pet_diary/common/data.dart';
 import 'package:pet_diary/common/theme.dart';
@@ -97,8 +97,7 @@ class _IntroPageState extends State<IntroPage> {
     if (introPageImageByFile != null) {
       introPageImagePathByAssets = '';
       prefs.setString('keyPetImagePathByAssets', '');
-      // DEFER: Need to fix toolbar problem
-      // _cropImage();
+      _cropImage();
     } else {
       Fluttertoast.showToast(
           msg: "您沒有選擇相片",
@@ -110,8 +109,6 @@ class _IntroPageState extends State<IntroPage> {
     }
   }
 
-  // DEFER: Need to fix toolbar problem
-  /*
   /* Crop Pet Image By User Selected */
   Future<Null> _cropImage() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -119,14 +116,14 @@ class _IntroPageState extends State<IntroPage> {
       sourcePath: introPageImageByFile.path,
       uiSettings: [
         AndroidUiSettings(
-          activeControlsWidgetColor: ColorSet.primaryColorsGreenOfOpacity80,
+          // activeControlsWidgetColor: ColorSet.primaryColorsGreenOfOpacity80,
           backgroundColor: ColorSet.colorsBlackOfOpacity80,
           cropFrameStrokeWidth: 5,
           cropGridStrokeWidth: 5,
           cropFrameColor: ColorSet.colorsBlackOfOpacity80,
           dimmedLayerColor: ColorSet.colorsWhiteGrayOfOpacity80,
+          hideBottomControls: true,
           initAspectRatio: CropAspectRatioPreset.square,
-          lockAspectRatio: false,
           toolbarTitle: '剪裁相片',
           toolbarColor: ColorSet.colorsBlackOfOpacity80,
           toolbarWidgetColor: ColorSet.colorsWhite,
@@ -142,8 +139,6 @@ class _IntroPageState extends State<IntroPage> {
     introPageImagePathByAssets = '';
     prefs.setString('keyPetImagePathByAssets', '');
   }
-
-   */
 
   /* Save info when end intro page */
   _onIntroEnd(context) async {
@@ -270,6 +265,7 @@ class _IntroPageState extends State<IntroPage> {
                         alignedDropdown: true,
                         child: Semantics(
                           label: 'intro_dropdown_type',
+                          excludeSemantics: true,
                           child: DropdownButtonFormField<String>(
                             padding: const EdgeInsets.only(
                               left: 5.0,
@@ -448,7 +444,8 @@ class _IntroPageState extends State<IntroPage> {
                               return DropdownMenuItem<String>(
                                 value: entry.key,
                                 child: Semantics(
-                                  label: 'intro_type_${entry.value}',
+                                  label: 'intro_type_${entry.key}',
+                                  excludeSemantics: true,
                                   child: Text(entry.value),
                                 ),
                               );
@@ -476,172 +473,185 @@ class _IntroPageState extends State<IntroPage> {
                   child: DropdownButtonHideUnderline(
                     child: ButtonTheme(
                       alignedDropdown: true,
-                      child: DropdownButtonFormField<String>(
-                        padding: const EdgeInsets.only(
-                          left: 5.0,
-                        ),
-                        menuMaxHeight: 250.0,
-                        decoration: InputDecoration.collapsed(hintText: ''),
-                        icon: const Icon(Icons.keyboard_arrow_down_outlined),
-                        iconSize: 30.0,
-                        iconEnabledColor:
-                            ColorSet.primaryColorsGreenOfOpacity80,
-                        iconDisabledColor: ColorSet.colorsWhiteGrayOfOpacity80,
-                        hint: const Text(
-                          "請選擇",
-                        ),
-                        initialValue: AllDataModel.selectedPetBreedsKey,
-                        isExpanded: true,
-                        onChanged: (value) {
-                          setState(() {
-                            AllDataModel.selectedPetBreedsKey = value;
-                            introPageBreeds = value.toString();
-                          });
+                      child: Semantics(
+                        label: 'intro_dropdown_breed',
+                        excludeSemantics: true,
+                        child: DropdownButtonFormField<String>(
+                          padding: const EdgeInsets.only(
+                            left: 5.0,
+                          ),
+                          menuMaxHeight: 250.0,
+                          decoration: InputDecoration.collapsed(hintText: ''),
+                          icon: const Icon(Icons.keyboard_arrow_down_outlined),
+                          iconSize: 30.0,
+                          iconEnabledColor:
+                              ColorSet.primaryColorsGreenOfOpacity80,
+                          iconDisabledColor:
+                              ColorSet.colorsWhiteGrayOfOpacity80,
+                          hint: const Text(
+                            "請選擇",
+                          ),
+                          initialValue: AllDataModel.selectedPetBreedsKey,
+                          isExpanded: true,
+                          onChanged: (value) {
+                            setState(() {
+                              AllDataModel.selectedPetBreedsKey = value;
+                              introPageBreeds = value.toString();
+                            });
 
-                          if (AllDataModel.selectedPetTypesKey == 'other') {
-                            showDialog(
-                                context: context,
-                                builder: (BuildContext context) {
-                                  // Show dialog for user to input custom breeds
-                                  return AlertDialog(
-                                    content: SingleChildScrollView(
-                                      child: Column(
-                                        mainAxisSize: MainAxisSize.min,
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.center,
-                                        children: <Widget>[
-                                          const Text(
-                                            '其他',
-                                            style: const TextStyle(
-                                              color: ColorSet
-                                                  .colorsBlackOfOpacity80,
-                                              fontSize: 17.0,
-                                              fontWeight: FontWeight.bold,
+                            if (AllDataModel.selectedPetTypesKey == 'other') {
+                              showDialog(
+                                  context: context,
+                                  builder: (BuildContext context) {
+                                    // Show dialog for user to input custom breeds
+                                    return AlertDialog(
+                                      content: SingleChildScrollView(
+                                        child: Column(
+                                          mainAxisSize: MainAxisSize.min,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.center,
+                                          children: <Widget>[
+                                            const Text(
+                                              '其他',
+                                              style: const TextStyle(
+                                                color: ColorSet
+                                                    .colorsBlackOfOpacity80,
+                                                fontSize: 17.0,
+                                                fontWeight: FontWeight.bold,
+                                              ),
                                             ),
-                                          ),
-                                          const SizedBox(
-                                            height: 30.0,
-                                          ),
-                                          TextFormField(
-                                            style: MyDialogTheme
-                                                .dialogContentStyle,
-                                            textAlign: TextAlign.center,
-                                            textAlignVertical:
-                                                TextAlignVertical.center,
-                                            controller:
-                                                introPageBreedsController,
-                                            focusNode: introPageBreedsFocusNode,
-                                            cursorColor: ColorSet
-                                                .primaryColorsGreenOfOpacity80,
-                                            onEditingComplete: () {
-                                              introPageBreedsFocusNode
-                                                  .unfocus();
-                                            },
-                                            maxLength: 15,
-                                            decoration: const InputDecoration(
-                                              counterText: '',
-                                              border: InputBorder.none,
-                                              hintText: '請自行輸入寵物品種',
-                                              hintStyle: const TextStyle(
-                                                  color: ColorSet
-                                                      .colorsGrayOfOpacity80),
+                                            const SizedBox(
+                                              height: 30.0,
                                             ),
-                                          ),
-                                          const Divider(),
-                                        ],
+                                            TextFormField(
+                                              style: MyDialogTheme
+                                                  .dialogContentStyle,
+                                              textAlign: TextAlign.center,
+                                              textAlignVertical:
+                                                  TextAlignVertical.center,
+                                              controller:
+                                                  introPageBreedsController,
+                                              focusNode:
+                                                  introPageBreedsFocusNode,
+                                              cursorColor: ColorSet
+                                                  .primaryColorsGreenOfOpacity80,
+                                              onEditingComplete: () {
+                                                introPageBreedsFocusNode
+                                                    .unfocus();
+                                              },
+                                              maxLength: 15,
+                                              decoration: const InputDecoration(
+                                                counterText: '',
+                                                border: InputBorder.none,
+                                                hintText: '請自行輸入寵物品種',
+                                                hintStyle: const TextStyle(
+                                                    color: ColorSet
+                                                        .colorsGrayOfOpacity80),
+                                              ),
+                                            ),
+                                            const Divider(),
+                                          ],
+                                        ),
                                       ),
-                                    ),
-                                    actions: <Widget>[
-                                      ValueListenableBuilder<TextEditingValue>(
-                                          valueListenable:
-                                              introPageBreedsController,
-                                          builder: (context, value, child) {
-                                            return Row(
-                                              mainAxisAlignment:
-                                                  MainAxisAlignment.end,
-                                              children: <Widget>[
-                                                TextButton(
-                                                  onPressed: () {
-                                                    setState(() {
-                                                      introPageBreeds = '未設定';
-                                                    });
-                                                    Navigator.pop(
-                                                        context, 'Cancel');
-                                                  },
-                                                  child: const Text(
-                                                    '取消',
-                                                    style: const TextStyle(
-                                                        color: ColorSet
-                                                            .colorsGrayOfOpacity80,
-                                                        fontWeight:
-                                                            FontWeight.bold,
-                                                        fontSize: 13.0,
-                                                        letterSpacing: 2.0),
-                                                  ),
-                                                ),
-                                                Container(
-                                                  height: 34.0,
-                                                  width: 50.0,
-                                                  decoration: BoxDecoration(
-                                                    shape: BoxShape.rectangle,
-                                                    borderRadius:
-                                                        ForAllTheme.allRadius,
-                                                    color: introPageBreedsController
-                                                            .text.isEmpty
-                                                        ? ColorSet
-                                                            .colorsWhiteGrayOfOpacity80
-                                                        : ColorSet
-                                                            .primaryColorsGreenOfOpacity80,
-                                                  ),
-                                                  child: TextButton(
-                                                    onPressed:
-                                                        introPageBreedsController
-                                                                .text.isEmpty
-                                                            ? null
-                                                            : () {
-                                                                Navigator.pop(
-                                                                    context,
-                                                                    'OK');
-                                                                setState(() {
-                                                                  introPageBreeds =
-                                                                      introPageBreedsController
-                                                                          .text;
-                                                                });
-                                                              },
+                                      actions: <Widget>[
+                                        ValueListenableBuilder<
+                                                TextEditingValue>(
+                                            valueListenable:
+                                                introPageBreedsController,
+                                            builder: (context, value, child) {
+                                              return Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.end,
+                                                children: <Widget>[
+                                                  TextButton(
+                                                    onPressed: () {
+                                                      setState(() {
+                                                        introPageBreeds = '未設定';
+                                                      });
+                                                      Navigator.pop(
+                                                          context, 'Cancel');
+                                                    },
                                                     child: const Text(
-                                                      '完成',
-                                                      textAlign:
-                                                          TextAlign.center,
+                                                      '取消',
                                                       style: const TextStyle(
                                                           color: ColorSet
-                                                              .colorsWhite,
+                                                              .colorsGrayOfOpacity80,
                                                           fontWeight:
                                                               FontWeight.bold,
                                                           fontSize: 13.0,
                                                           letterSpacing: 2.0),
                                                     ),
                                                   ),
-                                                ),
-                                              ],
-                                            );
-                                          }),
-                                    ],
-                                  );
-                                });
-                          }
-                        },
-                        items: (AllDataModel.petBreeds[
-                                    AllDataModel.selectedPetTypesKey] ??
-                                [])
-                            .map((entry) {
-                          return DropdownMenuItem<String>(
-                            value: entry,
-                            child: Semantics(
-                              label: 'intro_breed_$entry',
-                              child: Text(entry),
-                            ),
-                          );
-                        }).toList(),
+                                                  Container(
+                                                    height: 34.0,
+                                                    width: 50.0,
+                                                    decoration: BoxDecoration(
+                                                      shape: BoxShape.rectangle,
+                                                      borderRadius:
+                                                          ForAllTheme.allRadius,
+                                                      color: introPageBreedsController
+                                                              .text.isEmpty
+                                                          ? ColorSet
+                                                              .colorsWhiteGrayOfOpacity80
+                                                          : ColorSet
+                                                              .primaryColorsGreenOfOpacity80,
+                                                    ),
+                                                    child: TextButton(
+                                                      onPressed:
+                                                          introPageBreedsController
+                                                                  .text.isEmpty
+                                                              ? null
+                                                              : () {
+                                                                  Navigator.pop(
+                                                                      context,
+                                                                      'OK');
+                                                                  setState(() {
+                                                                    introPageBreeds =
+                                                                        introPageBreedsController
+                                                                            .text;
+                                                                  });
+                                                                },
+                                                      child: const Text(
+                                                        '完成',
+                                                        textAlign:
+                                                            TextAlign.center,
+                                                        style: const TextStyle(
+                                                            color: ColorSet
+                                                                .colorsWhite,
+                                                            fontWeight:
+                                                                FontWeight.bold,
+                                                            fontSize: 13.0,
+                                                            letterSpacing: 2.0),
+                                                      ),
+                                                    ),
+                                                  ),
+                                                ],
+                                              );
+                                            }),
+                                      ],
+                                    );
+                                  });
+                            }
+                          },
+                          items: (AllDataModel.petBreeds[
+                                      AllDataModel.selectedPetTypesKey] ??
+                                  [])
+                              .map((entry) {
+                            final breedKey = AllDataModel.breedKeyMap[entry];
+                            final semanticsLabel = breedKey != null
+                                ? 'intro_breed_$breedKey'
+                                : 'intro_breed_other';
+
+                            return DropdownMenuItem<String>(
+                              value: entry,
+                              child: Semantics(
+                                label: semanticsLabel,
+                                excludeSemantics: true,
+                                child: Text(entry),
+                              ),
+                            );
+                          }).toList(),
+                        ),
                       ),
                     ),
                   ),
@@ -674,7 +684,7 @@ class _IntroPageState extends State<IntroPage> {
                     ),
                   ),
                   child: Semantics(
-                    label: 'intro_image',
+                    label: 'intro_btn_image',
                     child: GestureDetector(
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(7.0),
@@ -1036,6 +1046,7 @@ class _IntroPageState extends State<IntroPage> {
       /* Skip Button */
       skip: Semantics(
         label: 'intro_btn_skip',
+        excludeSemantics: true,
         child: Tooltip(
           message: '跳過初始設定',
           child: const Text(
@@ -1052,6 +1063,7 @@ class _IntroPageState extends State<IntroPage> {
 
       /* Next Button */
       next: Semantics(
+        excludeSemantics: true,
         label: 'intro_btn_next',
         child: Container(
           padding: const EdgeInsets.fromLTRB(10.0, 5.0, 10.0, 5.0),
@@ -1072,6 +1084,7 @@ class _IntroPageState extends State<IntroPage> {
 
       /* Done Button */
       done: Semantics(
+        excludeSemantics: true,
         label: 'intro_btn_done',
         child: Container(
           padding: const EdgeInsets.fromLTRB(17.0, 5.0, 17.0, 5.0),

@@ -83,4 +83,9 @@ class AllDataModel {
     ],
     'other': ['其他']
   };
+
+  static const Map<String, String> breedKeyMap = {
+    '道奇兔': 'dutch',
+    '其他': 'other',
+  };
 }

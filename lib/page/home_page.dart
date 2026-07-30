@@ -9,7 +9,6 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-
   final Future<String> _futureWaitingData = Future<String>.delayed(
     const Duration(seconds: 1),
     () => 'Data Loaded',
@@ -86,13 +85,17 @@ class _HomePageState extends State<HomePage> {
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                 children: <Widget>[
-                  const Text(
-                    '寵物資料',
-                    style: const TextStyle(
-                      letterSpacing: 1.0,
-                      fontSize: 25.0,
-                      fontWeight: FontWeight.bold,
-                      color: ColorSet.colorsBlackOfOpacity80,
+                  Semantics(
+                    label: 'home_text_pet_data',
+                    excludeSemantics: true,
+                    child: const Text(
+                      '寵物資料',
+                      style: const TextStyle(
+                        letterSpacing: 1.0,
+                        fontSize: 25.0,
+                        fontWeight: FontWeight.bold,
+                        color: ColorSet.colorsBlackOfOpacity80,
+                      ),
                     ),
                   ),
                   Row(
