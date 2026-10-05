@@ -1,15 +1,15 @@
-# Miscellaneous
-*.class
-*.log
-*.pyc
-*.swp
+# OS / Editor temporary files
 .DS_Store
-.atom/
-.buildlog/
+*.swp
+*.log
 .history
+.atom/
 .svn/
+.buildlog/
 
-# IntelliJ related
+# IDE settings
+# ============================================
+# IntelliJ / Android Studio
 *.iml
 *.ipr
 *.iws
@@ -20,9 +20,7 @@
 # is commented out by default.
 #.vscode/
 
-# Flutter/Dart/Pub related
-**/doc/api/
-**/ios/Flutter/.last_build_id
+# Flutter / Dart / Pub
 .dart_tool/
 .flutter-plugins
 .flutter-plugins-dependencies
@@ -30,19 +28,36 @@
 .pub-cache/
 .pub/
 /build/
+/devtools_options.yaml
+**/doc/api/
+**/ios/Flutter/.last_build_id
 
-# Web related
+# Web
 lib/generated_plugin_registrant.dart
 
-# Symbolication related
+# Obfuscation / Symbolication
 app.*.symbols
-
-# Obfuscation related
 app.*.map.json
 
-# Android Studio will place build artifacts here
+# Android
 /android/app/debug
 /android/app/profile
 /android/app/release
 /android/app/.cxx
-/devtools_options.yaml
+*.class
+
+# Signing keys
+# key.properties and local.properties are already covered by android/.gitignore
+*.jks
+*.keystore
+
+# Firebase configuration
+google-services.json
+GoogleService-Info.plist
+
+# Environment variables
+.env
+.env.*
+
+# Python
+*.pyc
